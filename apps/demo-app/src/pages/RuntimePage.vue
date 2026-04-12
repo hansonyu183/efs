@@ -1,5 +1,13 @@
 <template>
-  <MainLayout title="运行时页面" app-name="EFS Demo" org-code="demo-org">
+  <MainLayout
+    title="运行时页面"
+    app-name="EFS Demo"
+    org-code="demo-org"
+    :locale="locale"
+    :theme="theme"
+    @update:locale="locale = $event"
+    @update:theme="theme = $event"
+  >
     <template #sidebar>
       <DemoSidebarNav :items="demoSidebarMenus" :current-path="route.path" />
     </template>
@@ -11,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import MainLayout from '../../../../packages/vue/src/components/foundation/MainLayout.vue'
 import PageSection from '../../../../packages/vue/src/components/shell/PageSection.vue'
@@ -20,6 +29,8 @@ import DemoSidebarNav from '../components/DemoSidebarNav.vue'
 import { demoSidebarMenus } from '../navigation'
 
 const route = useRoute()
+const locale = ref('zh-CN')
+const theme = ref<'light' | 'dark'>('light')
 const rendered = renderDynamicPage(manifest, {
   table: { columns: [{ key: 'code', label: '编码' }, { key: 'name', label: '名称' }] },
   form: { fields: [{ key: 'code', label: '编码', required: true }, { key: 'name', label: '名称' }] },

@@ -54,18 +54,18 @@
             <SemanticIcon name="more" :label="props.moreLabel" aria-hidden="true" />
           </summary>
           <div class="efs-main-layout__moremenu-panel">
-            <button type="button" :title="props.localeLabel" :aria-label="props.localeLabel" @click="emitNextLocale">
-              <span class="efs-main-layout__menuicon" aria-hidden="true">
-                <SemanticIcon name="locale" :label="props.localeLabel" size="sm" />
-              </span>
-              <span class="efs-main-layout__menulabel">{{ localeShortLabel }}</span>
-            </button>
-            <button type="button" :title="props.themeLabel" :aria-label="props.themeLabel" @click="emitNextTheme">
-              <span class="efs-main-layout__menuicon" aria-hidden="true">
-                <SemanticIcon :name="themeIconName" :label="props.themeLabel" size="sm" />
-              </span>
-              <span class="efs-main-layout__menulabel">{{ themeTextLabel }}</span>
-            </button>
+            <LocaleSwitcher
+              :model-value="props.locale"
+              :label="props.localeLabel"
+              :options="props.localeOptions"
+              @update:model-value="(value) => emit('update:locale', value)"
+            />
+            <ThemeSwitcher
+              :model-value="props.theme"
+              :label="props.themeLabel"
+              :options="props.themeOptions"
+              @update:model-value="(value) => emit('update:theme', value)"
+            />
 
             <label v-if="props.orgOptions.length > 0" class="efs-main-layout__menu-field" :aria-label="props.orgLabel">
               <span class="efs-main-layout__menuicon" aria-hidden="true">
@@ -210,6 +210,8 @@ import AppField from './AppField.vue'
 import AppInput from './AppInput.vue'
 import AppPanel from './AppPanel.vue'
 import AppSelect from './AppSelect.vue'
+import LocaleSwitcher from './LocaleSwitcher.vue'
+import ThemeSwitcher from './ThemeSwitcher.vue'
 import SemanticIcon from './SemanticIcon.vue'
 
 defineOptions({ name: 'MainLayout' })
@@ -403,16 +405,6 @@ const initials = computed(() => {
 const brandInitial = computed(() => resolvedBrandTitle.value.trim().slice(0, 1).toUpperCase() || 'A')
 const showPasswordMismatch = computed(() => Boolean(passwordForm.newPassword && passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword))
 const passwordSubmitDisabled = computed(() => !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword || showPasswordMismatch.value)
-const localeShortLabel = computed(() => (props.locale === 'en-US' ? 'EN' : '中'))
-const themeIconName = computed(() => (props.theme === 'dark' ? 'dark' : 'light'))
-const themeTextLabel = computed(() => (props.theme === 'dark' ? '暗' : '明'))
-
-function getNextOptionValue(options: LayoutOption[], currentValue: string) {
-  if (options.length === 0) return currentValue
-  const currentIndex = options.findIndex((option) => option.value === currentValue)
-  const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % options.length : 0
-  return options[nextIndex]?.value ?? currentValue
-}
 
 function toggleSidebar() {
   if (isMobile.value) {
@@ -432,14 +424,6 @@ function onSidebarClick() {
 
 function closeMoreMenu() {
   if (moreMenuRef.value) moreMenuRef.value.open = false
-}
-
-function emitNextLocale() {
-  emit('update:locale', getNextOptionValue(props.localeOptions, props.locale))
-}
-
-function emitNextTheme() {
-  emit('update:theme', getNextOptionValue(props.themeOptions, props.theme))
 }
 
 function openProfileDialog() {
@@ -757,6 +741,14 @@ function handleAgentSessionsToggle() {
 
 .efs-main-layout__moremenu-panel button:hover {
   background: var(--efs-surface-soft, #f4f7fb);
+}
+
+.efs-main-layout__moremenu-panel :deep(.efs-localeswitcher),
+.efs-main-layout__moremenu-panel :deep(.efs-themeswitcher) {
+  width: 100%;
+  justify-content: flex-start;
+  border-radius: 10px;
+  box-shadow: none;
 }
 
 .efs-main-layout__menuicon {
