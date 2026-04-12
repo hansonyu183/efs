@@ -38,7 +38,7 @@
             :aria-label="props.mobileMenuLabel"
             @click="toggleSidebar"
           >
-            <span aria-hidden="true">☰</span>
+            <SemanticIcon name="menu" :label="props.mobileMenuLabel" aria-hidden="true" />
           </button>
 
           <div class="efs-main-layout__header-meta">
@@ -51,20 +51,27 @@
 
         <details ref="moreMenuRef" class="efs-main-layout__moremenu">
           <summary class="efs-main-layout__iconbutton" :aria-label="props.moreLabel" :title="props.moreLabel">
-            <span aria-hidden="true">⋯</span>
+            <SemanticIcon name="more" :label="props.moreLabel" aria-hidden="true" />
           </summary>
           <div class="efs-main-layout__moremenu-panel">
             <button type="button" :title="props.localeLabel" :aria-label="props.localeLabel" @click="emitNextLocale">
-              <span class="efs-main-layout__menuicon" aria-hidden="true">文</span>
+              <span class="efs-main-layout__menuicon" aria-hidden="true">
+                <SemanticIcon name="locale" :label="props.localeLabel" size="sm" />
+              </span>
               <span class="efs-main-layout__menulabel">{{ localeShortLabel }}</span>
             </button>
             <button type="button" :title="props.themeLabel" :aria-label="props.themeLabel" @click="emitNextTheme">
-              <span class="efs-main-layout__menuicon" aria-hidden="true">{{ themeGlyph }}</span>
+              <span class="efs-main-layout__menuicon" aria-hidden="true">
+                <SemanticIcon :name="themeIconName" :label="props.themeLabel" size="sm" />
+              </span>
               <span class="efs-main-layout__menulabel">{{ themeTextLabel }}</span>
             </button>
 
-            <label v-if="props.orgOptions.length > 0" class="efs-main-layout__menu-field">
-              <span>{{ props.orgLabel }}</span>
+            <label v-if="props.orgOptions.length > 0" class="efs-main-layout__menu-field" :aria-label="props.orgLabel">
+              <span class="efs-main-layout__menuicon" aria-hidden="true">
+                <SemanticIcon name="org" :label="props.orgLabel" size="sm" />
+              </span>
+              <span class="efs-main-layout__visually-hidden">{{ props.orgLabel }}</span>
               <AppSelect
                 :model-value="props.currentOrgCode || props.orgCode"
                 :options="props.orgOptions"
@@ -77,13 +84,19 @@
             </div>
 
             <button v-if="props.enableProfileActions" type="button" :title="props.profileLabel" :aria-label="props.profileLabel" @click="openProfileDialog">
-              <span class="efs-main-layout__menuicon" aria-hidden="true">👤</span>
+              <span class="efs-main-layout__menuicon" aria-hidden="true">
+                <SemanticIcon name="profile" :label="props.profileLabel" size="sm" />
+              </span>
             </button>
             <button v-if="props.enablePasswordActions" type="button" :title="props.passwordLabel" :aria-label="props.passwordLabel" @click="openPasswordDialog">
-              <span class="efs-main-layout__menuicon" aria-hidden="true">🔐</span>
+              <span class="efs-main-layout__menuicon" aria-hidden="true">
+                <SemanticIcon name="password" :label="props.passwordLabel" size="sm" />
+              </span>
             </button>
             <button type="button" class="efs-main-layout__logout-action" :title="props.logoutLabel" :aria-label="props.logoutLabel" @click="emitLogout">
-              <span class="efs-main-layout__menuicon" aria-hidden="true">⎋</span>
+              <span class="efs-main-layout__menuicon" aria-hidden="true">
+                <SemanticIcon name="logout" :label="props.logoutLabel" size="sm" />
+              </span>
             </button>
           </div>
         </details>
@@ -108,7 +121,7 @@
               :aria-label="props.agentSessionsLabel"
               @click="handleAgentSessionsToggle"
             >
-              <span aria-hidden="true">☰</span>
+              <SemanticIcon name="sessions" :label="props.agentSessionsLabel" aria-hidden="true" />
             </button>
           </div>
           <div v-if="$slots['agent-output']" class="efs-main-layout__agent-output">
@@ -123,7 +136,7 @@
               :aria-label="props.agentSubmitLabel"
               @click="submitAgent"
             >
-              <span aria-hidden="true">➤</span>
+              <SemanticIcon name="send" :label="props.agentSubmitLabel" aria-hidden="true" />
             </AppButton>
           </div>
         </div>
@@ -133,7 +146,15 @@
     <aside v-if="agentSessionsPanelOpen" class="efs-main-layout__agent-sessions">
       <header class="efs-main-layout__agent-sessions-header">
         <strong>{{ props.agentSessionsLabel }}</strong>
-        <button type="button" class="efs-main-layout__iconbutton" @click="handleAgentSessionsToggle">×</button>
+        <button
+          type="button"
+          class="efs-main-layout__iconbutton"
+          :aria-label="props.cancelLabel"
+          :title="props.cancelLabel"
+          @click="handleAgentSessionsToggle"
+        >
+          <SemanticIcon name="close" :label="props.cancelLabel" aria-hidden="true" />
+        </button>
       </header>
       <div class="efs-main-layout__agent-sessions-body">
         <slot name="agent-sessions">
@@ -189,6 +210,7 @@ import AppField from './AppField.vue'
 import AppInput from './AppInput.vue'
 import AppPanel from './AppPanel.vue'
 import AppSelect from './AppSelect.vue'
+import SemanticIcon from './SemanticIcon.vue'
 
 defineOptions({ name: 'MainLayout' })
 
@@ -382,7 +404,7 @@ const brandInitial = computed(() => resolvedBrandTitle.value.trim().slice(0, 1).
 const showPasswordMismatch = computed(() => Boolean(passwordForm.newPassword && passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword))
 const passwordSubmitDisabled = computed(() => !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword || showPasswordMismatch.value)
 const localeShortLabel = computed(() => (props.locale === 'en-US' ? 'EN' : '中'))
-const themeGlyph = computed(() => (props.theme === 'dark' ? '☾' : '☀'))
+const themeIconName = computed(() => (props.theme === 'dark' ? 'dark' : 'light'))
 const themeTextLabel = computed(() => (props.theme === 'dark' ? '暗' : '明'))
 
 function getNextOptionValue(options: LayoutOption[], currentValue: string) {
@@ -737,12 +759,38 @@ function handleAgentSessionsToggle() {
   background: var(--efs-surface-soft, #f4f7fb);
 }
 
+.efs-main-layout__menuicon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  color: currentColor;
+}
+
 .efs-main-layout__menu-field {
   display: grid;
-  gap: 6px;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
   padding: 8px 12px;
   font-size: 0.86rem;
   color: var(--efs-text-muted, #64748b);
+}
+
+.efs-main-layout__menu-field :deep(.efs-appselect) {
+  min-width: 0;
+}
+
+.efs-main-layout__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .efs-main-layout__moremenu-extra {

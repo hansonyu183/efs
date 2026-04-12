@@ -1,14 +1,16 @@
 export const semanticIconMap = {
   home: '⌂',
   workbench: '⌂',
-  users: '👥',
-  user: '👤',
-  profile: '👤',
-  password: '🔐',
-  logout: '⎋',
+  users: '◪',
+  user: '◯',
+  profile: '◯',
+  password: '◇',
+  logout: '↗',
   settings: '⚙',
   more: '⋯',
   theme: '◐',
+  light: '☼',
+  dark: '☾',
   locale: '文',
   report: '▣',
   finance: '¤',
@@ -16,6 +18,11 @@ export const semanticIconMap = {
   folder: '▤',
   ban: '⊘',
   agent: '✦',
+  menu: '☰',
+  close: '✕',
+  send: '➜',
+  org: '◎',
+  sessions: '☷',
 }
 
 export function resolveSemanticIcon(key, fallback = '•') {

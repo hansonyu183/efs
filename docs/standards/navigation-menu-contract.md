@@ -137,11 +137,32 @@ icon: 'settings'
 icon: 'report'
 ```
 
-由前端统一映射到具体图标组件。EFS 已提供基础运行时工具：
+由前端统一映射到具体图标组件。EFS 已提供基础运行时工具与基础图标组件：
 
 - `buildSidebarMenuTree()`
 - `semanticIconMap`
 - `resolveSemanticIcon()`
+- `SemanticIcon`
+
+## 示例实现
+
+EFS demo app 已直接把 Sidebar 渲染接到运行时菜单组装层：
+
+```ts
+import { buildSidebarMenuTree } from '@efs/vue'
+
+const tree = buildSidebarMenuTree(flatMenus)
+```
+
+```vue
+<DemoSidebarNav :items="demoSidebarMenus" :current-path="route.path" />
+```
+
+示例组件：
+- `apps/demo-app/src/components/DemoSidebarNav.vue`
+- `apps/demo-app/src/navigation.ts`
+
+`MainLayout` 壳层内的全局操作图标已统一改为语义 icon component，而不是在模板里散落 emoji/文本字符。
 
 ## 与 Agent 的关系
 

@@ -14,6 +14,7 @@ export { default as LocaleSwitcher } from './components/foundation/LocaleSwitche
 export { default as OrgSwitcher } from './components/foundation/OrgSwitcher.vue'
 export { default as PermissionGuard } from './components/foundation/PermissionGuard.vue'
 export { default as SessionBootstrap } from './components/foundation/SessionBootstrap.vue'
+export { default as SemanticIcon } from './components/foundation/SemanticIcon.vue'
 export { default as AppButton } from './components/foundation/AppButton.vue'
 export { default as AppField } from './components/foundation/AppField.vue'
 export { default as AppInput } from './components/foundation/AppInput.vue'

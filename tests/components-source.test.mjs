@@ -35,6 +35,28 @@ test('MainLayout exposes concrete shell and global agent contract', () => {
   assert.match(source, /slot name="agent-output"/)
   assert.match(source, /submit-agent/)
   assert.match(source, /update:agentSessionsOpen/)
+  assert.match(source, /import SemanticIcon from '\.\/SemanticIcon\.vue'/)
+  assert.match(source, /<SemanticIcon name="menu"/)
+  assert.match(source, /<SemanticIcon name="more"/)
+  assert.match(source, /<SemanticIcon name="send"/)
+})
+
+test('SemanticIcon exposes unified semantic token contract', () => {
+  const source = read(path.join(repoRoot, 'packages/vue/src/components/foundation/SemanticIcon.vue'))
+  assert.match(source, /interface SemanticIconProps/)
+  assert.match(source, /name\?: string/)
+  assert.match(source, /fallback\?: string/)
+  assert.match(source, /label\?: string/)
+  assert.match(source, /size\?: 'sm' \| 'md' \| 'lg'/)
+  assert.match(source, /resolveSemanticIcon/)
+})
+
+test('DemoSidebarNav wires sidebar rendering to runtime menu builder and semantic icons', () => {
+  const source = read(path.join(repoRoot, 'apps/demo-app/src/components/DemoSidebarNav.vue'))
+  assert.match(source, /buildSidebarMenuTree/)
+  assert.match(source, /SemanticIcon/)
+  assert.match(source, /RouterLink/)
+  assert.match(source, /defineOptions\(\{ name: 'DemoSidebarNav' \}\)/)
 })
 
 test('AuthLayout exposes auth-shell props and slots contract', () => {

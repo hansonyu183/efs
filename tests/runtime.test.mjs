@@ -63,6 +63,8 @@ test('buildSidebarMenuTree drops invalid items and orphan nodes', () => {
 
 test('semanticIconMap exposes stable semantic keys and resolver fallback', () => {
   assert.equal(semanticIconMap.home, '⌂')
-  assert.equal(resolveSemanticIcon('users'), '👥')
+  assert.equal(semanticIconMap.users, '◪')
+  assert.equal(semanticIconMap.menu, '☰')
+  assert.equal(semanticIconMap.send, '➜')
   assert.equal(resolveSemanticIcon('unknown-key'), '•')
 })
