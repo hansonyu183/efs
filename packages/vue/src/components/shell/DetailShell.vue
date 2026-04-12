@@ -1,12 +1,13 @@
 <template>
   <section class="efs-detailshell">
     <header class="efs-detailshell__header">
-      <div>
+      <div class="efs-detailshell__heading">
         <h3 class="efs-detailshell__title">{{ props.title }}</h3>
         <p v-if="props.subtitle" class="efs-detailshell__subtitle">{{ props.subtitle }}</p>
+        <p v-if="props.description" class="efs-detailshell__description">{{ props.description }}</p>
       </div>
       <div class="efs-detailshell__meta">
-        <span>{{ props.fieldsLabel }} {{ props.fields.length }}</span>
+        <span>{{ props.fieldsLabel }} {{ normalizedFields.length }}</span>
         <slot name="actions" />
       </div>
     </header>
@@ -15,35 +16,62 @@
       <slot />
     </div>
 
-    <div v-else class="efs-detailshell__grid">
-      <article v-for="field in props.fields" :key="field.key" class="efs-detailshell__field">
-        <span class="efs-detailshell__label">{{ field.label ?? field.key }}</span>
-        <strong class="efs-detailshell__value">{{ field.value ?? '-' }}</strong>
+    <div v-else-if="normalizedFields.length > 0" class="efs-detailshell__grid" :style="gridStyle">
+      <article v-for="field in normalizedFields" :key="field.key" class="efs-detailshell__field">
+        <span class="efs-detailshell__label">{{ field.label }}</span>
+        <strong class="efs-detailshell__value">{{ field.value }}</strong>
+        <span v-if="field.hint" class="efs-detailshell__hint">{{ field.hint }}</span>
       </article>
     </div>
+
+    <div v-else class="efs-detailshell__empty">{{ props.emptyText }}</div>
+
+    <footer v-if="$slots.footer" class="efs-detailshell__footer">
+      <slot name="footer" />
+    </footer>
   </section>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 defineOptions({ name: 'DetailShell' })
 
 interface DetailField {
   key: string
   label?: string
   value?: unknown
+  hint?: string
 }
 
 const props = withDefaults(defineProps<{
   title?: string
   subtitle?: string
+  description?: string
   fields?: DetailField[]
   fieldsLabel?: string
+  columns?: 1 | 2 | 3
+  emptyText?: string
 }>(), {
   title: '',
   subtitle: '',
+  description: '',
   fields: () => [],
   fieldsLabel: 'Fields:',
+  columns: 2,
+  emptyText: 'No detail fields available.',
 })
+
+const normalizedFields = computed(() => props.fields.map((field) => ({
+  key: field.key,
+  label: field.label ?? field.key,
+  value: field.value ?? '-',
+  hint: field.hint ?? '',
+})))
+
+const gridStyle = computed(() => ({
+  '--efs-detailshell-columns': String(props.columns),
+}))
 </script>
 
 <style scoped>
@@ -65,17 +93,25 @@ const props = withDefaults(defineProps<{
   flex-wrap: wrap;
 }
 
+.efs-detailshell__heading {
+  min-width: 0;
+}
+
 .efs-detailshell__title {
   margin: 0;
   font-size: 1.05rem;
 }
 
 .efs-detailshell__subtitle,
-.efs-detailshell__meta {
+.efs-detailshell__meta,
+.efs-detailshell__description,
+.efs-detailshell__hint,
+.efs-detailshell__empty {
   color: var(--efs-text-muted, #64748b);
 }
 
-.efs-detailshell__subtitle {
+.efs-detailshell__subtitle,
+.efs-detailshell__description {
   margin: 6px 0 0;
 }
 
@@ -89,7 +125,7 @@ const props = withDefaults(defineProps<{
 
 .efs-detailshell__grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--efs-detailshell-columns, 2), minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -113,6 +149,12 @@ const props = withDefaults(defineProps<{
   font-size: 0.95rem;
   line-height: 1.45;
   word-break: break-word;
+}
+
+@media (max-width: 1100px) {
+  .efs-detailshell__grid {
+    grid-template-columns: repeat(min(2, var(--efs-detailshell-columns, 2)), minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 960px) {

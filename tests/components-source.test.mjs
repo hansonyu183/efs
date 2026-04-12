@@ -189,17 +189,49 @@ test('SimpleTableShell exposes subtitle rowsLabel and actions slot contract', ()
   assert.match(source, /slot name="actions"/)
 })
 
+test('FormShell exposes sectioned form, summary, and footer action contract', () => {
+  const source = read(path.join(repoRoot, 'packages/vue/src/components/shell/FormShell.vue'))
+  assert.match(source, /interface FormShellProps/)
+  assert.match(source, /sections\?: FormSection\[\]/)
+  assert.match(source, /summary\?: string/)
+  assert.match(source, /requiredHint\?: string/)
+  assert.match(source, /dirty\?: boolean/)
+  assert.match(source, /showFooterActions\?: boolean/)
+  assert.match(source, /slot name="summary"/)
+  assert.match(source, /slot name="actions"/)
+  assert.match(source, /slot name="footer"/)
+  assert.match(source, /'save'/)
+  assert.match(source, /'cancel'/)
+})
+
 test('DashboardCardShell exposes eyebrow contract', () => {
   const source = read(path.join(repoRoot, 'packages/vue/src/components/shell/DashboardCardShell.vue'))
   assert.match(source, /eyebrow\?: string/)
   assert.match(source, /dashboardcardshell__value/)
 })
 
-test('DetailShell exposes subtitle fieldsLabel and actions slot contract', () => {
+test('DetailShell exposes richer detail grid contract', () => {
   const source = read(path.join(repoRoot, 'packages/vue/src/components/shell/DetailShell.vue'))
   assert.match(source, /subtitle\?: string/)
+  assert.match(source, /description\?: string/)
   assert.match(source, /fieldsLabel\?: string/)
+  assert.match(source, /columns\?: 1 \| 2 \| 3/)
+  assert.match(source, /emptyText\?: string/)
   assert.match(source, /slot name="actions"/)
+  assert.match(source, /slot name="footer"/)
+})
+
+test('MasterDetailShell exposes split panel, header action, and detail empty-state contract', () => {
+  const source = read(path.join(repoRoot, 'packages/vue/src/components/shell/MasterDetailShell.vue'))
+  assert.match(source, /interface MasterDetailShellProps/)
+  assert.match(source, /splitRatio\?: string/)
+  assert.match(source, /masterTitle\?: string/)
+  assert.match(source, /detailTitle\?: string/)
+  assert.match(source, /detailEmptyTitle\?: string/)
+  assert.match(source, /detailEmptyDescription\?: string/)
+  assert.match(source, /slot name="header-actions"/)
+  assert.match(source, /slot name="master"/)
+  assert.match(source, /name="detail"/)
 })
 
 test('ColumnSettings exposes visibleKeys showAll and reset contract', () => {
