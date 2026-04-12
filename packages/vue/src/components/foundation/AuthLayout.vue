@@ -22,29 +22,23 @@
       <section class="efs-auth-layout__panel-shell" :style="panelStyle">
         <header v-if="showActionsBar" class="efs-auth-layout__actions">
           <slot name="locale-action">
-            <button
+            <LocaleSwitcher
               v-if="props.showLocaleSwitcher"
-              type="button"
-              class="efs-auth-layout__action-button"
-              :aria-label="props.localeLabel"
-              :title="props.localeLabel"
-            >
-              <SemanticIcon name="locale" :label="props.localeLabel" aria-hidden="true" />
-              <span class="efs-auth-layout__action-label">{{ props.localeLabel }}</span>
-            </button>
+              :model-value="props.locale"
+              :label="props.localeLabel"
+              :options="props.localeOptions"
+              @update:model-value="(value) => emit('update:locale', value)"
+            />
           </slot>
 
           <slot name="theme-action">
-            <button
+            <ThemeSwitcher
               v-if="props.showThemeSwitcher"
-              type="button"
-              class="efs-auth-layout__action-button"
-              :aria-label="props.themeLabel"
-              :title="props.themeLabel"
-            >
-              <SemanticIcon :name="themeIconName" :label="props.themeLabel" aria-hidden="true" />
-              <span class="efs-auth-layout__action-label">{{ props.themeLabel }}</span>
-            </button>
+              :model-value="props.theme"
+              :label="props.themeLabel"
+              :options="props.themeOptions"
+              @update:model-value="(value) => emit('update:theme', value)"
+            />
           </slot>
 
           <slot name="actions" />
@@ -80,9 +74,16 @@
 
 <script setup lang="ts">
 import { computed, useSlots } from 'vue'
-import SemanticIcon from './SemanticIcon.vue'
+import LocaleSwitcher from './LocaleSwitcher.vue'
+import ThemeSwitcher from './ThemeSwitcher.vue'
 
 defineOptions({ name: 'AuthLayout' })
+
+type LayoutOption = {
+  label?: string
+  title?: string
+  value: string
+}
 
 interface AuthLayoutProps {
   title?: string
@@ -101,7 +102,10 @@ interface AuthLayoutProps {
   showThemeSwitcher?: boolean
   localeLabel?: string
   themeLabel?: string
+  locale?: string
   theme?: string
+  localeOptions?: LayoutOption[]
+  themeOptions?: LayoutOption[]
   footerText?: string
   supportText?: string
   backgroundVariant?: 'soft' | 'strong' | 'plain'
@@ -124,14 +128,27 @@ const props = withDefaults(defineProps<AuthLayoutProps>(), {
   showThemeSwitcher: false,
   localeLabel: '语言',
   themeLabel: '主题',
+  locale: 'zh-CN',
   theme: 'light',
+  localeOptions: () => [
+    { label: '中', value: 'zh-CN' },
+    { label: 'EN', value: 'en-US' },
+  ],
+  themeOptions: () => [
+    { label: '明', value: 'light' },
+    { label: '暗', value: 'dark' },
+  ],
   footerText: '',
   supportText: '',
   backgroundVariant: 'soft',
 })
 
+const emit = defineEmits<{
+  (e: 'update:locale', value: string): void
+  (e: 'update:theme', value: string): void
+}>()
+
 const slots = useSlots()
-const themeIconName = computed(() => (props.theme === 'dark' ? 'dark' : 'light'))
 const showHeroArea = computed(() => props.showHero && (Boolean(slots.hero) || Boolean(slots.brand) || Boolean(props.logoSrc) || Boolean(props.appName) || Boolean(props.heroTitle) || Boolean(props.heroSubtitle) || props.layout === 'split'))
 const showActionsBar = computed(() => props.showLocaleSwitcher || props.showThemeSwitcher || Boolean(slots.actions) || Boolean(slots['locale-action']) || Boolean(slots['theme-action']))
 const panelStyle = computed(() => ({ '--efs-auth-panel-width': props.panelWidth }))
@@ -262,26 +279,9 @@ const layoutClasses = computed(() => ({
   gap: 10px;
 }
 
-.efs-auth-layout__action-button {
-  min-height: 38px;
-  min-width: 38px;
-  border: 1px solid var(--efs-border, #dbe3ef);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--efs-surface, #ffffff) 94%, transparent);
-  color: var(--efs-text, #172033);
-  padding: 0 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.efs-auth-layout__action-button:hover {
-  background: var(--efs-surface, #ffffff);
-}
-
-.efs-auth-layout__action-label {
-  font-size: 0.85rem;
+.efs-auth-layout__actions :deep(.efs-localeswitcher),
+.efs-auth-layout__actions :deep(.efs-themeswitcher) {
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
 }
 
 .efs-auth-layout__panel {
@@ -383,10 +383,6 @@ const layoutClasses = computed(() => ({
   .efs-auth-layout__actions {
     justify-content: center;
     flex-wrap: wrap;
-  }
-
-  .efs-auth-layout__action-label {
-    display: none;
   }
 }
 </style>
