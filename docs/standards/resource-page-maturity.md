@@ -20,7 +20,7 @@
 
 - **列表相关组件最成熟**
 - **表单 / 详情 / 主从壳已进入可用阶段，但仍需继续加厚**
-- **运行时资源页 renderer 已开通路，但还偏薄**
+- **运行时资源页 renderer 已进入第一版可用阶段：可按标准 shell 分发 list / form / detail / report / runtime metadata 页面，但仍需继续补厚真正的渲染与交互能力**
 
 ## 成熟度分级说明
 
@@ -40,7 +40,7 @@
 | MasterDetailShell | P1 | 已具备双栏主从结构、splitRatio、detail 空态 | 是 | 继续补 selection 状态与移动端交互 |
 | CrudDialogShell | P1 | 已具备标题、副标题、summary、大小模式、底部动作、关闭策略 | 是 | 继续补表单校验/confirm/loading 细节 |
 | ReportShell | P1 | 已具备 query/result 分区、导出动作、header/result 扩展位 | 是 | 继续补图表/多结果区和异步状态 |
-| DynamicPageRenderer | P2 | 已有 runtime 通路，但还不是真正完整资源页渲染器 | 方向可纳入，能力仍需演进 | 继续补 runtime 资源页组装能力 |
+| DynamicPageRenderer | P1 | 已支持 list / form / detail / report / runtime-metadata-page 的标准 shell 分发与 runtime plan 生成 | 是，但仍需继续补厚 | 继续补真正 Vue 渲染与状态/权限注入能力 |
 | MetadataFormRenderer | P1 | 对 runtime 表单 schema 有基础处理能力 | 是 | 继续补 widget / validation / layout |
 | MetadataTableRenderer | P1 | 对 runtime 表格 schema 有基础处理能力 | 是 | 继续补 formatter / action / status |
 | ActionRenderer | P1 | 对 runtime action schema 有基础处理能力 | 是 | 继续补权限 / loading / confirm |
@@ -57,8 +57,8 @@
 - CrudDialogShell
 - ReportShell
 
-### 已有方向但暂不宜宣称“厚成品”的能力
-- DynamicPageRenderer
+### 已进入第一版可用，但仍不宜宣称“厚成品”的能力
+- DynamicPageRenderer（已能输出标准 shell plan 与 page model，但还不是最终 Vue 成品渲染器）
 
 ## 近期优先级建议
 
