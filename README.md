@@ -1,4 +1,4 @@
-# enterprise-frontend-standards
+# efs
 
 企业前端标准组件库与标准页面库仓库。
 

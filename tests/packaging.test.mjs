@@ -1,12 +1,15 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
+import path from 'node:path'
+
+const repoRoot = path.resolve(new URL('..', import.meta.url).pathname)
 
 const packageFiles = [
-  '/home/hanson/enterprise-frontend-standards/packages/contracts/package.json',
-  '/home/hanson/enterprise-frontend-standards/packages/presets/package.json',
-  '/home/hanson/enterprise-frontend-standards/packages/vue/package.json',
-  '/home/hanson/enterprise-frontend-standards/packages/cli/package.json'
+  path.join(repoRoot, 'packages/contracts/package.json'),
+  path.join(repoRoot, 'packages/presets/package.json'),
+  path.join(repoRoot, 'packages/vue/package.json'),
+  path.join(repoRoot, 'packages/cli/package.json')
 ]
 
 test('publishable package manifests expose name and exports/bin', () => {
