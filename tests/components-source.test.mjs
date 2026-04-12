@@ -12,8 +12,8 @@ function read(path) {
 test('EntityListTable exposes typed props contract', () => {
   const source = read(path.join(repoRoot, 'packages/vue/src/components/shell/EntityListTable.vue'))
   assert.match(source, /interface EntityListTableProps/)
-  assert.match(source, /columns\?: any\[\]/)
-  assert.match(source, /items\?: any\[\]/)
+  assert.match(source, /columns\?: InputColumn\[\]/)
+  assert.match(source, /items\?: Record<string, unknown>\[\]/)
 })
 
 test('PermissionGuard exposes granted prop', () => {
@@ -86,4 +86,82 @@ test('AppPanel exposes foundational panel header actions contract', () => {
   assert.match(source, /padded\?: boolean/)
   assert.match(source, /borderless\?: boolean/)
   assert.match(source, /slot name="actions"/)
+})
+
+test('PageSection exposes header actions slot contract', () => {
+  const source = read(path.join(repoRoot, 'packages/vue/src/components/shell/PageSection.vue'))
+  assert.match(source, /interface PageSectionProps/)
+  assert.match(source, /subtitle\?: string/)
+  assert.match(source, /slot name="actions"/)
+})
+
+test('QueryToolbarShell exposes enriched header and enter-submit contract', () => {
+  const source = read(path.join(repoRoot, 'packages/vue/src/components/shell/QueryToolbarShell.vue'))
+  assert.match(source, /subtitle\?: string/)
+  assert.match(source, /slot name="headerActions"/)
+  assert.match(source, /slot name="after"/)
+  assert.match(source, /'enter-submit'/)
+})
+
+test('EntityListTable exposes column settings and pagination contract', () => {
+  const source = read(path.join(repoRoot, 'packages/vue/src/components/shell/EntityListTable.vue'))
+  assert.match(source, /subtitle\?: string/)
+  assert.match(source, /tableKey\?: string/)
+  assert.match(source, /columnSettingsLabel\?: string/)
+  assert.match(source, /showPagination\?: boolean/)
+  assert.match(source, /update:page/)
+  assert.match(source, /update:pageSize/)
+  assert.match(source, /name="mobile"/)
+})
+
+test('SimpleTableShell exposes subtitle rowsLabel and actions slot contract', () => {
+  const source = read(path.join(repoRoot, 'packages/vue/src/components/shell/SimpleTableShell.vue'))
+  assert.match(source, /subtitle\?: string/)
+  assert.match(source, /rowsLabel\?: string/)
+  assert.match(source, /slot name="actions"/)
+})
+
+test('DashboardCardShell exposes eyebrow contract', () => {
+  const source = read(path.join(repoRoot, 'packages/vue/src/components/shell/DashboardCardShell.vue'))
+  assert.match(source, /eyebrow\?: string/)
+  assert.match(source, /dashboardcardshell__value/)
+})
+
+test('DetailShell exposes subtitle fieldsLabel and actions slot contract', () => {
+  const source = read(path.join(repoRoot, 'packages/vue/src/components/shell/DetailShell.vue'))
+  assert.match(source, /subtitle\?: string/)
+  assert.match(source, /fieldsLabel\?: string/)
+  assert.match(source, /slot name="actions"/)
+})
+
+test('ColumnSettings exposes visibleKeys showAll and reset contract', () => {
+  const source = read(path.join(repoRoot, 'packages/vue/src/components/interaction/ColumnSettings.vue'))
+  assert.match(source, /visibleKeys\?: string\[\]/)
+  assert.match(source, /showAllLabel\?: string/)
+  assert.match(source, /'update:visibleKeys'/)
+  assert.match(source, /'showAll'/)
+  assert.match(source, /'reset'/)
+})
+
+test('Pagination exposes pageCount pageSizeOptions and update emits contract', () => {
+  const source = read(path.join(repoRoot, 'packages/vue/src/components/interaction/Pagination.vue'))
+  assert.match(source, /pageCount\?: number/)
+  assert.match(source, /pageSizeOptions\?: number\[\]/)
+  assert.match(source, /'update:page'/)
+  assert.match(source, /'update:pageSize'/)
+})
+
+test('StatusChip constrains tone variants', () => {
+  const source = read(path.join(repoRoot, 'packages/vue/src/components/interaction/StatusChip.vue'))
+  assert.match(source, /new Set\(\['neutral', 'success', 'warning', 'danger', 'info'\]\)/)
+})
+
+test('DataTable exposes renderers visible columns and row actions contract', () => {
+  const source = read(path.join(repoRoot, 'packages/vue/src/components/interaction/DataTable.vue'))
+  assert.match(source, /type CellRenderer = 'text' \| 'status' \| 'tags'/)
+  assert.match(source, /visibleColumnKeys\?: string\[\]/)
+  assert.match(source, /actionsLabel\?: string/)
+  assert.match(source, /rowActions\?: RowAction\[\]/)
+  assert.match(source, /StatusChip/)
+  assert.match(source, /AppTag/)
 })
