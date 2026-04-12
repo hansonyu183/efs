@@ -1,5 +1,11 @@
 # 标准组件库清单
 
+## UI / Theme 基线
+
+- 本标准组件库默认遵循 **Material Design 3（MD3）** 规范。
+- 当前实现基座统一使用 **Vuetify 体系**。
+- theme / style / responsive 等表现默认收敛到 MD3 企业后台实现口径，不单独自创另一套视觉体系。
+
 ## App / Foundation
 
 ### 必须优先使用

@@ -86,6 +86,7 @@ CompanyOS 实际上已经跑通了多种标准页面模式：
 CompanyOS 规范比较成熟，且已经文档化：
 
 - 技术栈：Vue 3 + Vuetify + MDI
+- UI / 主题基线：统一遵循 Material Design 3（MD3），当前实现基座为 Vuetify
 - 主题：只支持 `light / dark`
 - 布局：`AuthLayout` / `MainLayout`
 - 默认落地页：`/workbench`

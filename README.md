@@ -30,6 +30,12 @@ npm run pack:check
 npm run ci
 ```
 
+## UI 基线
+
+- 统一视觉与交互规范：**Material Design 3（MD3）**
+- 当前实现基座：**Vuetify 体系**
+- 规范说明：`docs/standards/ui-baseline.md`
+
 ## 当前已实现
 
 - 标准组件 registry
