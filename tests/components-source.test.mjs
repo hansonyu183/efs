@@ -59,13 +59,29 @@ test('DemoSidebarNav wires sidebar rendering to runtime menu builder and semanti
   assert.match(source, /defineOptions\(\{ name: 'DemoSidebarNav' \}\)/)
 })
 
-test('AuthLayout exposes auth-shell props and slots contract', () => {
+test('AuthLayout exposes stronger auth-shell props and slots contract', () => {
   const source = read(path.join(repoRoot, 'packages/vue/src/components/foundation/AuthLayout.vue'))
   assert.match(source, /interface AuthLayoutProps/)
   assert.match(source, /subtitle\?: string/)
   assert.match(source, /maxWidth\?: string/)
+  assert.match(source, /layout\?: 'centered' \| 'split'/)
+  assert.match(source, /panelWidth\?: string/)
+  assert.match(source, /heroTitle\?: string/)
+  assert.match(source, /heroSubtitle\?: string/)
+  assert.match(source, /showLocaleSwitcher\?: boolean/)
+  assert.match(source, /showThemeSwitcher\?: boolean/)
+  assert.match(source, /footerText\?: string/)
+  assert.match(source, /supportText\?: string/)
+  assert.match(source, /backgroundVariant\?: 'soft' \| 'strong' \| 'plain'/)
+  assert.match(source, /slot name="brand"/)
+  assert.match(source, /slot name="hero"/)
   assert.match(source, /slot name="header"/)
   assert.match(source, /slot name="alerts"/)
+  assert.match(source, /slot name="actions"/)
+  assert.match(source, /slot name="locale-action"/)
+  assert.match(source, /slot name="theme-action"/)
+  assert.match(source, /slot name="footer"/)
+  assert.match(source, /import SemanticIcon from '\.\/SemanticIcon\.vue'/)
 })
 
 test('AppButton exposes foundational action props and slots contract', () => {
