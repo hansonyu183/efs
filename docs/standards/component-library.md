@@ -45,14 +45,15 @@
 - FormShell
 - DetailShell
 - MasterDetailShell
-
-### P2（已有方向，待继续补厚）
 - CrudDialogShell
 - ReportShell
 
+### P2（已有方向，待继续补厚）
+- DynamicPageRenderer
+
 补充说明：
 - 资源页组件成熟度评估见 `docs/standards/resource-page-maturity.md`
-- 当前列表页相关能力最成熟；表单 / 详情 / 主从壳已进入可用阶段；弹窗 / 报表仍在继续加厚
+- 当前列表页相关能力最成熟；表单 / 详情 / 主从 / 弹窗 / 报表壳已进入可用阶段；runtime renderer 仍需继续加厚
 
 ## Interaction
 

@@ -38,8 +38,8 @@
 | FormShell | P1 | 已具备表单页标题、分段、摘要、保存/取消底部动作 | 是 | 继续补校验、只读态、aside 区 |
 | DetailShell | P1 | 已具备详情字段网格、描述区、空态、页脚扩展 | 是 | 继续补字段 renderer 与分组详情 |
 | MasterDetailShell | P1 | 已具备双栏主从结构、splitRatio、detail 空态 | 是 | 继续补 selection 状态与移动端交互 |
-| CrudDialogShell | P2 | 仍偏轻，更多是弹窗容器 | 暂时作为轻壳使用 | 补表单状态、提交区、大小/模式 |
-| ReportShell | P2 | 仍偏轻，更多是报表区块容器 | 暂时作为轻壳使用 | 补 query/result/export/header actions |
+| CrudDialogShell | P1 | 已具备标题、副标题、summary、大小模式、底部动作、关闭策略 | 是 | 继续补表单校验/confirm/loading 细节 |
+| ReportShell | P1 | 已具备 query/result 分区、导出动作、header/result 扩展位 | 是 | 继续补图表/多结果区和异步状态 |
 | DynamicPageRenderer | P2 | 已有 runtime 通路，但还不是真正完整资源页渲染器 | 方向可纳入，能力仍需演进 | 继续补 runtime 资源页组装能力 |
 | MetadataFormRenderer | P1 | 对 runtime 表单 schema 有基础处理能力 | 是 | 继续补 widget / validation / layout |
 | MetadataTableRenderer | P1 | 对 runtime 表格 schema 有基础处理能力 | 是 | 继续补 formatter / action / status |
@@ -54,10 +54,10 @@
 - FormShell
 - DetailShell
 - MasterDetailShell
-
-### 已有方向但暂不宜宣称“厚成品”的能力
 - CrudDialogShell
 - ReportShell
+
+### 已有方向但暂不宜宣称“厚成品”的能力
 - DynamicPageRenderer
 
 ## 近期优先级建议
@@ -68,9 +68,9 @@
 3. 让业务项目先优先从这些资源页壳里选型
 
 ### P1
-1. 补厚 `CrudDialogShell`
-2. 补厚 `ReportShell`
-3. 增强 runtime renderer 与 metadata renderer
+1. 增强 runtime renderer 与 metadata renderer
+2. 为 CrudDialogShell / ReportShell 增加真实页面示例
+3. 继续补图表、confirm、loading、异步状态语义
 
 ### P2
 1. 为登录页、列表页、详情页、主从页、运行时页补更完整 preset
