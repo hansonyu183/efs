@@ -1,0 +1,26 @@
+{
+  "name": "@efs/cli",
+  "version": "0.4.0",
+  "type": "module",
+  "private": false,
+  "description": "CLI tooling for enterprise frontend standards governance.",
+  "bin": {
+    "efs-check": "./bin/efs-check.mjs",
+    "efs-lint": "./bin/efs-lint.mjs",
+    "efs-lint-ast": "./bin/efs-lint-ast.mjs",
+    "efs-governance": "./bin/efs-governance.mjs",
+    "efs-scaffold": "./bin/efs-scaffold.mjs",
+    "efs-runtime-demo": "./bin/efs-runtime-demo.mjs"
+  },
+  "files": [
+    "bin"
+  ],
+  "dependencies": {
+    "@efs/contracts": "file:../contracts",
+    "@efs/presets": "file:../presets",
+    "@efs/vue": "file:../vue",
+    "@babel/parser": "^7.28.4",
+    "@vue/compiler-dom": "^3.5.13",
+    "@vue/compiler-sfc": "^3.5.13"
+  }
+}
