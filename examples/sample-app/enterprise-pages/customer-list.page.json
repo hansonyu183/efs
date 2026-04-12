@@ -1,0 +1,19 @@
+{
+  "id": "crm-customer-list",
+  "name": "客户列表",
+  "pageType": "paginated-list",
+  "domain": "crm",
+  "resource": "customer",
+  "standardComponents": [
+    "MainLayout",
+    "PageSection",
+    "QueryToolbarShell",
+    "EntityListTable",
+    "Pagination",
+    "ColumnSettings",
+    "PermissionGuard",
+    "AppAlerts"
+  ],
+  "runtimeCapabilities": ["theme", "i18n", "alerts", "permission", "org-context"],
+  "exception": null
+}

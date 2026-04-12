@@ -1,0 +1,16 @@
+{
+  "id": "platform-workbench",
+  "name": "工作台",
+  "pageType": "workbench",
+  "domain": "platform",
+  "resource": "workbench",
+  "standardComponents": [
+    "MainLayout",
+    "PageSection",
+    "DashboardCardShell",
+    "PermissionGuard",
+    "AppAlerts"
+  ],
+  "runtimeCapabilities": ["theme", "i18n", "alerts", "permission", "org-context"],
+  "exception": null
+}

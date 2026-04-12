@@ -1,0 +1,15 @@
+{
+  "name": "enterprise-frontend-standards",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Enterprise frontend standard component/page library and contract checker.",
+  "scripts": {
+    "test": "node --test",
+    "check:sample": "node packages/cli/bin/efs-check.mjs examples/sample-app/enterprise-pages",
+    "ci": "npm run test && npm run check:sample"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
