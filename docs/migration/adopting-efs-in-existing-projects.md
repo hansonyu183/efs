@@ -16,6 +16,11 @@
 - `AuthLayout`
 - `MainLayout`
 - `AppAlerts`
+- `AppButton`
+- `AppInput`
+- `AppSelect`
+- `AppField`
+- `AppPanel`
 
 原因：
 - layout 是页面统一感的上游能力

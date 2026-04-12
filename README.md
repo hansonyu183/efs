@@ -18,6 +18,7 @@
 ## 正式接入文档
 
 - `docs/standards/layout-foundation.md`：布局级标准能力
+- `docs/standards/foundation-controls.md`：基础控件层标准能力
 - `docs/integration/agentos-adoption.md`：AgentOS 当前正式接法
 - `docs/migration/adopting-efs-in-existing-projects.md`：既有项目迁移规范
 

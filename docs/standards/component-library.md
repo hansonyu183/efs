@@ -19,6 +19,18 @@
 - PermissionGuard
 - SessionBootstrap
 
+### Foundation Controls / P0
+- AppButton
+- AppInput
+- AppSelect
+- AppField
+- AppPanel
+
+说明：
+- 这五个组件属于布局与表单入口层的基础能力，不允许业务项目长期保留第二套通用实现。
+- 登录页、布局工具栏、查询栏、轻表单、卡片面板应优先复用这一层。
+- 如果业务项目需要额外能力，应先扩展 EFS，而不是在项目本地再造基础控件。
+
 ## Shell
 
 ### P0
