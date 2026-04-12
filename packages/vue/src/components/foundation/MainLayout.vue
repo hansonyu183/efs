@@ -316,7 +316,7 @@ watch(() => props.agentSessionsOpen, (value) => {
 const shouldRenderSidebar = computed(() => props.showSidebar || Boolean(slots.sidebar))
 const resolvedTitle = computed(() => props.title || props.appName || 'Workbench')
 const resolvedSubtitle = computed(() => props.subtitle || props.topbarSubtitle || props.userSubtitle || props.orgCode)
-const resolvedBrandTitle = computed(() => props.brandTitle || props.appName || props.title || 'Workbench')
+const resolvedBrandTitle = computed(() => props.brandTitle || props.appName || 'Workbench')
 const resolvedBrandSubtitle = computed(() => props.brandSubtitle || props.userSubtitle || props.subtitle || props.orgCode)
 const layoutClasses = computed(() => ({
   'efs-main-layout--sidebar-compact': sidebarCompact.value,
