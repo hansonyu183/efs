@@ -33,7 +33,8 @@ for (const file of files) {
   const result = validatePageDefinition(json)
   if (!result.valid) {
     failed += 1
-    console.error(`\n✗ ${path.relative(process.cwd(), file)}`)
+    console.error(`
+✗ ${path.relative(process.cwd(), file)}`)
     for (const error of result.errors) console.error(`  - ${error}`)
   } else {
     console.log(`✓ ${path.relative(process.cwd(), file)}`)
@@ -41,8 +42,10 @@ for (const file of files) {
 }
 
 if (failed > 0) {
-  console.error(`\nContract check failed: ${failed} file(s) invalid.`)
+  console.error(`
+Contract check failed: ${failed} file(s) invalid.`)
   process.exit(1)
 }
 
-console.log(`\nContract check passed: ${files.length} page manifest(s) valid.`)
+console.log(`
+Contract check passed: ${files.length} page manifest(s) valid.`)

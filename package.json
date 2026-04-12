@@ -1,13 +1,15 @@
 {
   "name": "enterprise-frontend-standards",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Enterprise frontend standard component/page library and contract checker.",
   "scripts": {
     "test": "node --test",
     "check:sample": "node packages/cli/bin/efs-check.mjs examples/sample-app/enterprise-pages",
-    "ci": "npm run test && npm run check:sample"
+    "lint:sample": "node packages/cli/bin/efs-lint.mjs examples/sample-app",
+    "scaffold:sample": "node packages/cli/bin/efs-scaffold.mjs --preset paginated-list --name DemoListPage --out .tmp/demo-page",
+    "ci": "npm run test && npm run check:sample && npm run lint:sample"
   },
   "engines": {
     "node": ">=20"

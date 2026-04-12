@@ -8,19 +8,27 @@
 
 - `docs/`：设计文档、治理规范、页面/组件标准
 - `packages/contracts`：标准组件、标准页面、强约束校验规则
-- `packages/cli`：本地与 CI 可执行检查器
-- `examples/sample-app`：示例页面清单
-- `tests/`：标准库与校验器测试
+- `packages/presets`：标准页面 preset 定义与脚手架模板
+- `packages/vue`：Vue 组件与 runtime renderer 骨架
+- `packages/cli`：contract / lint / scaffold 命令
+- `examples/sample-app`：示例 manifest 与页面实现
+- `tests/`：标准库、校验器、脚手架测试
 
-## 快速使用
+## 命令
 
 ```bash
-node packages/cli/bin/efs-check.mjs examples/sample-app/enterprise-pages
-node --test
+npm run test
+npm run check:sample
+npm run lint:sample
+npm run ci
 ```
 
-## 当前阶段
+## 当前已实现
 
-- P0：建立标准组件库/标准页面库/治理校验基线
-- P1：补齐更多 page preset、runtime renderer、模板生成器
-- P2：抽象 workflow/base-data/report 高阶模式
+- 标准组件 registry
+- 标准页面 preset registry
+- 页面 manifest contract 校验器
+- Vue 组件与 runtime renderer 骨架
+- 页面 scaffold 生成器
+- 示例页面 lint 校验器
+- GitHub CI
