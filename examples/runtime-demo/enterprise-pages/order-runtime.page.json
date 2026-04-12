@@ -1,0 +1,18 @@
+{
+  "id": "order-runtime",
+  "name": "订单运行时页",
+  "pageType": "runtime-metadata-page",
+  "domain": "sales",
+  "resource": "order",
+  "standardComponents": [
+    "MainLayout",
+    "DynamicPageRenderer",
+    "MetadataFormRenderer",
+    "MetadataTableRenderer",
+    "ActionRenderer",
+    "PermissionGuard",
+    "AppAlerts"
+  ],
+  "runtimeCapabilities": ["theme", "i18n", "alerts", "permission", "org-context"],
+  "exception": null
+}

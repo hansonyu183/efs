@@ -9,17 +9,21 @@
 - `docs/`：设计文档、治理规范、页面/组件标准
 - `packages/contracts`：标准组件、标准页面、强约束校验规则
 - `packages/presets`：标准页面 preset 定义与脚手架模板
-- `packages/vue`：Vue 组件与 runtime renderer 骨架
-- `packages/cli`：contract / lint / scaffold 命令
-- `examples/sample-app`：示例 manifest 与页面实现
-- `tests/`：标准库、校验器、脚手架测试
+- `packages/vue`：Vue 组件与 runtime renderer/API
+- `packages/cli`：contract / lint / scaffold / runtime demo 命令
+- `examples/sample-app`：标准手写页面示例
+- `examples/runtime-demo`：运行时 metadata 页面示例
+- `tests/`：标准库、校验器、脚手架、runtime、AST lint 测试
 
 ## 命令
 
 ```bash
+npm install
 npm run test
 npm run check:sample
 npm run lint:sample
+npm run lint:sample:ast
+npm run runtime:demo
 npm run ci
 ```
 
@@ -28,7 +32,9 @@ npm run ci
 - 标准组件 registry
 - 标准页面 preset registry
 - 页面 manifest contract 校验器
-- Vue 组件与 runtime renderer 骨架
+- Vue 组件 API 骨架
+- runtime renderer / metadata renderers
 - 页面 scaffold 生成器
-- 示例页面 lint 校验器
+- regex lint + AST lint
+- 运行时页面 demo
 - GitHub CI
