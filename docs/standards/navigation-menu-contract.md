@@ -137,7 +137,11 @@ icon: 'settings'
 icon: 'report'
 ```
 
-由前端统一映射到具体图标组件。
+由前端统一映射到具体图标组件。EFS 已提供基础运行时工具：
+
+- `buildSidebarMenuTree()`
+- `semanticIconMap`
+- `resolveSemanticIcon()`
 
 ## 与 Agent 的关系
 

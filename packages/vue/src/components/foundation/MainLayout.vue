@@ -382,6 +382,7 @@ const brandInitial = computed(() => resolvedBrandTitle.value.trim().slice(0, 1).
 const showPasswordMismatch = computed(() => Boolean(passwordForm.newPassword && passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword))
 const passwordSubmitDisabled = computed(() => !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword || showPasswordMismatch.value)
 const localeShortLabel = computed(() => (props.locale === 'en-US' ? 'EN' : '中'))
+const themeGlyph = computed(() => (props.theme === 'dark' ? '☾' : '☀'))
 const themeTextLabel = computed(() => (props.theme === 'dark' ? '暗' : '明'))
 
 function getNextOptionValue(options: LayoutOption[], currentValue: string) {

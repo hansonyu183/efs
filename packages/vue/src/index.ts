@@ -2,6 +2,8 @@ export * from './runtime/DynamicPageRenderer'
 export * from './runtime/MetadataFormRenderer'
 export * from './runtime/MetadataTableRenderer'
 export * from './runtime/ActionRenderer'
+export * from './runtime/NavigationMenu'
+export * from './runtime/SemanticIcons'
 
 export { default as AppShell } from './components/foundation/AppShell.vue'
 export { default as AppAlerts } from './components/foundation/AppAlerts.vue'

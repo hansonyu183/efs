@@ -1,0 +1,24 @@
+export const semanticIconMap = {
+  home: '⌂',
+  workbench: '⌂',
+  users: '👥',
+  user: '👤',
+  profile: '👤',
+  password: '🔐',
+  logout: '⎋',
+  settings: '⚙',
+  more: '⋯',
+  theme: '◐',
+  locale: '文',
+  report: '▣',
+  finance: '¤',
+  workflow: '⇄',
+  folder: '▤',
+  ban: '⊘',
+  agent: '✦',
+}
+
+export function resolveSemanticIcon(key, fallback = '•') {
+  if (!key) return fallback
+  return semanticIconMap[key] || fallback
+}
