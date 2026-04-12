@@ -50,13 +50,18 @@
         </div>
 
         <details ref="moreMenuRef" class="efs-main-layout__moremenu">
-          <summary class="efs-main-layout__iconbutton efs-main-layout__iconbutton--text">
-            {{ props.moreLabel }}
+          <summary class="efs-main-layout__iconbutton" :aria-label="props.moreLabel" :title="props.moreLabel">
+            <span aria-hidden="true">⋯</span>
           </summary>
           <div class="efs-main-layout__moremenu-panel">
-            <button type="button" @click="handleAgentSessionsToggle">{{ props.agentSessionsLabel }}</button>
-            <button type="button" @click="emitNextLocale">{{ props.localeLabel }}：{{ localeShortLabel }}</button>
-            <button type="button" @click="emitNextTheme">{{ props.themeLabel }}：{{ themeTextLabel }}</button>
+            <button type="button" :title="props.localeLabel" :aria-label="props.localeLabel" @click="emitNextLocale">
+              <span class="efs-main-layout__menuicon" aria-hidden="true">文</span>
+              <span class="efs-main-layout__menulabel">{{ localeShortLabel }}</span>
+            </button>
+            <button type="button" :title="props.themeLabel" :aria-label="props.themeLabel" @click="emitNextTheme">
+              <span class="efs-main-layout__menuicon" aria-hidden="true">{{ themeGlyph }}</span>
+              <span class="efs-main-layout__menulabel">{{ themeTextLabel }}</span>
+            </button>
 
             <label v-if="props.orgOptions.length > 0" class="efs-main-layout__menu-field">
               <span>{{ props.orgLabel }}</span>
@@ -71,9 +76,15 @@
               <slot name="toolbar" />
             </div>
 
-            <button v-if="props.enableProfileActions" type="button" @click="openProfileDialog">{{ props.profileLabel }}</button>
-            <button v-if="props.enablePasswordActions" type="button" @click="openPasswordDialog">{{ props.passwordLabel }}</button>
-            <button type="button" class="efs-main-layout__logout-action" @click="emitLogout">{{ props.logoutLabel }}</button>
+            <button v-if="props.enableProfileActions" type="button" :title="props.profileLabel" :aria-label="props.profileLabel" @click="openProfileDialog">
+              <span class="efs-main-layout__menuicon" aria-hidden="true">👤</span>
+            </button>
+            <button v-if="props.enablePasswordActions" type="button" :title="props.passwordLabel" :aria-label="props.passwordLabel" @click="openPasswordDialog">
+              <span class="efs-main-layout__menuicon" aria-hidden="true">🔐</span>
+            </button>
+            <button type="button" class="efs-main-layout__logout-action" :title="props.logoutLabel" :aria-label="props.logoutLabel" @click="emitLogout">
+              <span class="efs-main-layout__menuicon" aria-hidden="true">⎋</span>
+            </button>
           </div>
         </details>
       </header>
@@ -90,15 +101,29 @@
         <div class="efs-main-layout__agentbar-main">
           <div class="efs-main-layout__agentbar-header">
             <strong>{{ props.agentTitle }}</strong>
-            <button type="button" class="efs-main-layout__agentlink" @click="handleAgentSessionsToggle">{{ props.agentSessionsLabel }}</button>
+            <button
+              type="button"
+              class="efs-main-layout__agentlink"
+              :title="props.agentSessionsLabel"
+              :aria-label="props.agentSessionsLabel"
+              @click="handleAgentSessionsToggle"
+            >
+              <span aria-hidden="true">☰</span>
+            </button>
           </div>
           <div v-if="$slots['agent-output']" class="efs-main-layout__agent-output">
             <slot name="agent-output" />
           </div>
           <div class="efs-main-layout__agentbar-form">
-            <AppInput v-model="agentDraft" :placeholder="props.agentPlaceholder" @keyup.enter="submitAgent" />
-            <AppButton variant="primary" :disabled="props.agentBusy || !agentDraft.trim()" @click="submitAgent">
-              {{ props.agentSubmitLabel }}
+            <AppInput :model-value="agentDraft" :placeholder="props.agentPlaceholder" @update:model-value="handleAgentInput" @keyup.enter="submitAgent" />
+            <AppButton
+              variant="primary"
+              :disabled="props.agentBusy || !agentDraft.trim()"
+              :title="props.agentSubmitLabel"
+              :aria-label="props.agentSubmitLabel"
+              @click="submitAgent"
+            >
+              <span aria-hidden="true">➤</span>
             </AppButton>
           </div>
         </div>
@@ -221,6 +246,7 @@ interface MainLayoutProps {
   agentBusy?: boolean
   agentInput?: string
   agentSessionsOpen?: boolean
+  iconOnly?: boolean
 }
 
 const props = withDefaults(defineProps<MainLayoutProps>(), {
@@ -277,6 +303,7 @@ const props = withDefaults(defineProps<MainLayoutProps>(), {
   agentBusy: false,
   agentInput: '',
   agentSessionsOpen: false,
+  iconOnly: true,
 })
 
 const emit = defineEmits<{
@@ -647,6 +674,22 @@ function handleAgentSessionsToggle() {
   padding: 0 12px;
 }
 
+.efs-main-layout__menuicon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  font-size: 0.95rem;
+}
+
+.efs-main-layout__menulabel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
 .efs-main-layout__moremenu {
   position: relative;
 }
@@ -676,12 +719,17 @@ function handleAgentSessionsToggle() {
 
 .efs-main-layout__moremenu-panel button {
   min-height: 40px;
+  min-width: 40px;
   border: 0;
   border-radius: 10px;
   background: transparent;
   text-align: left;
   padding: 0 12px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .efs-main-layout__moremenu-panel button:hover {
@@ -700,6 +748,10 @@ function handleAgentSessionsToggle() {
   padding: 4px 0;
   border-top: 1px solid var(--efs-border, #dbe3ef);
   border-bottom: 1px solid var(--efs-border, #dbe3ef);
+}
+
+.efs-main-layout__moremenu-panel .efs-main-layout__menulabel {
+  display: none;
 }
 
 .efs-main-layout__logout-action {
@@ -742,8 +794,11 @@ function handleAgentSessionsToggle() {
 }
 
 .efs-main-layout__agentlink {
-  border: 0;
-  background: transparent;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--efs-border, #dbe3ef);
+  border-radius: 10px;
+  background: var(--efs-surface, #fff);
   color: var(--efs-primary, #2563eb);
   cursor: pointer;
 }
@@ -758,6 +813,10 @@ function handleAgentSessionsToggle() {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
+}
+
+.efs-main-layout__agentbar-form :deep(.efs-appbutton) {
+  min-width: 44px;
 }
 
 .efs-main-layout__agent-sessions {
@@ -855,6 +914,12 @@ function handleAgentSessionsToggle() {
   }
 }
 
+@media (min-width: 641px) {
+  .efs-main-layout:not([data-dense='true']) .efs-main-layout__moremenu-panel .efs-main-layout__menulabel {
+    display: inline-flex;
+  }
+}
+
 @media (max-width: 640px) {
   .efs-main-layout__content {
     padding: 16px;
@@ -869,6 +934,12 @@ function handleAgentSessionsToggle() {
 
   .efs-main-layout__agentbar-form {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .efs-main-layout__sidebar {
+    transition: none;
   }
 }
 </style>
