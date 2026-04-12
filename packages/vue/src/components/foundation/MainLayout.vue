@@ -49,55 +49,33 @@
           </div>
         </div>
 
-        <div class="efs-main-layout__toolbar">
-          <slot name="toolbar" />
+        <details ref="moreMenuRef" class="efs-main-layout__moremenu">
+          <summary class="efs-main-layout__iconbutton efs-main-layout__iconbutton--text">
+            {{ props.moreLabel }}
+          </summary>
+          <div class="efs-main-layout__moremenu-panel">
+            <button type="button" @click="handleAgentSessionsToggle">{{ props.agentSessionsLabel }}</button>
+            <button type="button" @click="emitNextLocale">{{ props.localeLabel }}：{{ localeShortLabel }}</button>
+            <button type="button" @click="emitNextTheme">{{ props.themeLabel }}：{{ themeTextLabel }}</button>
 
-          <label v-if="props.orgOptions.length > 0" class="efs-main-layout__org-switcher">
-            <span class="efs-main-layout__org-label">{{ props.orgLabel }}</span>
-            <AppSelect
-              :model-value="props.currentOrgCode || props.orgCode"
-              :options="props.orgOptions"
-              @update:model-value="(value) => emit('update:org', value)"
-            />
-          </label>
+            <label v-if="props.orgOptions.length > 0" class="efs-main-layout__menu-field">
+              <span>{{ props.orgLabel }}</span>
+              <AppSelect
+                :model-value="props.currentOrgCode || props.orgCode"
+                :options="props.orgOptions"
+                @update:model-value="(value) => emit('update:org', value)"
+              />
+            </label>
 
-          <button
-            v-if="props.localeOptions.length > 1"
-            class="efs-main-layout__iconbutton efs-main-layout__iconbutton--text"
-            type="button"
-            :title="props.localeLabel"
-            :aria-label="props.localeLabel"
-            @click="emitNextLocale"
-          >
-            {{ localeShortLabel }}
-          </button>
-
-          <button
-            v-if="props.themeOptions.length > 0"
-            class="efs-main-layout__iconbutton"
-            type="button"
-            :title="props.themeLabel"
-            :aria-label="props.themeLabel"
-            @click="emitNextTheme"
-          >
-            <span aria-hidden="true">{{ themeGlyph }}</span>
-          </button>
-
-          <details v-if="hasUserMenu" ref="menuRef" class="efs-main-layout__usermenu">
-            <summary class="efs-main-layout__usertrigger">
-              <span class="efs-main-layout__avatar">{{ initials }}</span>
-              <span class="efs-main-layout__usertext">
-                <strong>{{ props.userDisplayName || props.username || resolvedTitle }}</strong>
-                <small>{{ props.username || props.userSubtitle || props.orgCode }}</small>
-              </span>
-            </summary>
-            <div class="efs-main-layout__usermenu-panel">
-              <button v-if="props.enableProfileActions" type="button" @click="openProfileDialog">{{ props.profileLabel }}</button>
-              <button v-if="props.enablePasswordActions" type="button" @click="openPasswordDialog">{{ props.passwordLabel }}</button>
-              <button type="button" class="efs-main-layout__logout-action" @click="emitLogout">{{ props.logoutLabel }}</button>
+            <div v-if="$slots.toolbar" class="efs-main-layout__moremenu-extra">
+              <slot name="toolbar" />
             </div>
-          </details>
-        </div>
+
+            <button v-if="props.enableProfileActions" type="button" @click="openProfileDialog">{{ props.profileLabel }}</button>
+            <button v-if="props.enablePasswordActions" type="button" @click="openPasswordDialog">{{ props.passwordLabel }}</button>
+            <button type="button" class="efs-main-layout__logout-action" @click="emitLogout">{{ props.logoutLabel }}</button>
+          </div>
+        </details>
       </header>
 
       <section v-if="$slots.alerts" class="efs-main-layout__alerts">
@@ -107,7 +85,37 @@
       <main class="efs-main-layout__content">
         <slot />
       </main>
+
+      <section v-if="props.showAgentBar" class="efs-main-layout__agentbar">
+        <div class="efs-main-layout__agentbar-main">
+          <div class="efs-main-layout__agentbar-header">
+            <strong>{{ props.agentTitle }}</strong>
+            <button type="button" class="efs-main-layout__agentlink" @click="handleAgentSessionsToggle">{{ props.agentSessionsLabel }}</button>
+          </div>
+          <div v-if="$slots['agent-output']" class="efs-main-layout__agent-output">
+            <slot name="agent-output" />
+          </div>
+          <div class="efs-main-layout__agentbar-form">
+            <AppInput v-model="agentDraft" :placeholder="props.agentPlaceholder" @keyup.enter="submitAgent" />
+            <AppButton variant="primary" :disabled="props.agentBusy || !agentDraft.trim()" @click="submitAgent">
+              {{ props.agentSubmitLabel }}
+            </AppButton>
+          </div>
+        </div>
+      </section>
     </div>
+
+    <aside v-if="agentSessionsPanelOpen" class="efs-main-layout__agent-sessions">
+      <header class="efs-main-layout__agent-sessions-header">
+        <strong>{{ props.agentSessionsLabel }}</strong>
+        <button type="button" class="efs-main-layout__iconbutton" @click="handleAgentSessionsToggle">×</button>
+      </header>
+      <div class="efs-main-layout__agent-sessions-body">
+        <slot name="agent-sessions">
+          <div class="efs-main-layout__agent-sessions-empty">{{ props.agentSessionsEmptyText }}</div>
+        </slot>
+      </div>
+    </aside>
 
     <div v-if="profileDialogOpen" class="efs-main-layout__dialog-backdrop" @click.self="profileDialogOpen = false">
       <AppPanel class="efs-main-layout__dialog" :title="props.profileLabel" :subtitle="props.profileDialogSubtitle">
@@ -201,9 +209,18 @@ interface MainLayoutProps {
   orgOptions?: LayoutOption[]
   localeOptions?: LayoutOption[]
   themeOptions?: LayoutOption[]
-  enableUserMenu?: boolean
   enableProfileActions?: boolean
   enablePasswordActions?: boolean
+  moreLabel?: string
+  showAgentBar?: boolean
+  agentTitle?: string
+  agentPlaceholder?: string
+  agentSubmitLabel?: string
+  agentSessionsLabel?: string
+  agentSessionsEmptyText?: string
+  agentBusy?: boolean
+  agentInput?: string
+  agentSessionsOpen?: boolean
 }
 
 const props = withDefaults(defineProps<MainLayoutProps>(), {
@@ -220,7 +237,7 @@ const props = withDefaults(defineProps<MainLayoutProps>(), {
   orgLabel: 'Organization',
   localeLabel: 'Language',
   themeLabel: 'Theme',
-  profileLabel: 'Edit profile',
+  profileLabel: 'Profile',
   passwordLabel: 'Change password',
   logoutLabel: 'Log out',
   saveLabel: 'Save',
@@ -234,30 +251,48 @@ const props = withDefaults(defineProps<MainLayoutProps>(), {
   profileDialogSubtitle: 'Update the profile information shown in the workbench shell.',
   passwordDialogSubtitle: 'Change the password used for this workbench account.',
   currentOrgCode: '',
-  locale: '',
-  theme: '',
+  locale: 'zh-CN',
+  theme: 'light',
   userDisplayName: '',
   username: '',
   userSubtitle: '',
   orgOptions: () => [],
-  localeOptions: () => [],
-  themeOptions: () => [],
-  enableUserMenu: false,
+  localeOptions: () => [
+    { title: '简体中文', value: 'zh-CN' },
+    { title: 'English', value: 'en-US' },
+  ],
+  themeOptions: () => [
+    { title: 'Light', value: 'light' },
+    { title: 'Dark', value: 'dark' },
+  ],
   enableProfileActions: true,
   enablePasswordActions: true,
+  moreLabel: '更多',
+  showAgentBar: true,
+  agentTitle: 'Agent',
+  agentPlaceholder: '请输入你的问题或操作指令',
+  agentSubmitLabel: '发送',
+  agentSessionsLabel: '会话管理',
+  agentSessionsEmptyText: '暂无会话',
+  agentBusy: false,
+  agentInput: '',
+  agentSessionsOpen: false,
 })
 
 const emit = defineEmits<{
   (e: 'update:org', value: string): void
   (e: 'update:locale', value: string): void
   (e: 'update:theme', value: string): void
+  (e: 'update:agentInput', value: string): void
+  (e: 'update:agentSessionsOpen', value: boolean): void
+  (e: 'submit-agent', value: string): void
   (e: 'save-profile', value: { displayName: string }): void
   (e: 'save-password', value: { currentPassword: string; newPassword: string; confirmPassword: string }): void
   (e: 'logout'): void
 }>()
 
 const slots = useSlots()
-const menuRef = ref<HTMLDetailsElement | null>(null)
+const moreMenuRef = ref<HTMLDetailsElement | null>(null)
 const profileDialogOpen = ref(false)
 const passwordDialogOpen = ref(false)
 const sidebarOpen = ref(false)
@@ -265,22 +300,28 @@ const sidebarCompact = ref(false)
 const isMobile = ref(false)
 const profileForm = reactive({ displayName: props.userDisplayName })
 const passwordForm = reactive({ currentPassword: '', newPassword: '', confirmPassword: '' })
+const agentDraft = ref(props.agentInput)
+const agentSessionsPanelOpen = ref(props.agentSessionsOpen)
 
 watch(() => props.userDisplayName, (value) => {
   profileForm.displayName = value
 })
+watch(() => props.agentInput, (value) => {
+  agentDraft.value = value
+})
+watch(() => props.agentSessionsOpen, (value) => {
+  agentSessionsPanelOpen.value = value
+})
 
 const shouldRenderSidebar = computed(() => props.showSidebar || Boolean(slots.sidebar))
-
 const resolvedTitle = computed(() => props.title || props.appName || 'Workbench')
 const resolvedSubtitle = computed(() => props.subtitle || props.topbarSubtitle || props.userSubtitle || props.orgCode)
 const resolvedBrandTitle = computed(() => props.brandTitle || props.appName || props.title || 'Workbench')
 const resolvedBrandSubtitle = computed(() => props.brandSubtitle || props.userSubtitle || props.subtitle || props.orgCode)
-const hasUserMenu = computed(() => props.enableUserMenu || Boolean(props.userDisplayName || props.username))
-
 const layoutClasses = computed(() => ({
   'efs-main-layout--sidebar-compact': sidebarCompact.value,
   'efs-main-layout--sidebar-hidden': !shouldRenderSidebar.value,
+  'efs-main-layout--agent-sessions-open': agentSessionsPanelOpen.value,
 }))
 
 function syncViewport() {
@@ -313,17 +354,8 @@ const initials = computed(() => {
 const brandInitial = computed(() => resolvedBrandTitle.value.trim().slice(0, 1).toUpperCase() || 'A')
 const showPasswordMismatch = computed(() => Boolean(passwordForm.newPassword && passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword))
 const passwordSubmitDisabled = computed(() => !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword || showPasswordMismatch.value)
-
-const localeShortLabel = computed(() => {
-  const current = props.localeOptions.find((option) => option.value === props.locale)
-  const label = current?.label ?? current?.title ?? props.locale
-  if (!label) return '中'
-  if (label.startsWith('简')) return '中'
-  if (label.toLowerCase().startsWith('en')) return 'EN'
-  return label.slice(0, 2).toUpperCase()
-})
-
-const themeGlyph = computed(() => (props.theme === 'dark' ? '☾' : '☀'))
+const localeShortLabel = computed(() => (props.locale === 'en-US' ? 'EN' : '中'))
+const themeTextLabel = computed(() => (props.theme === 'dark' ? '暗' : '明'))
 
 function getNextOptionValue(options: LayoutOption[], currentValue: string) {
   if (options.length === 0) return currentValue
@@ -348,8 +380,8 @@ function onSidebarClick() {
   if (isMobile.value) closeSidebar()
 }
 
-function closeUserMenu() {
-  if (menuRef.value) menuRef.value.open = false
+function closeMoreMenu() {
+  if (moreMenuRef.value) moreMenuRef.value.open = false
 }
 
 function emitNextLocale() {
@@ -363,7 +395,7 @@ function emitNextTheme() {
 function openProfileDialog() {
   passwordDialogOpen.value = false
   profileForm.displayName = props.userDisplayName
-  closeUserMenu()
+  closeMoreMenu()
   profileDialogOpen.value = true
 }
 
@@ -372,7 +404,7 @@ function openPasswordDialog() {
   passwordForm.currentPassword = ''
   passwordForm.newPassword = ''
   passwordForm.confirmPassword = ''
-  closeUserMenu()
+  closeMoreMenu()
   passwordDialogOpen.value = true
 }
 
@@ -392,8 +424,26 @@ function submitPassword() {
 }
 
 function emitLogout() {
-  closeUserMenu()
+  closeMoreMenu()
   emit('logout')
+}
+
+function handleAgentInput(value: string) {
+  agentDraft.value = value
+  emit('update:agentInput', value)
+}
+
+function submitAgent() {
+  const text = agentDraft.value.trim()
+  if (!text || props.agentBusy) return
+  emit('submit-agent', text)
+}
+
+function handleAgentSessionsToggle() {
+  const next = !agentSessionsPanelOpen.value
+  agentSessionsPanelOpen.value = next
+  emit('update:agentSessionsOpen', next)
+  closeMoreMenu()
 }
 </script>
 
@@ -541,6 +591,7 @@ function emitLogout() {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 .efs-main-layout__header {
@@ -557,17 +608,11 @@ function emitLogout() {
   z-index: 20;
 }
 
-.efs-main-layout__header-left,
-.efs-main-layout__toolbar {
+.efs-main-layout__header-left {
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
-}
-
-.efs-main-layout__toolbar {
-  flex-wrap: wrap;
-  justify-content: flex-end;
 }
 
 .efs-main-layout__header-meta {
@@ -586,7 +631,7 @@ function emitLogout() {
 }
 
 .efs-main-layout__iconbutton {
-  width: 40px;
+  min-width: 40px;
   height: 40px;
   border-radius: 12px;
   border: 1px solid var(--efs-border, #dbe3ef);
@@ -599,93 +644,37 @@ function emitLogout() {
 }
 
 .efs-main-layout__iconbutton--text {
-  width: auto;
-  min-width: 48px;
   padding: 0 12px;
-  font-weight: 700;
 }
 
-.efs-main-layout__org-switcher {
-  display: grid;
-  gap: 4px;
-  min-width: 180px;
-}
-
-.efs-main-layout__org-label {
-  color: var(--efs-text-muted, #64748b);
-  font-size: 0.78rem;
-}
-
-.efs-main-layout__org-switcher :deep(.efs-appselect) {
-  min-height: 40px;
-  padding: 8px 12px;
-}
-
-.efs-main-layout__usermenu {
+.efs-main-layout__moremenu {
   position: relative;
 }
 
-.efs-main-layout__usertrigger {
+.efs-main-layout__moremenu summary {
   list-style: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 44px;
-  padding: 6px 10px;
-  border-radius: 14px;
-  border: 1px solid var(--efs-border, #dbe3ef);
-  background: var(--efs-surface, #fff);
-  cursor: pointer;
 }
 
-.efs-main-layout__usertrigger::-webkit-details-marker {
+.efs-main-layout__moremenu summary::-webkit-details-marker {
   display: none;
 }
 
-.efs-main-layout__avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: color-mix(in srgb, var(--efs-primary, #2563eb) 14%, var(--efs-surface, #fff));
-  color: var(--efs-primary, #2563eb);
-  font-weight: 700;
-  font-size: 0.82rem;
-}
-
-.efs-main-layout__usertext {
-  display: grid;
-  min-width: 0;
-}
-
-.efs-main-layout__usertext strong,
-.efs-main-layout__usertext small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.efs-main-layout__usertext small {
-  color: var(--efs-text-muted, #64748b);
-}
-
-.efs-main-layout__usermenu-panel {
+.efs-main-layout__moremenu-panel {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  min-width: 180px;
+  min-width: 220px;
   padding: 8px;
   border-radius: 16px;
   border: 1px solid var(--efs-border, #dbe3ef);
   background: var(--efs-surface, #fff);
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
   display: grid;
-  gap: 4px;
+  gap: 6px;
+  z-index: 30;
 }
 
-.efs-main-layout__usermenu-panel button {
+.efs-main-layout__moremenu-panel button {
   min-height: 40px;
   border: 0;
   border-radius: 10px;
@@ -695,8 +684,22 @@ function emitLogout() {
   cursor: pointer;
 }
 
-.efs-main-layout__usermenu-panel button:hover {
+.efs-main-layout__moremenu-panel button:hover {
   background: var(--efs-surface-soft, #f4f7fb);
+}
+
+.efs-main-layout__menu-field {
+  display: grid;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 0.86rem;
+  color: var(--efs-text-muted, #64748b);
+}
+
+.efs-main-layout__moremenu-extra {
+  padding: 4px 0;
+  border-top: 1px solid var(--efs-border, #dbe3ef);
+  border-bottom: 1px solid var(--efs-border, #dbe3ef);
 }
 
 .efs-main-layout__logout-action {
@@ -710,6 +713,84 @@ function emitLogout() {
 .efs-main-layout__content {
   padding: 20px;
   min-width: 0;
+  flex: 1;
+}
+
+.efs-main-layout__agentbar {
+  position: sticky;
+  bottom: 0;
+  z-index: 18;
+  padding: 12px 20px 20px;
+  background: linear-gradient(180deg, rgba(244, 247, 251, 0), rgba(244, 247, 251, 0.92) 24%, rgba(244, 247, 251, 1) 100%);
+}
+
+.efs-main-layout__agentbar-main {
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--efs-border, #dbe3ef);
+  background: var(--efs-surface, #fff);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  display: grid;
+  gap: 12px;
+}
+
+.efs-main-layout__agentbar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.efs-main-layout__agentlink {
+  border: 0;
+  background: transparent;
+  color: var(--efs-primary, #2563eb);
+  cursor: pointer;
+}
+
+.efs-main-layout__agent-output {
+  max-height: 120px;
+  overflow: auto;
+  color: var(--efs-text-muted, #64748b);
+}
+
+.efs-main-layout__agentbar-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.efs-main-layout__agent-sessions {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(360px, 90vw);
+  height: 100vh;
+  border-left: 1px solid var(--efs-border, #dbe3ef);
+  background: var(--efs-surface, #fff);
+  box-shadow: -18px 0 40px rgba(15, 23, 42, 0.12);
+  z-index: 35;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.efs-main-layout__agent-sessions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--efs-border, #dbe3ef);
+}
+
+.efs-main-layout__agent-sessions-body {
+  min-height: 0;
+  overflow: auto;
+  padding: 16px;
+}
+
+.efs-main-layout__agent-sessions-empty {
+  color: var(--efs-text-muted, #64748b);
 }
 
 .efs-main-layout__scrim {
@@ -772,19 +853,6 @@ function emitLogout() {
   .efs-main-layout__sidebar--open {
     transform: translateX(0);
   }
-
-  .efs-main-layout__header {
-    flex-wrap: wrap;
-  }
-
-  .efs-main-layout__toolbar {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .efs-main-layout__org-switcher {
-    flex: 1 1 180px;
-  }
 }
 
 @media (max-width: 640px) {
@@ -792,8 +860,15 @@ function emitLogout() {
     padding: 16px;
   }
 
-  .efs-main-layout__usertext {
-    display: none;
+  .efs-main-layout__header,
+  .efs-main-layout__agentbar,
+  .efs-main-layout__alerts {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .efs-main-layout__agentbar-form {
+    grid-template-columns: 1fr;
   }
 }
 </style>

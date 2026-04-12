@@ -22,15 +22,19 @@ test('PermissionGuard exposes granted prop', () => {
   assert.match(source, /slot name="fallback"/)
 })
 
-test('MainLayout exposes layout-level props and slots contract', () => {
+test('MainLayout exposes concrete shell and global agent contract', () => {
   const source = read(path.join(repoRoot, 'packages/vue/src/components/foundation/MainLayout.vue'))
   assert.match(source, /interface MainLayoutProps/)
-  assert.match(source, /subtitle\?: string/)
-  assert.match(source, /brandTitle\?: string/)
-  assert.match(source, /showSidebar\?: boolean/)
+  assert.match(source, /moreLabel\?: string/)
+  assert.match(source, /agentPlaceholder\?: string/)
+  assert.match(source, /agentSessionsOpen\?: boolean/)
   assert.match(source, /slot name="sidebar"/)
   assert.match(source, /slot name="toolbar"/)
   assert.match(source, /slot name="alerts"/)
+  assert.match(source, /slot name="agent-sessions"/)
+  assert.match(source, /slot name="agent-output"/)
+  assert.match(source, /submit-agent/)
+  assert.match(source, /update:agentSessionsOpen/)
 })
 
 test('AuthLayout exposes auth-shell props and slots contract', () => {
