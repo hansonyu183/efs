@@ -17,7 +17,6 @@ export { default as AppSelect } from './components/controls/AppSelect.vue'
 export { default as EntityListView } from './components/views/EntityListView.vue'
 
 export { default as PagePanel } from './components/panels/PagePanel.vue'
-export { default as QueryToolbar } from './components/panels/QueryToolbar.vue'
 export { default as EntityListTable } from './components/panels/EntityListTable.vue'
 export { default as SimpleTablePanel } from './components/panels/SimpleTablePanel.vue'
 export { default as CrudDialog } from './components/panels/CrudDialog.vue'

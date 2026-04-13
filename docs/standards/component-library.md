@@ -36,7 +36,7 @@
 
 ### View / Panel / 结构组件
 - PagePanel
-- QueryToolbar
+- 查询区
 - EntityListTable
 - EntityListView
 - SimpleTablePanel

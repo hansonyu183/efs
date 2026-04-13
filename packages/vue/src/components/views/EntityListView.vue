@@ -19,8 +19,17 @@
    <slot name="summary" :total="resolvedTotal" :selected-count="resolvedSelectedCount" />
   </div>
 
-  <QueryToolbar title="查询条件" :subtitle="''" @submit="handleSearch">
-   <template #filters>
+  <section class="efs-resourcecrudpage__query-panel" @keydown.enter="handleQueryEnter">
+   <header class="efs-resourcecrudpage__query-header">
+    <div>
+     <h3 class="efs-resourcecrudpage__query-title">查询条件</h3>
+    </div>
+    <div v-if="$slots['query-header-actions']" class="efs-resourcecrudpage__query-header-actions">
+     <slot name="query-header-actions" :query-values="localQueryValues" :search="handleSearch" :reset="handleReset" />
+    </div>
+   </header>
+
+   <div class="efs-resourcecrudpage__query-filters">
     <slot name="query-fields" :query-values="localQueryValues" :update-query-value="updateQueryValue">
      <div v-if="normalizedQueryFields.length > 0" class="efs-resourcecrudpage__filters-grid">
       <AppField
@@ -46,18 +55,18 @@
       </AppField>
      </div>
     </slot>
-   </template>
+   </div>
 
-   <template #actions>
+   <div class="efs-resourcecrudpage__query-actions">
     <slot name="query-actions" :query-values="localQueryValues" :search="handleSearch" :reset="handleReset">
      <div class="efs-resourcecrudpage__toolbar-actions-main">
       <AppButton variant="primary" :disabled="resolvedBusy" @click="handleSearch">查询</AppButton>
       <AppButton :disabled="resolvedBusy" @click="handleReset">重置</AppButton>
      </div>
     </slot>
-   </template>
+   </div>
 
-   <template #after>
+   <div v-if="resolvedSelectedCount > 0 || $slots['batch-actions'] || visibleBatchActions.length > 0 || $slots['query-after']" class="efs-resourcecrudpage__query-after">
     <slot name="query-after">
      <div v-if="resolvedSelectedCount > 0 || $slots['batch-actions'] || visibleBatchActions.length > 0" class="efs-resourcecrudpage__batch-bar">
       <span class="efs-resourcecrudpage__batch-text">已选：{{ resolvedSelectedCount }}</span>
@@ -76,8 +85,8 @@
       </div>
      </div>
     </slot>
-   </template>
-  </QueryToolbar>
+   </div>
+  </section>
 
   <div class="efs-resourcecrudpage__content" :class="{ 'efs-resourcecrudpage__content--with-detail': hasDetail }">
    <EntityListTable
@@ -237,7 +246,6 @@ import CrudDialog from '../panels/CrudDialog.vue'
 import DetailPanel from '../panels/DetailPanel.vue'
 import EntityListTable from '../panels/EntityListTable.vue'
 import FormPanel from '../panels/FormPanel.vue'
-import QueryToolbar from '../panels/QueryToolbar.vue'
 import type {
  ResourceCrudAction,
  ResourceCrudActionHandlerPayload,
@@ -479,6 +487,13 @@ async function handleReset() {
  await runQuery()
 }
 
+function handleQueryEnter(event: KeyboardEvent) {
+ const target = event.target as HTMLElement | null
+ if (target?.tagName === 'TEXTAREA') return
+ event.preventDefault()
+ void handleSearch()
+}
+
 async function handlePageChange(value: number) {
  localPage.value = value
  setControllerState('page', value)
@@ -702,7 +717,9 @@ async function handleDelete(row: Record<string, unknown>) {
 .efs-resourcecrudpage__summary-bar,
 .efs-resourcecrudpage__dialog-footer,
 .efs-resourcecrudpage__dialog-footer-actions,
-.efs-resourcecrudpage__toolbar-actions,
+.efs-resourcecrudpage__query-header,
+.efs-resourcecrudpage__query-header-actions,
+.efs-resourcecrudpage__query-actions,
 .efs-resourcecrudpage__toolbar-actions-main,
 .efs-resourcecrudpage__toolbar-actions-secondary,
 .efs-resourcecrudpage__batch-bar,
@@ -717,6 +734,7 @@ async function handleDelete(row: Record<string, unknown>) {
 .efs-resourcecrudpage__header,
 .efs-resourcecrudpage__summary-bar,
 .efs-resourcecrudpage__dialog-footer,
+.efs-resourcecrudpage__query-header,
 .efs-resourcecrudpage__batch-bar {
  justify-content: space-between;
  align-items: start;
@@ -744,6 +762,31 @@ async function handleDelete(row: Record<string, unknown>) {
 
 .efs-resourcecrudpage__summary-bar {
  padding: 0 4px;
+}
+
+.efs-resourcecrudpage__query-panel {
+ padding: 18px 20px;
+ border-radius: 20px;
+ border: 1px solid var(--efs-border, #dbe3ef);
+ background: var(--efs-surface, #fff);
+ box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+ display: grid;
+ gap: 16px;
+}
+
+.efs-resourcecrudpage__query-title {
+ margin: 0;
+ font-size: 1rem;
+}
+
+.efs-resourcecrudpage__query-filters {
+ display: grid;
+ gap: 12px;
+}
+
+.efs-resourcecrudpage__query-after {
+ border-top: 1px solid var(--efs-border, #dbe3ef);
+ padding-top: 12px;
 }
 
 .efs-resourcecrudpage__filters-grid {

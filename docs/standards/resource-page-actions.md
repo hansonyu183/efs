@@ -6,7 +6,6 @@
 
 适用对象：
 - `EntityListView`
-- `QueryToolbar`
 - `EntityListTable`
 - 未来基于 EFS 的标准资源页模式
 
@@ -139,13 +138,13 @@
 遇到一个新 action 时，按下面顺序判断：
 
 1. **必须依赖单条记录吗？**
-  - 是：放 `rowActions`
+ - 是：放 `rowActions`
 2. **必须依赖多选结果吗？**
-  - 是：放 `batchActions`
+ - 是：放 `batchActions`
 3. **必须依赖当前筛选条件吗？**
-  - 是：放 `toolbarActions`
+ - 是：放 `toolbarActions`
 4. **否则默认是页面级动作**
-  - 放 `pageActions`
+ - 放 `pageActions`
 
 ---
 

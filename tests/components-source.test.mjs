@@ -185,14 +185,6 @@ test('PagePanel exposes header actions slot contract', () => {
  assert.match(source, /slot name="actions"/)
 })
 
-test('QueryToolbar exposes enriched header and submit contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/panels/QueryToolbar.vue'))
- assert.match(source, /subtitle\?: string/)
- assert.match(source, /slot name="headerActions"/)
- assert.match(source, /slot name="after"/)
- assert.match(source, /'submit'/)
-})
-
 test('EntityListTable exposes simplified column settings and pagination contract', () => {
  const source = read(path.join(repoRoot, 'packages/vue/src/components/panels/EntityListTable.vue'))
  assert.match(source, /subtitle\?: string/)

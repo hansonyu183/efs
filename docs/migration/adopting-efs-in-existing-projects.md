@@ -30,7 +30,6 @@
 
 优先迁移：
 - `PagePanel`
-- `QueryToolbar`
 - `EntityListTable`
 - `SimpleTablePanel`
 - `CrudDialog`
@@ -51,7 +50,7 @@
 ## 不应长期保留的内容
 
 - 第二套 AuthPage / MainPage
-- 第二套通用 PagePanel / QueryToolbar / ListTable
+- 第二套通用 PagePanel / ListTable
 - 第二套全局 alerts 表达方式
 
 ## 迁移判定标准

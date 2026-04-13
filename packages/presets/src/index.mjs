@@ -3,12 +3,12 @@ const REQUIRED_CAPABILITIES = ['theme', 'i18n', 'alerts', 'permission', 'org-con
 const PRESETS = {
   login: ['AuthPage'],
   workbench: ['MainPage', 'PagePanel', 'DashboardCardPanel', 'PermissionGuard'],
-  'query-list': ['MainPage', 'PagePanel', 'QueryToolbar', 'EntityListTable', 'PermissionGuard'],
-  'paginated-list': ['MainPage', 'PagePanel', 'QueryToolbar', 'EntityListTable', 'Pagination', 'PermissionGuard'],
-  'entity-list': ['MainPage', 'PagePanel', 'EntityListView', 'QueryToolbar', 'EntityListTable', 'CrudDialog', 'DetailPanel', 'PermissionGuard'],
+  'query-list': ['MainPage', 'PagePanel', 'EntityListTable', 'PermissionGuard'],
+  'paginated-list': ['MainPage', 'PagePanel', 'EntityListTable', 'Pagination', 'PermissionGuard'],
+  'entity-list': ['MainPage', 'PagePanel', 'EntityListView', 'EntityListTable', 'CrudDialog', 'DetailPanel', 'PermissionGuard'],
   'form-page': ['MainPage', 'PagePanel', 'FormPanel', 'ActionBar', 'PermissionGuard'],
   'detail-page': ['MainPage', 'PagePanel', 'DetailPanel', 'StatusChip', 'PermissionGuard'],
-  'report-page': ['MainPage', 'PagePanel', 'QueryToolbar', 'ReportPanel', 'PermissionGuard'],
+  'report-page': ['MainPage', 'PagePanel', 'ReportPanel', 'PermissionGuard'],
 }
 
 function manifestForPreset(pageType, name) {

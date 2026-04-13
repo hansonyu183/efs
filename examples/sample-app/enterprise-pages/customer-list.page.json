@@ -1,18 +1,18 @@
 {
-  "id": "crm-customer-list",
-  "name": "客户列表",
-  "pageType": "paginated-list",
-  "domain": "crm",
-  "resource": "customer",
-  "standardComponents": [
-    "MainPage",
-    "PagePanel",
-    "QueryToolbar",
-    "EntityListTable",
-    "Pagination",
-    "ColumnSettings",
-    "PermissionGuard"
-  ],
-  "runtimeCapabilities": ["theme", "i18n", "alerts", "permission", "org-context"],
-  "exception": null
+ "id": "crm-customer-list",
+ "name": "客户列表",
+ "pageType": "paginated-list",
+ "domain": "crm",
+ "resource": "customer",
+ "standardComponents": [
+  "MainPage",
+  "PagePanel",
+  "查询区",
+  "EntityListTable",
+  "Pagination",
+  "ColumnSettings",
+  "PermissionGuard"
+ ],
+ "runtimeCapabilities": ["theme", "i18n", "alerts", "permission", "org-context"],
+ "exception": null
 }

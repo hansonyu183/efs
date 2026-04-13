@@ -41,7 +41,7 @@ alias: {
 ```ts
 import MainPage from '@efs/vue/components/pages/MainPage.vue'
 import AuthPage from '@efs/vue/components/pages/AuthPage.vue'
-import QueryToolbar from '@efs/vue/components/panels/QueryToolbar.vue'
+import 查询区 from '@efs/vue/components/panels/查询区.vue'
 import EntityListTable from '@efs/vue/components/panels/EntityListTable.vue'
 ```
 
