@@ -8,19 +8,18 @@
 
 - 查询列表页
 - 分页列表页
+- 标准 CRUD 资源页（查询 + 列表 + 详情 + 弹窗表单）
 - 列表 + 详情页
 - 表单页
 - 只读详情页
 - 主从页
 - 弹窗新增/编辑页
 - 报表页
-- 运行时元数据页
 
 但当前成熟度并不完全一致：
 
 - **列表相关组件最成熟**
-- **表单 / 详情 / 主从壳已进入可用阶段，但仍需继续加厚**
-- **运行时资源页 renderer 已进入第一版可用阶段：可按标准 shell 分发 list / form / detail / report / runtime metadata 页面，但仍需继续补厚真正的渲染与交互能力**
+- **表单 / 详情 / 主从 Panel 已进入可用阶段，但仍需继续加厚**
 
 ## 成熟度分级说明
 
@@ -32,52 +31,47 @@
 
 | 组件 | 当前成熟度 | 现状判断 | 是否适合作为标准资产 | 下一步重点 |
 |---|---|---|---|---|
-| QueryToolbarShell | P0 | 已具备标准查询头部和扩展位 | 是 | 继续补查询字段组合示例 |
+| QueryToolbar | P0 | 已具备标准查询头部和扩展位 | 是 | 继续补查询字段组合示例 |
 | EntityListTable | P0 | 已具备列设置、分页、移动端卡片 fallback、tableKey 等能力 | 是 | 继续补真实资源列表用例 |
-| SimpleTableShell | P0 | 适合作为轻量标准表格壳 | 是 | 继续补 empty/error/loading 约束 |
-| FormShell | P1 | 已具备表单页标题、分段、摘要、保存/取消底部动作 | 是 | 继续补校验、只读态、aside 区 |
-| DetailShell | P1 | 已具备详情字段网格、描述区、空态、页脚扩展 | 是 | 继续补字段 renderer 与分组详情 |
-| MasterDetailShell | P1 | 已具备双栏主从结构、splitRatio、detail 空态 | 是 | 继续补 selection 状态与移动端交互 |
-| CrudDialogShell | P1 | 已具备标题、副标题、summary、大小模式、底部动作、关闭策略 | 是 | 继续补表单校验/confirm/loading 细节 |
-| ReportShell | P1 | 已具备 query/result 分区、导出动作、header/result 扩展位 | 是 | 继续补图表/多结果区和异步状态 |
-| DynamicPageRenderer | P1 | 已支持 list / form / detail / report / runtime-metadata-page 的标准 shell 分发与 runtime plan 生成 | 是，但仍需继续补厚 | 继续补真正 Vue 渲染与状态/权限注入能力 |
-| MetadataFormRenderer | P1 | 对 runtime 表单 schema 有基础处理能力 | 是 | 继续补 widget / validation / layout |
-| MetadataTableRenderer | P1 | 对 runtime 表格 schema 有基础处理能力 | 是 | 继续补 formatter / action / status |
-| ActionRenderer | P1 | 对 runtime action schema 有基础处理能力 | 是 | 继续补权限 / loading / confirm |
+| EntityListView | P0 | 已把 QueryToolbar / EntityListTable / DetailPanel / CrudDialog 收敛成标准 CRUD View，支持过滤、分页、详情侧栏、create/edit 弹窗、默认表单、自定义插槽，并结合 `ActionBar + LoadingState + EmptyState + ErrorState` 提供 `pageActions / toolbarActions / batchActions` 等动作标准定义；列表默认支持对象数组零配置输入，显式 `columns` 退为增强项 | 是 | 继续补移动端批量交互与更细的操作权限语义 |
+| SimpleTablePanel | P0 | 适合作为轻量标准表格壳 | 是 | 继续补 empty/error/loading 约束 |
+| FormPanel | P1 | 已具备表单页标题、分段、摘要、保存/取消底部动作 | 是 | 继续补校验、只读态、aside 区 |
+| DetailPanel | P1 | 已具备详情字段网格、描述区、空态、页脚扩展 | 是 | 继续补字段 renderer 与分组详情 |
+| MasterDetailPanel | P1 | 已具备双栏主从结构、splitRatio、detail 空态 | 是 | 继续补 selection 状态与移动端交互 |
+| CrudDialog | P1 | 已具备标题、副标题、summary、大小模式、底部动作、关闭策略 | 是 | 继续补表单校验/confirm/loading 细节 |
+| ReportPanel | P1 | 已具备 query/result 分区、导出动作、header/result 扩展位 | 是 | 继续补图表/多结果区和异步状态 |
 
 ## 推荐口径
 
 ### 已可对外宣称“标准资源页组件”的能力
-- QueryToolbarShell
+- QueryToolbar
 - EntityListTable
-- SimpleTableShell
-- FormShell
-- DetailShell
-- MasterDetailShell
-- CrudDialogShell
-- ReportShell
-
-### 已进入第一版可用，但仍不宜宣称“厚成品”的能力
-- DynamicPageRenderer（已能输出标准 shell plan 与 page model，但还不是最终 Vue 成品渲染器）
+- EntityListView
+- SimpleTablePanel
+- FormPanel
+- DetailPanel
+- MasterDetailPanel
+- CrudDialog
+- ReportPanel
 
 ## 近期优先级建议
 
 ### P0
-1. 用真实示例页继续 dogfood `FormShell / DetailShell / MasterDetailShell`
-2. 明确这些组件的 contract 测试与文档口径
-3. 让业务项目先优先从这些资源页壳里选型
+1. 用真实示例页继续 dogfood `FormPanel / DetailPanel / MasterDetailPanel`
+2. 用真实示例页持续 dogfood `EntityListView`
+3. 明确这些组件的 规范 测试与文档口径
+4. 让业务项目优先从这些资源 View / Panel 里选型
 
 ### P1
-1. 增强 runtime renderer 与 metadata renderer
-2. 为 CrudDialogShell / ReportShell 增加真实页面示例
-3. 继续补图表、confirm、loading、异步状态语义
+1. 为 CrudDialog / ReportPanel 增加真实页面示例
+2. 继续补图表、confirm、loading、异步状态语义
 
 ### P2
-1. 为登录页、列表页、详情页、主从页、运行时页补更完整 preset
-2. 把资源页从“可拼装壳”进一步升级为“更厚的标准成品页模式”
+1. 为登录页、列表页、详情页、主从页补更完整 preset
+2. 把资源页从“可拼装 Panel”进一步升级为“更厚的标准成品 View 模式”
 
 ## 当前建议
 
 以后对外说明时建议使用这个口径：
 
-> EFS 已具备企业资源页标准壳组件库，列表页能力最成熟；表单、详情、主从页已进入可用标准化阶段；弹窗、报表、运行时资源页正在继续补厚。
+> EFS 已具备企业资源页标准 Page / View / Panel 组件库，列表页能力最成熟；表单、详情、主从页已进入可用标准化阶段；弹窗、报表页正在继续补厚。

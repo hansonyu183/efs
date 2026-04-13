@@ -7,22 +7,22 @@ EFS 的左侧动态菜单采用**运行时加载 + 顺序码排序**模式，不
 1. 菜单由运行时权限/菜单接口返回。
 2. 每个菜单节点**必须带 `order` 顺序码**。
 3. 前端按**同级 `order` 从小到大**排序后再组树。
-4. `MainLayout` / Sidebar 只负责展示，不负责业务排序决策。
-5. 壳层与导航交互遵循 **icon-first**，避免堆积文本操作。
+4. `MainPage` / Sidebar 只负责展示，不负责业务排序决策。
+5. Page / View / Panel 与导航交互遵循 **icon-first**，避免堆积文本操作。
 
 ## 扁平菜单输入 Contract
 
 ```ts
 type MenuNode = {
-  key: string
-  title: string
-  path?: string
-  icon?: string
-  order: number
-  parentKey?: string | null
-  type: 'group' | 'item'
-  visible?: boolean
-  disabled?: boolean
+ key: string
+ title: string
+ path?: string
+ icon?: string
+ order: number
+ parentKey?: string | null
+ type: 'group' | 'item'
+ visible?: boolean
+ disabled?: boolean
 }
 ```
 
@@ -86,20 +86,20 @@ type MenuNode = {
 
 ```ts
 type SidebarMenuTreeNode = {
-  key: string
-  title: string
-  path?: string
-  icon?: string
-  type: 'group' | 'item'
-  order: number
-  children?: SidebarMenuTreeNode[]
-  disabled?: boolean
+ key: string
+ title: string
+ path?: string
+ icon?: string
+ type: 'group' | 'item'
+ order: number
+ children?: SidebarMenuTreeNode[]
+ disabled?: boolean
 }
 ```
 
-## 与 MainLayout 的边界
+## 与 MainPage 的边界
 
-### MainLayout / Sidebar 负责
+### MainPage / Sidebar 负责
 - 展示排好序的菜单树
 - 展示激活态/折叠态/响应式行为
 
@@ -111,7 +111,7 @@ type SidebarMenuTreeNode = {
 
 ## Icon-first 规则
 
-导航和壳层交互尽量使用语义 icon，而不是大段文本：
+导航和Page 交互尽量使用语义 icon，而不是大段文本：
 
 ### 推荐 icon-first 的区域
 - Topbar 操作
@@ -162,10 +162,10 @@ const tree = buildSidebarMenuTree(flatMenus)
 - `apps/demo-app/src/components/DemoSidebarNav.vue`
 - `apps/demo-app/src/navigation.ts`
 
-`MainLayout` 壳层内的全局操作图标已统一改为语义 icon component，而不是在模板里散落 emoji/文本字符。
+`MainPage` Page 内的全局操作图标已统一改为语义 icon component，而不是在模板里散落 emoji/文本字符。
 
 ## 与 Agent 的关系
 
 - Agent 会话管理位于 **底部 Agent 对话栏 + 右侧会话面板**
 - `More` 菜单**不再放会话管理入口**
-- 顶部壳层与 Agent 遵循 icon-first
+- 顶部 Page 与 Agent 遵循 icon-first

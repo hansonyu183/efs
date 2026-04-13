@@ -1,60 +1,33 @@
-import { pageCatalog, requiredGlobalCapabilities } from '../../contracts/src/index.mjs'
+const REQUIRED_CAPABILITIES = ['theme', 'i18n', 'alerts', 'permission', 'org-context']
+
+const PRESETS = {
+  login: ['AuthPage'],
+  workbench: ['MainPage', 'PagePanel', 'DashboardCardPanel', 'PermissionGuard'],
+  'query-list': ['MainPage', 'PagePanel', 'QueryToolbar', 'EntityListTable', 'PermissionGuard'],
+  'paginated-list': ['MainPage', 'PagePanel', 'QueryToolbar', 'EntityListTable', 'Pagination', 'PermissionGuard'],
+  'entity-list': ['MainPage', 'PagePanel', 'EntityListView', 'QueryToolbar', 'EntityListTable', 'CrudDialog', 'DetailPanel', 'PermissionGuard'],
+  'form-page': ['MainPage', 'PagePanel', 'FormPanel', 'ActionBar', 'PermissionGuard'],
+  'detail-page': ['MainPage', 'PagePanel', 'DetailPanel', 'StatusChip', 'PermissionGuard'],
+  'report-page': ['MainPage', 'PagePanel', 'QueryToolbar', 'ReportPanel', 'PermissionGuard'],
+}
 
 function manifestForPreset(pageType, name) {
-  const spec = pageCatalog[pageType]
-  if (!spec) {
-    throw new Error(`Unknown preset: ${pageType}`)
-  }
-
-  const slug = name
-    .replace(/([a-z])([A-Z])/g, '$1-$2')
-    .replace(/\s+/g, '-')
-    .toLowerCase()
-
-  return {
-    id: slug,
-    name,
-    pageType,
-    domain: 'demo',
-    resource: slug,
-    standardComponents: spec.requiredComponents,
-    runtimeCapabilities: [...requiredGlobalCapabilities],
-    exception: null
-  }
+  const standardComponents = PRESETS[pageType]
+  if (!standardComponents) throw new Error(`Unknown preset: ${pageType}`)
+  const slug = name.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/\s+/g, '-').toLowerCase()
+  return { id: slug, name, pageType, domain: 'demo', resource: slug, standardComponents, runtimeCapabilities: [...REQUIRED_CAPABILITIES], exception: null }
 }
 
 function scriptBlock(pageType, components) {
-  const componentImports = components
-    .map((name) => `// import ${name} from '@enterprise/${name}'`)
-    .join('\n')
-
+  const componentImports = components.map((name) => `// import ${name} from '@enterprise/${name}'`).join('\n')
   return `<script setup lang="ts">\nconst pageType = '${pageType}'\n${componentImports}\n</script>`
 }
-
-function templateBlock(pageType) {
-  return `<template>\n  <div class="enterprise-page" data-page-type="${pageType}">\n    <!-- Use standard shells only; no raw table/form skeletons here. -->\n  </div>\n</template>`
-}
-
-function styleBlock() {
-  return `<style scoped>\n.enterprise-page {\n  display: block;\n}\n</style>`
-}
+function templateBlock(pageType) { return `<template>\n  <div class="enterprise-page" data-page-type="${pageType}">\n    <!-- Use standard Page/View/Panel components only. -->\n  </div>\n</template>` }
+function styleBlock() { return `<style scoped>\n.enterprise-page {\n  display: block;\n}\n</style>` }
 
 export function scaffoldPreset(pageType, name) {
   const manifest = manifestForPreset(pageType, name)
-  const vue = [
-    `<!-- standard-components: ${manifest.standardComponents.join(', ')} -->`,
-    scriptBlock(pageType, manifest.standardComponents),
-    templateBlock(pageType),
-    styleBlock()
-  ].join('\n\n')
-
-  return {
-    manifest,
-    vue,
-    fileBaseName: name
-  }
+  const vue = [`<!-- standard-components: ${manifest.standardComponents.join(', ')} -->`, scriptBlock(pageType, manifest.standardComponents), templateBlock(pageType), styleBlock()].join('\n\n')
+  return { manifest, vue, fileBaseName: name }
 }
-
-export function listPresets() {
-  return Object.keys(pageCatalog).sort()
-}
+export function listPresets() { return Object.keys(PRESETS).sort() }

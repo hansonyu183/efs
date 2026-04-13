@@ -5,11 +5,10 @@
   "domain": "platform",
   "resource": "workbench",
   "standardComponents": [
-    "MainLayout",
-    "PageSection",
-    "DashboardCardShell",
-    "PermissionGuard",
-    "AppAlerts"
+    "MainPage",
+    "PagePanel",
+    "DashboardCardPanel",
+    "PermissionGuard"
   ],
   "runtimeCapabilities": ["theme", "i18n", "alerts", "permission", "org-context"],
   "exception": null

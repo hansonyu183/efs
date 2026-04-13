@@ -1,15 +1,15 @@
-<!-- standard-components: MainLayout, PageSection, DashboardCardShell, PermissionGuard, AppAlerts -->
+<!-- standard-components: MainPage, PagePanel, DashboardCardPanel, PermissionGuard -->
 <script setup lang="ts">
 const pageType = 'workbench'
-// import MainLayout from '@enterprise/MainLayout'
-// import PageSection from '@enterprise/PageSection'
-// import DashboardCardShell from '@enterprise/DashboardCardShell'
+// import MainPage from '@enterprise/MainPage'
+// import PagePanel from '@enterprise/PagePanel'
+// import DashboardCardPanel from '@enterprise/DashboardCardPanel'
 // import PermissionGuard from '@enterprise/PermissionGuard'
-// import AppAlerts from '@enterprise/AppAlerts'
+// import from '@enterprise/'
 </script>
 
 <template>
-  <div class="workbench-page" data-page-type="workbench">
-    <!-- Standard dashboard shell composition goes here. -->
-  </div>
+ <div class="workbench-page" data-page-type="workbench">
+  <!-- Standard dashboard shell composition goes here. -->
+ </div>
 </template>

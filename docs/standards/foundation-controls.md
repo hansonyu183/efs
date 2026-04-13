@@ -1,6 +1,6 @@
 # Foundation Controls Standard
 
-EFS 不只是沉淀页面壳，也必须沉淀布局和表单入口层的基础控件。
+EFS 不只是沉淀Page，也必须沉淀布局和表单入口层的基础控件。
 
 当前纳入 EFS 基础控件层的 P0 组件：
 

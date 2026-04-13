@@ -28,20 +28,20 @@ third_party/efs
 
 ```ts
 alias: {
-  '@efs/vue/components': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/components'),
+ '@efs/vue/components': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/components'),
 }
 ```
 
-如果后续消费 runtime / contracts / presets，也应增加对应 alias，而不是在业务项目内复制实现。
+如果后续消费 runtime / 规范s / presets，也应增加对应 alias，而不是在业务项目内复制实现。
 
 ### 3. 业务模块通过统一别名直接 import
 
 示例：
 
 ```ts
-import MainLayout from '@efs/vue/components/foundation/MainLayout.vue'
-import AuthLayout from '@efs/vue/components/foundation/AuthLayout.vue'
-import QueryToolbarShell from '@efs/vue/components/shell/QueryToolbarShell.vue'
+import MainPage from '@efs/vue/components/foundation/MainPage.vue'
+import AuthPage from '@efs/vue/components/foundation/AuthPage.vue'
+import QueryToolbar from '@efs/vue/components/shell/QueryToolbar.vue'
 import EntityListTable from '@efs/vue/components/shell/EntityListTable.vue'
 ```
 

@@ -1,36 +1,34 @@
 {
-  "name": "efs",
-  "version": "0.4.0",
-  "private": true,
-  "type": "module",
-  "description": "Enterprise frontend standard component/page library and contract checker.",
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
-  "scripts": {
-    "test": "node --test",
-    "check:sample": "node packages/cli/bin/efs-check.mjs examples/sample-app/enterprise-pages && node packages/cli/bin/efs-check.mjs examples/runtime-demo/enterprise-pages",
-    "lint:sample": "node packages/cli/bin/efs-lint.mjs examples/sample-app && node packages/cli/bin/efs-lint.mjs examples/runtime-demo",
-    "lint:sample:ast": "node packages/cli/bin/efs-lint-ast.mjs examples/sample-app && node packages/cli/bin/efs-lint-ast.mjs examples/runtime-demo",
-    "govern:sample": "node packages/cli/bin/efs-governance.mjs examples/sample-app && node packages/cli/bin/efs-governance.mjs examples/runtime-demo",
-    "scaffold:sample": "node packages/cli/bin/efs-scaffold.mjs --preset paginated-list --name DemoListPage --out .tmp/demo-page",
-    "runtime:demo": "node packages/cli/bin/efs-runtime-demo.mjs examples/runtime-demo/enterprise-pages/order-runtime.page.json",
-    "demo:dev": "npm --workspace @efs/demo-app run dev",
-    "demo:build": "npm --workspace @efs/demo-app run build",
-    "pack:check": "npm pack --dry-run --workspace @efs/contracts && npm pack --dry-run --workspace @efs/presets && npm pack --dry-run --workspace @efs/vue && npm pack --dry-run --workspace @efs/cli",
-    "ci": "npm run test && npm run check:sample && npm run lint:sample && npm run lint:sample:ast && npm run govern:sample && npm run demo:build && npm run pack:check"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "dependencies": {
-    "@babel/parser": "^7.28.4",
-    "@vitejs/plugin-vue": "^5.2.4",
-    "@vue/compiler-dom": "^3.5.13",
-    "@vue/compiler-sfc": "^3.5.13",
-    "vite": "^5.4.19",
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.1"
-  }
+ "name": "efs",
+ "version": "0.4.0",
+ "private": true,
+ "type": "module",
+ "description": "Enterprise frontend standard component/page library.",
+ "workspaces": [
+  "packages/*",
+  "apps/*"
+ ],
+ "scripts": {
+  "test": "node --test",
+  "lint:sample": "node packages/cli/bin/efs-lint.mjs examples/sample-app",
+  "lint:sample:ast": "node packages/cli/bin/efs-lint-ast.mjs examples/sample-app",
+  "govern:sample": "node packages/cli/bin/efs-governance.mjs examples/sample-app",
+  "scaffold:sample": "node packages/cli/bin/efs-scaffold.mjs --preset paginated-list --name DemoListPage --out .tmp/demo-page",
+  "demo:dev": "npm --workspace @efs/demo-app run dev",
+  "demo:build": "npm --workspace @efs/demo-app run build",
+  "pack:check": "npm pack --dry-run --workspace @efs/presets && npm pack --dry-run --workspace @efs/vue && npm pack --dry-run --workspace @efs/cli",
+  "ci": "npm run test && npm run lint:sample && npm run lint:sample:ast && npm run govern:sample && npm run demo:build && npm run pack:check"
+ },
+ "engines": {
+  "node": ">=20"
+ },
+ "dependencies": {
+  "@babel/parser": "^7.28.4",
+  "@vitejs/plugin-vue": "^5.2.4",
+  "@vue/compiler-dom": "^3.5.13",
+  "@vue/compiler-sfc": "^3.5.13",
+  "vite": "^5.4.19",
+  "vue": "^3.5.13",
+  "vue-router": "^4.5.1"
+ }
 }

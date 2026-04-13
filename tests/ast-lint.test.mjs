@@ -6,15 +6,11 @@ import path from 'node:path'
 const repoRoot = path.resolve(new URL('..', import.meta.url).pathname)
 
 function runNode(args, cwd = repoRoot) {
-  return execFileSync(process.execPath, args, { cwd, encoding: 'utf8' })
+ return execFileSync(process.execPath, args, { cwd, encoding: 'utf8' })
 }
 
 test('AST lint passes for sample app', () => {
-  const output = runNode(['packages/cli/bin/efs-lint-ast.mjs', 'examples/sample-app'])
-  assert.match(output, /AST lint passed/)
+ const output = runNode(['packages/cli/bin/efs-lint-ast.mjs', 'examples/sample-app'])
+ assert.match(output, /AST lint passed/)
 })
 
-test('AST lint passes for runtime demo', () => {
-  const output = runNode(['packages/cli/bin/efs-lint-ast.mjs', 'examples/runtime-demo'])
-  assert.match(output, /AST lint passed/)
-})

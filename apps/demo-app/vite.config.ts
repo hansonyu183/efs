@@ -3,11 +3,11 @@ import vue from '@vitejs/plugin-vue'
 import path from 'node:path'
 
 export default defineConfig({
-  plugins: [vue()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@efs-vue': path.resolve(__dirname, '../../packages/vue/src')
-    }
+ plugins: [vue()],
+ resolve: {
+  alias: {
+   '@': path.resolve(__dirname, './src'),
+   '@efs-vue': path.resolve(__dirname, '../../packages/vue/src')
   }
+ }
 })

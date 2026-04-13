@@ -6,14 +6,12 @@
 
 ## 仓库内容
 
-- `packages/contracts`：标准组件、标准页面、强约束校验规则
 - `packages/presets`：标准页面 preset 定义与脚手架模板
-- `packages/vue`：Vue 组件与 runtime renderer/API
-- `packages/cli`：contract / lint / scaffold / governance / runtime demo 命令
+- `packages/vue`：Vue 组件与共享辅助能力
+- `packages/cli`：lint / scaffold / governance 命令
 - `apps/demo-app`：可运行的 Vite + Vue 标准示例应用
 - `examples/sample-app`：标准手写页面示例
-- `examples/runtime-demo`：运行时 metadata 页面示例
-- `tests/`：标准库、校验器、脚手架、runtime、AST lint、治理测试
+- `tests/`：组件、脚手架、AST lint、治理与打包测试
 
 ## 正式接入文档
 
@@ -28,11 +26,9 @@
 ```bash
 npm install
 npm run test
-npm run check:sample
 npm run lint:sample
 npm run lint:sample:ast
 npm run govern:sample
-npm run runtime:demo
 npm run demo:build
 npm run pack:check
 npm run ci
@@ -48,13 +44,10 @@ npm run ci
 
 - 标准组件 registry
 - 标准页面 preset registry
-- 页面 manifest contract 校验器
 - Vue 组件 API 骨架
-- runtime renderer / metadata renderers
 - 页面 scaffold 生成器
 - regex lint + AST lint
 - governance 检查（manifest/page 对应、例外白名单、到期检查）
 - 可运行 demo app
 - 可发布 package manifests / exports / dry-run pack 检查
-- 运行时页面 demo
 - GitHub CI

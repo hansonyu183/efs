@@ -9,16 +9,12 @@
 ## App / Foundation
 
 ### 必须优先使用
-- AppShell
-- AuthLayout
-- MainLayout
-- AppAlerts
-- ThemeSwitcher
+- AuthPage
+- MainPage
+- - ThemeSwitcher
 - LocaleSwitcher
-- OrgSwitcher
-- PermissionGuard
-- SessionBootstrap
-
+- - PermissionGuard
+- 
 ### Foundation Controls / P0
 - AppButton
 - AppInput
@@ -30,36 +26,43 @@
 - 这五个组件属于布局与表单入口层的基础能力，不允许业务项目长期保留第二套通用实现。
 - 登录页、布局工具栏、查询栏、轻表单、卡片面板应优先复用这一层。
 - 如果业务项目需要额外能力，应先扩展 EFS，而不是在项目本地再造基础控件。
-- 壳层、导航层、全局操作层遵循 icon-first，优先使用语义 icon 与 tooltip，而不是堆积长文本按钮。
+- Page / View / Panel、导航层、全局操作层遵循 icon-first，优先使用语义 icon 与 tooltip，而不是堆积长文本按钮。
 
-## Shell
+## Page / View / Panel
 
-### P0
-- PageSection
-- QueryToolbarShell
+### Page
+- AuthPage
+- MainPage
+
+### View / Panel / 结构组件
+- PagePanel
+- QueryToolbar
 - EntityListTable
-- SimpleTableShell
-- DashboardCardShell
-
-### P1
-- FormShell
-- DetailShell
-- MasterDetailShell
-- CrudDialogShell
-- ReportShell
+- EntityListView
+- SimpleTablePanel
+- DashboardCardPanel
+- FormPanel
+- DetailPanel
+- MasterDetailPanel
+- CrudDialog
+- ReportPanel
 
 ### P1（运行时分发已可用，待继续补厚）
-- DynamicPageRenderer
+- 
 
 补充说明：
+- EFS 当前采用“标准定义单一真相源”口径，见 `docs/standards/standard-definitions.md`
 - 资源页组件成熟度评估见 `docs/standards/resource-page-maturity.md`
-- 当前列表页相关能力最成熟；表单 / 详情 / 主从 / 弹窗 / 报表壳已进入可用阶段；DynamicPageRenderer 已可按标准 shell 分发 list / form / detail / report / runtime metadata 页面，但真正 Vue 成品渲染仍需继续补厚
+- 资源页 action 分层与摆放规则见 `docs/standards/resource-page-actions.md`
+- `EntityListView` 输入项瘦身方向见 `docs/standards/resource-crud-input-slimming.md`
+- 当前列表页相关能力最成熟；`EntityListView` 已把查询、列表、详情、弹窗表单组合成一体化标准 CRUD View，并继续向“成品 View”收敛：默认采用 **controller-first** 接口，业务页把少量状态与 `query/save/remove` 等 handlers 放进一个强类型 `controller` 对象即可；列表默认支持“对象数组即表格”的零配置输入（显式 `columns` 仅作增强配置），标题默认内接应用侧 `$t`，查询/loading/error/分页/弹窗等流程状态优先由组件内部维护，页头默认只保留主标题，详情区仅依据 `detailFields`/detail slot 决定是否显示，行操作默认提供编辑/删除并允许覆盖；表单 / 详情 / 主从 / 弹窗 / 报表 Panel 已进入可用阶段
 
 ## Interaction
 
 ### P0
 - StatusChip
 - ActionBar
+- LoadingState
 - Pagination
 - EmptyState
 - ErrorState
@@ -67,14 +70,6 @@
 ### P1
 - ColumnSettings
 - PermissionAwareAction
-
-## Runtime
-
-### P1
-- DynamicPageRenderer
-- MetadataFormRenderer
-- MetadataTableRenderer
-- ActionRenderer
 
 ## 组件纳入标准库的原则
 

@@ -5,6 +5,7 @@
 - workbench
 - query-list
 - paginated-list
+- resource-crud
 - crud-dialog-page
 - form-page
 - readonly-detail

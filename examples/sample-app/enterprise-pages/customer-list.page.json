@@ -5,14 +5,13 @@
   "domain": "crm",
   "resource": "customer",
   "standardComponents": [
-    "MainLayout",
-    "PageSection",
-    "QueryToolbarShell",
+    "MainPage",
+    "PagePanel",
+    "QueryToolbar",
     "EntityListTable",
     "Pagination",
     "ColumnSettings",
-    "PermissionGuard",
-    "AppAlerts"
+    "PermissionGuard"
   ],
   "runtimeCapabilities": ["theme", "i18n", "alerts", "permission", "org-context"],
   "exception": null

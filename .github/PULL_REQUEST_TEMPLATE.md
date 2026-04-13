@@ -13,9 +13,9 @@
 ## 例外申请
 - [ ] 无
 - [ ] 有（必须填写）
-  - reason:
-  - owner:
-  - expiresAt:
+ - reason:
+ - owner:
+ - expiresAt:
 
 ## 必做检查
 - [ ] npm run test

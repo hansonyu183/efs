@@ -6,8 +6,8 @@ import { scaffoldPreset, listPresets } from '../../presets/src/index.mjs'
 
 const args = process.argv.slice(2)
 function readArg(name) {
-  const idx = args.indexOf(`--${name}`)
-  return idx >= 0 ? args[idx + 1] : null
+ const idx = args.indexOf(`--${name}`)
+ return idx >= 0 ? args[idx + 1] : null
 }
 
 const preset = readArg('preset')
@@ -15,9 +15,9 @@ const name = readArg('name')
 const out = readArg('out')
 
 if (!preset || !name || !out) {
-  console.error('Usage: node packages/cli/bin/efs-scaffold.mjs --preset <preset> --name <PageName> --out <dir>')
-  console.error(`Available presets: ${listPresets().join(', ')}`)
-  process.exit(1)
+ console.error('Usage: node packages/cli/bin/efs-scaffold.mjs --preset <preset> --name <PageName> --out <dir>')
+ console.error(`Available presets: ${listPresets().join(', ')}`)
+ process.exit(1)
 }
 
 const generated = scaffoldPreset(preset, name)

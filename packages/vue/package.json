@@ -1,20 +1,16 @@
 {
-  "name": "@efs/vue",
-  "version": "0.4.0",
-  "type": "module",
-  "private": false,
-  "description": "Vue shells and runtime helpers for enterprise frontend standards.",
-  "exports": {
-    ".": "./src/index.mjs",
-    "./runtime": "./src/index.mjs",
-    "./components/*": "./src/components/*",
-    "./types": "./src/types.mjs"
-  },
-  "files": [
-    "src"
-  ],
-  "sideEffects": false,
-  "dependencies": {
-    "@efs/contracts": "file:../contracts"
-  }
+ "name": "@efs/vue",
+ "version": "0.4.0",
+ "type": "module",
+ "private": false,
+ "description": "Vue Page/View/Panel components and helpers for enterprise frontend standards.",
+ "exports": {
+  ".": "./src/index.mjs",
+  "./components/*": "./src/components/*",
+  "./types": "./src/types.mjs"
+ },
+ "files": [
+  "src"
+ ],
+ "sideEffects": false
 }
