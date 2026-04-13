@@ -223,21 +223,21 @@
 
 <script setup lang="ts">
 import { computed, getCurrentInstance, onMounted, ref, useSlots, watch } from 'vue'
-import AppButton from '../foundation/AppButton.vue'
-import AppField from '../foundation/AppField.vue'
-import AppInput from '../foundation/AppInput.vue'
-import AppSelect from '../foundation/AppSelect.vue'
+import AppButton from '../controls/AppButton.vue'
+import AppField from '../controls/AppField.vue'
+import AppInput from '../controls/AppInput.vue'
+import AppSelect from '../controls/AppSelect.vue'
 import ActionBar from '../interaction/ActionBar.vue'
 import DataTable from '../interaction/DataTable.vue'
 import EmptyState from '../interaction/EmptyState.vue'
 import ErrorState from '../interaction/ErrorState.vue'
 import LoadingState from '../interaction/LoadingState.vue'
 import { resolveLabel, resolveOptionalLabel } from '../../shared/LabelResolver'
-import CrudDialog from './CrudDialog.vue'
-import DetailPanel from './DetailPanel.vue'
-import EntityListTable from './EntityListTable.vue'
-import FormPanel from './FormPanel.vue'
-import QueryToolbar from './QueryToolbar.vue'
+import CrudDialog from '../panels/CrudDialog.vue'
+import DetailPanel from '../panels/DetailPanel.vue'
+import EntityListTable from '../panels/EntityListTable.vue'
+import FormPanel from '../panels/FormPanel.vue'
+import QueryToolbar from '../panels/QueryToolbar.vue'
 import type {
  ResourceCrudAction,
  ResourceCrudActionHandlerPayload,

@@ -36,7 +36,7 @@
 import { computed } from 'vue'
 import type { FlatMenuNode, SidebarMenuTreeNode } from '../../../../packages/vue/src/shared/NavigationMenu'
 import { buildSidebarMenuTree } from '../../../../packages/vue/src/shared/NavigationMenu'
-import SemanticIcon from '../../../../packages/vue/src/components/foundation/SemanticIcon.vue'
+import SemanticIcon from '../../../../packages/vue/src/components/controls/SemanticIcon.vue'
 
 defineOptions({ name: 'DemoSidebarNav' })
 

@@ -205,14 +205,14 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch, useSlots } from 'vue'
-import AppButton from './AppButton.vue'
-import AppField from './AppField.vue'
-import AppInput from './AppInput.vue'
-import AppPanel from './AppPanel.vue'
-import AppSelect from './AppSelect.vue'
-import LocaleSwitcher from './LocaleSwitcher.vue'
-import ThemeSwitcher from './ThemeSwitcher.vue'
-import SemanticIcon from './SemanticIcon.vue'
+import AppButton from '../controls/AppButton.vue'
+import AppField from '../controls/AppField.vue'
+import AppInput from '../controls/AppInput.vue'
+import AppPanel from '../controls/AppPanel.vue'
+import AppSelect from '../controls/AppSelect.vue'
+import LocaleSwitcher from '../controls/LocaleSwitcher.vue'
+import ThemeSwitcher from '../controls/ThemeSwitcher.vue'
+import SemanticIcon from '../controls/SemanticIcon.vue'
 
 defineOptions({ name: 'MainPage' })
 

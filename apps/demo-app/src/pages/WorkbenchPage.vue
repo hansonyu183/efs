@@ -23,9 +23,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
-import MainPage from '../../../../packages/vue/src/components/foundation/MainPage.vue'
-import PagePanel from '../../../../packages/vue/src/components/shell/PagePanel.vue'
-import DashboardCardPanel from '../../../../packages/vue/src/components/shell/DashboardCardPanel.vue'
+import MainPage from '../../../../packages/vue/src/components/pages/MainPage.vue'
+import PagePanel from '../../../../packages/vue/src/components/panels/PagePanel.vue'
+import DashboardCardPanel from '../../../../packages/vue/src/components/panels/DashboardCardPanel.vue'
 import DemoSidebarNav from '../components/DemoSidebarNav.vue'
 import { demoSidebarMenus } from '../navigation'
 

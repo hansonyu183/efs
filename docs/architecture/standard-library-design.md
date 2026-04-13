@@ -176,12 +176,12 @@ AgentOS 当前共享组件数量不多，但平台化方向更清晰，集中在
 
 对应证据：
 - `frontend/web-app/src/components/app/.vue`
-- `frontend/web-app/src/components/shell/PagePanel.vue`
-- `frontend/web-app/src/components/shell/QueryToolbar.vue`
-- `frontend/web-app/src/components/shell/EntityListTable.vue`
-- `frontend/web-app/src/components/shell/SimpleTablePanel.vue`
-- `frontend/web-app/src/components/shell/CrudDialog.vue`
-- `frontend/web-app/src/components/shell/DashboardCardPanel.vue`
+- `frontend/web-app/src/components/panels/PagePanel.vue`
+- `frontend/web-app/src/components/panels/QueryToolbar.vue`
+- `frontend/web-app/src/components/panels/EntityListTable.vue`
+- `frontend/web-app/src/components/panels/SimpleTablePanel.vue`
+- `frontend/web-app/src/components/panels/CrudDialog.vue`
+- `frontend/web-app/src/components/panels/DashboardCardPanel.vue`
 
 #### 2.2.2 已有标准页面模式
 

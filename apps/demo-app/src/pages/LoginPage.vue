@@ -30,10 +30,10 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AuthPage from '../../../../packages/vue/src/components/foundation/AuthPage.vue'
-import AppButton from '../../../../packages/vue/src/components/foundation/AppButton.vue'
-import AppField from '../../../../packages/vue/src/components/foundation/AppField.vue'
-import AppInput from '../../../../packages/vue/src/components/foundation/AppInput.vue'
+import AuthPage from '../../../../packages/vue/src/components/pages/AuthPage.vue'
+import AppButton from '../../../../packages/vue/src/components/controls/AppButton.vue'
+import AppField from '../../../../packages/vue/src/components/controls/AppField.vue'
+import AppInput from '../../../../packages/vue/src/components/controls/AppInput.vue'
 
 const router = useRouter()
 const locale = ref('zh-CN')

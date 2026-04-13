@@ -39,10 +39,10 @@ alias: {
 示例：
 
 ```ts
-import MainPage from '@efs/vue/components/foundation/MainPage.vue'
-import AuthPage from '@efs/vue/components/foundation/AuthPage.vue'
-import QueryToolbar from '@efs/vue/components/shell/QueryToolbar.vue'
-import EntityListTable from '@efs/vue/components/shell/EntityListTable.vue'
+import MainPage from '@efs/vue/components/pages/MainPage.vue'
+import AuthPage from '@efs/vue/components/pages/AuthPage.vue'
+import QueryToolbar from '@efs/vue/components/panels/QueryToolbar.vue'
+import EntityListTable from '@efs/vue/components/panels/EntityListTable.vue'
 ```
 
 ## 为什么当前采用这种接法

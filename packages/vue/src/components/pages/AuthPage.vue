@@ -74,8 +74,8 @@
 
 <script setup lang="ts">
 import { computed, useSlots } from 'vue'
-import LocaleSwitcher from './LocaleSwitcher.vue'
-import ThemeSwitcher from './ThemeSwitcher.vue'
+import LocaleSwitcher from '../controls/LocaleSwitcher.vue'
+import ThemeSwitcher from '../controls/ThemeSwitcher.vue'
 
 defineOptions({ name: 'AuthPage' })
 
