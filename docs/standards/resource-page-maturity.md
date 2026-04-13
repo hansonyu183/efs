@@ -33,7 +33,7 @@
 |---|---|---|---|---|
 | 查询区 | P0 | 已具备标准查询头部和扩展位 | 是 | 继续补查询字段组合示例 |
 | EntityListTable | P0 | 已具备列设置、分页、移动端卡片 fallback、tableKey 等能力 | 是 | 继续补真实资源列表用例 |
-| EntityListView | P0 | 已把 EntityListTable / DetailPanel / CrudDialog 收敛成标准 CRUD View，支持过滤、分页、详情侧栏、create/edit 弹窗、默认表单、自定义插槽，并结合 `ActionBar + LoadingState + EmptyState + ErrorState` 提供 `pageActions / toolbarActions / batchActions` 等动作标准定义；列表默认支持对象数组零配置输入，显式 `columns` 退为增强项 | 是 | 继续补移动端批量交互与更细的操作权限语义 |
+| EntityListView | P0 | 已把 EntityListTable / DetailPanel / CrudDialog 收敛成标准 CRUD View，支持过滤、分页、详情侧栏、create/edit 弹窗、默认表单，并结合 `ActionBar + LoadingState + EmptyState + ErrorState` 提供 `pageActions / toolbarActions / batchActions` 等动作标准定义；列表默认支持对象数组零配置输入，显式 `columns` 退为增强项 | 是 | 继续补移动端批量交互与更细的操作权限语义 |
 | SimpleTablePanel | P0 | 适合作为轻量标准表格壳 | 是 | 继续补 empty/error/loading 约束 |
 | FormPanel | P1 | 已具备表单页标题、分段、摘要、保存/取消底部动作 | 是 | 继续补校验、只读态、aside 区 |
 | DetailPanel | P1 | 已具备详情字段网格、描述区、空态、页脚扩展 | 是 | 继续补字段 renderer 与分组详情 |

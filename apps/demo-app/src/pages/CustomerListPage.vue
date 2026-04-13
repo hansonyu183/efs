@@ -23,49 +23,15 @@
     :selectable-rows="true"
     :form-sections="formSections"
     :controller="customerCrud"
-   >
-    <template #table-header-actions>
-     <AppButton variant="ghost" @click="setTableState('default')">恢复默认</AppButton>
-    </template>
-
-    <template #detail-actions="{ activeItem, openEdit }">
-     <AppButton variant="ghost" :disabled="!activeItem" @click="activeItem && openEdit(activeItem)">编辑当前项</AppButton>
-    </template>
-
-    <template #form="{ mode }">
-     <div class="demo-crud-form">
-      <div class="demo-crud-form__grid">
-       <AppField label="客户编码" required>
-        <AppInput v-model="form.code" placeholder="请输入客户编码" />
-       </AppField>
-       <AppField label="客户名称" required>
-        <AppInput v-model="form.name" placeholder="请输入客户名称" />
-       </AppField>
-       <AppField label="状态">
-        <AppSelect v-model="form.status" :options="statusOptions" />
-       </AppField>
-       <AppField label="行业">
-        <AppSelect v-model="form.industry" :options="industryOptions" />
-       </AppField>
-      </div>
-      <AppField label="标签">
-       <AppInput v-model="form.tagsText" :placeholder="mode === 'edit' ? '更新标签，多个标签用逗号分隔' : '多个标签用逗号分隔'" />
-      </AppField>
-     </div>
-    </template>
-   </EntityListView>
+   />
   </PagePanel>
  </MainPage>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import MainPage from '../../../../packages/vue/src/components/pages/MainPage.vue'
-import AppButton from '../../../../packages/vue/src/components/controls/AppButton.vue'
-import AppField from '../../../../packages/vue/src/components/controls/AppField.vue'
-import AppInput from '../../../../packages/vue/src/components/controls/AppInput.vue'
-import AppSelect from '../../../../packages/vue/src/components/controls/AppSelect.vue'
 import PagePanel from '../../../../packages/vue/src/components/panels/PagePanel.vue'
 import EntityListView from '../../../../packages/vue/src/components/views/EntityListView.vue'
 import type { ResourceCrudController } from '../../../../packages/vue/src/components/views/resource-crud-types'
@@ -109,18 +75,6 @@ const columns = [
  { key: 'tags', render: 'tags' as const },
 ]
 
-const statusOptions = [
- { label: '启用', value: 'enabled' },
- { label: '维护中', value: 'pending' },
- { label: '停用', value: 'disabled' },
-]
-
-const industryOptions = [
- { label: '制造', value: 'manufacturing' },
- { label: '科技', value: 'technology' },
- { label: '零售', value: 'retail' },
-]
-
 const customers = ref<Customer[]>([
  { id: 1, code: 'C001', name: '星河科技', status: 'enabled', industry: 'technology', tags: ['战略客户', '华东'] },
  { id: 2, code: 'C002', name: '远航制造', status: 'pending', industry: 'manufacturing', tags: ['重点跟进'] },
@@ -129,14 +83,6 @@ const customers = ref<Customer[]>([
 ])
 
 const tableState = ref<TableState>('default')
-const form = reactive({
- id: 0,
- code: '',
- name: '',
- status: 'enabled',
- industry: 'technology',
- tagsText: '',
-})
 
 const formSections = [
  {
@@ -183,12 +129,6 @@ const customerCrud = reactive<ResourceCrudController>({
   ],
  },
  handlers: {
-  async create() {
-   fillForm(null)
-  },
-  async edit(row) {
-   fillForm(row as Customer)
-  },
   async query({ queryValues, page, pageSize }) {
    if (tableState.value === 'error') {
     throw new Error('客户资源加载失败，请稍后重试。')
@@ -217,26 +157,28 @@ const customerCrud = reactive<ResourceCrudController>({
      : (items[0] ?? null),
    }
   },
-  async save({ mode }) {
+  async save({ mode, item }) {
    await Promise.resolve()
-   const tags = form.tagsText.split(',').map((item) => item.trim()).filter(Boolean)
+   const draft = item as Record<string, unknown>
+   const tags = String(draft.tags ?? '').split(',').map((value) => value.trim()).filter(Boolean)
    if (mode === 'create') {
     const next: Customer = {
      id: Date.now(),
-     code: form.code,
-     name: form.name,
-     status: form.status,
-     industry: form.industry,
+     code: String(draft.code ?? ''),
+     name: String(draft.name ?? ''),
+     status: String(draft.status ?? 'enabled'),
+     industry: String(draft.industry ?? 'technology'),
      tags,
     }
     customers.value = [next, ...customers.value]
     if (customerCrud.state) customerCrud.state.activeItem = next
    } else {
-    customers.value = customers.value.map((item) => item.id === form.id
-     ? { ...item, code: form.code, name: form.name, status: form.status, industry: form.industry, tags }
-     : item)
+    const id = Number(draft.id ?? 0)
+    customers.value = customers.value.map((row) => row.id === id
+     ? { ...row, code: String(draft.code ?? ''), name: String(draft.name ?? ''), status: String(draft.status ?? 'enabled'), industry: String(draft.industry ?? 'technology'), tags }
+     : row)
     if (customerCrud.state) {
-     customerCrud.state.activeItem = customers.value.find((item) => item.id === form.id) ?? customerCrud.state.activeItem ?? null
+     customerCrud.state.activeItem = customers.value.find((row) => row.id === id) ?? customerCrud.state.activeItem ?? null
     }
    }
    tableState.value = 'default'
@@ -292,25 +234,5 @@ function setTableState(state: TableState) {
  tableState.value = state
 }
 
-function fillForm(row: Customer | null) {
- form.id = row?.id ?? 0
- form.code = row?.code ?? ''
- form.name = row?.name ?? ''
- form.status = row?.status ?? 'enabled'
- form.industry = row?.industry ?? 'technology'
- form.tagsText = row?.tags.join(', ') ?? ''
-}
 </script>
 
-<style scoped>
-.demo-crud-form {
- display: grid;
- gap: 16px;
-}
-
-.demo-crud-form__grid {
- display: grid;
- gap: 12px;
- grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-</style>

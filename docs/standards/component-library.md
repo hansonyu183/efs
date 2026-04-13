@@ -55,7 +55,7 @@
 - 资源页组件成熟度评估见 `docs/standards/resource-page-maturity.md`
 - 资源页 action 分层与摆放规则见 `docs/standards/resource-page-actions.md`
 - `EntityListView` 输入项瘦身方向见 `docs/standards/resource-crud-input-slimming.md`
-- 当前列表页相关能力最成熟；`EntityListView` 已把查询、列表、详情、弹窗表单组合成一体化标准 CRUD View，并继续向“成品 View”收敛：默认采用 **controller-first** 接口，业务页把少量状态与 `query/save/remove` 等 handlers 放进一个强类型 `controller` 对象即可；列表默认支持“对象数组即表格”的零配置输入（显式 `columns` 仅作增强配置），标题默认内接应用侧 `$t`，查询/loading/error/分页/弹窗等流程状态优先由组件内部维护，页头默认只保留主标题，详情区仅依据 `detailFields`/detail slot 决定是否显示，行操作默认提供编辑/删除并允许覆盖；表单 / 详情 / 主从 / 弹窗 / 报表 Panel 已进入可用阶段
+- 当前列表页相关能力最成熟；`EntityListView` 已把查询、列表、详情、弹窗表单组合成一体化标准 CRUD View，并继续向“成品 View”收敛：默认采用 **controller-first** 接口，业务页把少量状态与 `query/save/remove` 等 handlers 放进一个强类型 `controller` 对象即可；列表默认支持“对象数组即表格”的零配置输入（显式 `columns` 仅作增强配置），标题默认内接应用侧 `$t`，查询/loading/error/分页/弹窗等流程状态优先由组件内部维护，页头默认只保留主标题，详情区仅依据 `detailFields` 决定是否显示，行操作默认提供编辑/删除；表单 / 详情 / 主从 / 弹窗 / 报表 Panel 已进入可用阶段
 
 ## Interaction
 

@@ -133,7 +133,6 @@
 
 推导规则建议：
 - 有 `detailFields`
-- 或存在 `#detail` slot
 
 则显示详情区；否则不显示。
 
@@ -215,7 +214,7 @@
 建议改成以下任一方式：
 
 #### 方案 A：内容驱动
-- 有 `detailFields` / `detail` slot / `activeItem` 就显示 detail
+- 有 `detailFields` / `activeItem` 就显示 detail
 
 #### 方案 B：页面模式驱动
 增加明确模式，例如：

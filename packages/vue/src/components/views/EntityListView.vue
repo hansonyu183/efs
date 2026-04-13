@@ -4,11 +4,9 @@
    <div class="efs-resourcecrudpage__heading">
     <h2 class="efs-resourcecrudpage__title">{{ props.title }}</h2>
    </div>
-   <div class="efs-resourcecrudpage__header-actions">
-    <slot name="actions">
-     <ActionBar :actions="visibleActions" align="end" :busy="resolvedBusy" />
-    </slot>
-   </div>
+  <div class="efs-resourcecrudpage__header-actions">
+   <ActionBar :actions="visibleActions" align="end" :busy="resolvedBusy" />
+  </div>
   </header>
 
   <div class="efs-resourcecrudpage__summary-bar">
@@ -16,7 +14,6 @@
     <span>总数：{{ resolvedTotal }}</span>
     <span>已选：{{ resolvedSelectedCount }}</span>
    </div>
-   <slot name="summary" :total="resolvedTotal" :selected-count="resolvedSelectedCount" />
   </div>
 
   <section class="efs-resourcecrudpage__query-panel" @keydown.enter="handleQueryEnter">
@@ -24,67 +21,56 @@
     <div>
      <h3 class="efs-resourcecrudpage__query-title">查询条件</h3>
     </div>
-    <div v-if="$slots['query-header-actions']" class="efs-resourcecrudpage__query-header-actions">
-     <slot name="query-header-actions" :query-values="localQueryValues" :search="handleSearch" :reset="handleReset" />
-    </div>
    </header>
 
-   <div class="efs-resourcecrudpage__query-filters">
-    <slot name="query-fields" :query-values="localQueryValues" :update-query-value="updateQueryValue">
-     <div v-if="normalizedQueryFields.length > 0" class="efs-resourcecrudpage__filters-grid">
-      <AppField
-       v-for="queryField in normalizedQueryFields"
-       :key="queryField.key"
-       :label="queryField.label"
-       :hint="queryField.hint"
-      >
-       <AppSelect
-        v-if="queryField.type === 'select'"
-        :model-value="stringValue(localQueryValues[queryField.key])"
-        :options="queryField.options"
-        :placeholder="queryField.placeholder"
-        @update:model-value="(value) => updateQueryValue(queryField.key, value)"
-       />
-       <AppInput
-        v-else
-        :model-value="stringValue(localQueryValues[queryField.key])"
-        :type="queryField.type"
-        :placeholder="queryField.placeholder"
-        @update:model-value="(value) => updateQueryValue(queryField.key, value)"
-       />
-      </AppField>
-     </div>
-    </slot>
+   <div v-if="normalizedQueryFields.length > 0" class="efs-resourcecrudpage__query-filters">
+    <div class="efs-resourcecrudpage__filters-grid">
+     <AppField
+      v-for="queryField in normalizedQueryFields"
+      :key="queryField.key"
+      :label="queryField.label"
+      :hint="queryField.hint"
+     >
+      <AppSelect
+       v-if="queryField.type === 'select'"
+       :model-value="stringValue(localQueryValues[queryField.key])"
+       :options="queryField.options"
+       :placeholder="queryField.placeholder"
+       @update:model-value="(value) => updateQueryValue(queryField.key, value)"
+      />
+      <AppInput
+       v-else
+       :model-value="stringValue(localQueryValues[queryField.key])"
+       :type="queryField.type"
+       :placeholder="queryField.placeholder"
+       @update:model-value="(value) => updateQueryValue(queryField.key, value)"
+      />
+     </AppField>
+    </div>
    </div>
 
    <div class="efs-resourcecrudpage__query-actions">
-    <slot name="query-actions" :query-values="localQueryValues" :search="handleSearch" :reset="handleReset">
-     <div class="efs-resourcecrudpage__toolbar-actions-main">
-      <AppButton variant="primary" :disabled="resolvedBusy" @click="handleSearch">查询</AppButton>
-      <AppButton :disabled="resolvedBusy" @click="handleReset">重置</AppButton>
-     </div>
-    </slot>
+    <div class="efs-resourcecrudpage__toolbar-actions-main">
+     <AppButton variant="primary" :disabled="resolvedBusy" @click="handleSearch">查询</AppButton>
+     <AppButton :disabled="resolvedBusy" @click="handleReset">重置</AppButton>
+    </div>
    </div>
 
-   <div v-if="resolvedSelectedCount > 0 || $slots['batch-actions'] || visibleBatchActions.length > 0 || $slots['query-after']" class="efs-resourcecrudpage__query-after">
-    <slot name="query-after">
-     <div v-if="resolvedSelectedCount > 0 || $slots['batch-actions'] || visibleBatchActions.length > 0" class="efs-resourcecrudpage__batch-bar">
-      <span class="efs-resourcecrudpage__batch-text">已选：{{ resolvedSelectedCount }}</span>
-      <div class="efs-resourcecrudpage__batch-actions">
-       <slot name="batch-actions" :selected-count="resolvedSelectedCount" :selected-row-keys="localSelectedRowKeys">
-        <ActionBar :actions="visibleBatchActions" align="start" :busy="resolvedBusy" />
-       </slot>
-       <AppButton
-        v-if="props.selectableRows && localSelectedRowKeys.length > 0"
-        variant="ghost"
-        :disabled="resolvedBusy"
-        @click="clearSelectedRows"
-       >
-        清空选择
-       </AppButton>
-      </div>
+   <div v-if="resolvedSelectedCount > 0 || visibleBatchActions.length > 0" class="efs-resourcecrudpage__query-after">
+    <div class="efs-resourcecrudpage__batch-bar">
+     <span class="efs-resourcecrudpage__batch-text">已选：{{ resolvedSelectedCount }}</span>
+     <div class="efs-resourcecrudpage__batch-actions">
+      <ActionBar :actions="visibleBatchActions" align="start" :busy="resolvedBusy" />
+      <AppButton
+       v-if="props.selectableRows && localSelectedRowKeys.length > 0"
+       variant="ghost"
+       :disabled="resolvedBusy"
+       @click="clearSelectedRows"
+      >
+       清空选择
+      </AppButton>
      </div>
-    </slot>
+    </div>
    </div>
   </section>
 
@@ -103,51 +89,31 @@
     @update:page="handlePageChange"
     @update:page-size="handlePageSizeChange"
    >
-    <template #header-actions="slotProps">
-     <slot name="table-header-actions" v-bind="slotProps" />
-    </template>
-
     <template #default="slotProps">
-     <slot name="table" v-bind="slotProps">
-      <div v-if="resolvedLoading" class="efs-resourcecrudpage__state-wrap">
-       <slot name="loading">
-        <LoadingState title="正在加载数据" message="请稍候，资源列表正在同步。" />
-       </slot>
-      </div>
-      <div v-else-if="resolvedError" class="efs-resourcecrudpage__state-wrap">
-       <slot name="error">
-        <ErrorState title="加载失败" :message="resolvedErrorMessage" />
-       </slot>
-      </div>
-      <div v-else-if="resolvedItems.length === 0" class="efs-resourcecrudpage__state-wrap">
-       <slot name="empty">
-        <EmptyState title="暂无数据" description="当前没有可展示的资源记录。" />
-       </slot>
-      </div>
-      <DataTable
-       v-else
-       :row-key="props.rowKey"
-       :columns="props.columns"
-       :rows="resolvedItems"
-       :clickable="props.clickableRows"
-       :visible-column-keys="slotProps.visibleColumnKeys"
-       actions-label="操作"
-       :row-actions="resolvedRowActions"
-       :selectable="props.selectableRows"
-       :selected-row-keys="localSelectedRowKeys"
-       selection-label="选择行"
-       @row-click="handleRowClick"
-       @update:selected-row-keys="handleSelectedRowKeysChange"
-      />
-     </slot>
-    </template>
-
-    <template #mobile="slotProps">
-     <slot name="mobile-table" v-bind="slotProps" />
-    </template>
-
-    <template #footer="slotProps">
-     <slot name="table-footer" v-bind="slotProps" />
+     <div v-if="resolvedLoading" class="efs-resourcecrudpage__state-wrap">
+      <LoadingState title="正在加载数据" message="请稍候，资源列表正在同步。" />
+     </div>
+     <div v-else-if="resolvedError" class="efs-resourcecrudpage__state-wrap">
+      <ErrorState title="加载失败" :message="resolvedErrorMessage" />
+     </div>
+     <div v-else-if="resolvedItems.length === 0" class="efs-resourcecrudpage__state-wrap">
+      <EmptyState title="暂无数据" description="当前没有可展示的资源记录。" />
+     </div>
+     <DataTable
+      v-else
+      :row-key="props.rowKey"
+      :columns="props.columns"
+      :rows="resolvedItems"
+      :clickable="props.clickableRows"
+      :visible-column-keys="slotProps.visibleColumnKeys"
+      actions-label="操作"
+      :row-actions="resolvedRowActions"
+      :selectable="props.selectableRows"
+      :selected-row-keys="localSelectedRowKeys"
+      selection-label="选择行"
+      @row-click="handleRowClick"
+      @update:selected-row-keys="handleSelectedRowKeysChange"
+     />
     </template>
    </EntityListTable>
 
@@ -161,17 +127,7 @@
     fields-label="字段数："
     :columns="2"
     empty-text="请选择一条记录查看详情。"
-   >
-    <template #actions>
-     <slot name="detail-actions" :active-item="resolvedActiveItem" :open-edit="openEdit" />
-    </template>
-    <template #default>
-     <slot name="detail" v-if="$slots.detail" :active-item="resolvedActiveItem" :detail-fields="resolvedDetailFields" />
-    </template>
-    <template #footer>
-     <slot name="detail-footer" :active-item="resolvedActiveItem" />
-    </template>
-   </DetailPanel>
+   />
   </div>
 
   <CrudDialog
@@ -194,7 +150,6 @@
    @request-close="handleRequestClose"
   >
    <div @input="handleFormMutation" @change="handleFormMutation">
-    <slot name="dialog" :mode="dialogMode" :active-item="editingItem">
     <FormPanel
      title="编辑表单"
      :subtitle="''"
@@ -205,33 +160,50 @@
      required-hint="* 必填字段"
      :footer="{ showActions: false, dirtyLabel: '存在未保存修改' }"
     >
-     <template #actions>
-      <slot name="form-actions" :mode="dialogMode" :active-item="editingItem" />
-     </template>
-     <slot name="form" :mode="dialogMode" :active-item="editingItem" />
+     <div v-if="normalizedFormSections.length > 0" class="efs-resourcecrudpage__form-sections">
+      <section v-for="section in normalizedFormSections" :key="section.key" class="efs-resourcecrudpage__form-section">
+       <header class="efs-resourcecrudpage__form-section-header">
+        <strong>{{ section.title }}</strong>
+        <span v-if="section.description" class="efs-resourcecrudpage__form-section-description">{{ section.description }}</span>
+       </header>
+       <div class="efs-resourcecrudpage__form-grid">
+        <AppField v-for="field in section.fields" :key="field.key" :label="field.label">
+         <AppSelect
+          v-if="field.widget === 'select'"
+          :model-value="stringValue(editingDraft[field.key])"
+          :options="field.options"
+          @update:model-value="(value) => updateDraftValue(field.key, value)"
+         />
+         <AppInput
+          v-else
+          :model-value="stringValue(editingDraft[field.key])"
+          :placeholder="field.placeholder"
+          @update:model-value="(value) => updateDraftValue(field.key, value)"
+         />
+        </AppField>
+       </div>
+      </section>
+     </div>
     </FormPanel>
-    </slot>
    </div>
    <template #footer>
-    <slot name="dialog-footer" :mode="dialogMode" :active-item="editingItem">
-     <div class="efs-resourcecrudpage__dialog-footer">
-      <div class="efs-resourcecrudpage__dialog-footer-meta">
-       <span>* 必填字段</span>
-       <span v-if="resolvedDirty" class="efs-resourcecrudpage__dirty">存在未保存修改</span>
-      </div>
-      <div class="efs-resourcecrudpage__dialog-footer-actions">
-       <AppButton :disabled="resolvedBusy" @click="requestCancel">取消</AppButton>
-       <AppButton variant="primary" :loading="resolvedBusy" @click="handleSave">保存</AppButton>
-      </div>
+    <div class="efs-resourcecrudpage__dialog-footer">
+     <div class="efs-resourcecrudpage__dialog-footer-meta">
+      <span>* 必填字段</span>
+      <span v-if="resolvedDirty" class="efs-resourcecrudpage__dirty">存在未保存修改</span>
      </div>
-    </slot>
+     <div class="efs-resourcecrudpage__dialog-footer-actions">
+      <AppButton :disabled="resolvedBusy" @click="requestCancel">取消</AppButton>
+      <AppButton variant="primary" :loading="resolvedBusy" @click="handleSave">保存</AppButton>
+     </div>
+    </div>
    </template>
   </CrudDialog>
  </section>
 </template>
 
 <script setup lang="ts">
-import { computed, getCurrentInstance, onMounted, ref, useSlots, watch } from 'vue'
+import { computed, getCurrentInstance, onMounted, ref, watch } from 'vue'
 import AppButton from '../controls/AppButton.vue'
 import AppField from '../controls/AppField.vue'
 import AppInput from '../controls/AppInput.vue'
@@ -286,7 +258,6 @@ const props = withDefaults(defineProps<EntityListViewProps>(), {
  controller: undefined,
 })
 
-const slots = useSlots()
 const instance = getCurrentInstance()
 const localQueryValues = ref<Record<string, string>>({ ...(props.controller?.state?.queryValues ?? {}) })
 const localSelectedRowKeys = ref<RowSelectionKey[]>([...(props.controller?.state?.selectedRowKeys ?? [])])
@@ -302,7 +273,7 @@ const localActiveItem = ref<Record<string, unknown> | null>(props.controller?.st
 const dialogOpen = ref(false)
 const dialogMode = ref<'create' | 'edit'>('create')
 const editingItem = ref<Record<string, unknown> | null>(null)
-const slotsHasDetail = computed(() => Boolean(slots.detail))
+const editingDraft = ref<Record<string, unknown>>({})
 
 watch(() => props.controller?.state?.queryValues, (value) => {
  if (!value) return
@@ -367,6 +338,43 @@ const normalizedQueryFields = computed(() => props.queryFields.map((queryField) 
  })),
 })))
 
+const normalizedFormSections = computed(() => props.formSections.map((section) => ({
+ key: section.key,
+ title: resolveLabel({
+  key: section.key,
+  instance,
+  namespaces: ['resourceCrud.formSections', 'formSections', 'sections'],
+ }),
+ description: resolveOptionalLabel({
+  key: section.key,
+  instance,
+  namespaces: ['resourceCrud.formSectionDescriptions', 'formSectionDescriptions', 'descriptions'],
+ }),
+ fields: (section.fields ?? []).map((field) => ({
+  key: field.key,
+  label: resolveLabel({
+   key: field.key,
+   instance,
+   namespaces: ['resourceCrud.formFields', 'formFields', 'fields'],
+  }),
+  widget: field.widget ?? 'text',
+  placeholder: resolveOptionalLabel({
+   key: field.key,
+   instance,
+   namespaces: ['resourceCrud.formFieldPlaceholders', 'formFieldPlaceholders', 'placeholders'],
+  }),
+  options: (props.queryFields.find((queryField) => queryField.key === field.key)?.options ?? []).map((option) => ({
+   label: resolveLabel({
+    key: option.key,
+    instance,
+    namespaces: [`resourceCrud.queryOptions.${field.key}`, 'resourceCrud.queryOptions', 'options'],
+   }),
+   value: option.value,
+   disabled: option.disabled,
+  })),
+ })),
+})))
+
 const resolvedItems = computed(() => localItems.value)
 const resolvedTotal = computed(() => localTotal.value)
 const resolvedLoading = computed(() => localLoading.value)
@@ -378,7 +386,7 @@ const resolvedErrorMessage = computed(() => typeof resolvedError.value === 'stri
 const resolvedSelectedCount = computed(() => props.selectableRows ? localSelectedRowKeys.value.length : 0)
 const resolvedPageCount = computed(() => Math.max(1, Math.ceil(Math.max(resolvedTotal.value, 0) / Math.max(localPageSize.value, 1))))
 const resolvedDetailFields = computed<ResourceCrudDetailField[]>(() => props.detailFields)
-const hasDetail = computed(() => resolvedDetailFields.value.length > 0 || slotsHasDetail.value)
+const hasDetail = computed(() => resolvedDetailFields.value.length > 0)
 
 const defaultActions = computed<ResourceCrudAction[]>(() => {
  const actions: ResourceCrudAction[] = []
@@ -438,6 +446,40 @@ function ensureActiveItem() {
 
 function stringValue(value: unknown) {
  return typeof value === 'string' ? value : String(value ?? '')
+}
+
+function buildCreateDraft() {
+ const draft: Record<string, unknown> = {}
+ for (const section of normalizedFormSections.value) {
+  for (const field of section.fields) {
+   draft[field.key] = field.widget === 'select' ? (field.options[0]?.value ?? '') : ''
+  }
+ }
+ return draft
+}
+
+function buildEditDraft(row: Record<string, unknown> | null) {
+ if (!row) return buildCreateDraft()
+ const draft: Record<string, unknown> = { ...row }
+ for (const section of normalizedFormSections.value) {
+  for (const field of section.fields) {
+   const current = draft[field.key]
+   if (Array.isArray(current)) {
+    draft[field.key] = current.join(', ')
+   } else if (current === undefined || current === null) {
+    draft[field.key] = ''
+   }
+  }
+ }
+ return draft
+}
+
+function updateDraftValue(key: string, value: string) {
+ editingDraft.value = {
+  ...editingDraft.value,
+  [key]: value,
+ }
+ handleFormMutation()
 }
 
 function updateQueryValue(key: string, value: string) {
@@ -603,6 +645,7 @@ async function refreshData() {
 async function openCreate() {
  dialogMode.value = 'create'
  editingItem.value = null
+ editingDraft.value = buildCreateDraft()
  dialogOpen.value = true
  resetDirty()
  await props.controller?.handlers?.create?.()
@@ -611,6 +654,7 @@ async function openCreate() {
 async function openEdit(row: Record<string, unknown>) {
  dialogMode.value = 'edit'
  editingItem.value = row
+ editingDraft.value = buildEditDraft(row)
  dialogOpen.value = true
  localActiveItem.value = row
  setControllerState('activeItem', row)
@@ -637,7 +681,7 @@ async function handleSave() {
  try {
   const result = await props.controller.handlers.save({
    mode: dialogMode.value,
-   item: editingItem.value,
+   item: { ...editingDraft.value },
    queryValues: { ...localQueryValues.value },
    page: localPage.value,
    pageSize: localPageSize.value,
@@ -662,6 +706,7 @@ async function handleSave() {
 function handleCancel() {
  dialogOpen.value = false
  editingItem.value = null
+ editingDraft.value = {}
  resetDirty()
 }
 
@@ -673,6 +718,7 @@ function requestCancel() {
 function handleClose() {
  dialogOpen.value = false
  editingItem.value = null
+ editingDraft.value = {}
  resetDirty()
 }
 
