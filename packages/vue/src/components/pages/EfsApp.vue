@@ -11,7 +11,7 @@
   layout="split"
   show-locale-switcher
   show-theme-switcher
-  @update:locale="locale = $event"
+  @update:locale="handleLocaleUpdate"
   @update:theme="handleThemeUpdate"
  >
   <form class="efs-app__login-form" @submit.prevent="handleLogin">
@@ -32,10 +32,17 @@
      @update:model-value="props.app.auth.pwd.value = $event"
     />
    </AppField>
-   <AppField v-if="showOrgField" :label="props.loginOrgLabel">
+   <AppField v-if="showOrgSelectField" :label="props.loginOrgLabel">
     <AppSelect
      :model-value="props.app.auth.orgCode?.value || ''"
      :options="authOrgOptions"
+     @update:model-value="handleOrgCodeUpdate"
+    />
+   </AppField>
+   <AppField v-else-if="showOrgInputField" :label="props.loginOrgLabel">
+    <AppInput
+     :model-value="props.app.auth.orgCode?.value || ''"
+     :placeholder="props.loginOrgPlaceholder"
      @update:model-value="handleOrgCodeUpdate"
     />
    </AppField>
@@ -55,7 +62,7 @@
   :org-code="props.orgCode"
   :locale="locale"
   :theme="theme"
-  @update:locale="locale = $event"
+  @update:locale="handleLocaleUpdate"
   @update:theme="handleThemeUpdate"
   @logout="handleLogout"
  >
@@ -117,6 +124,7 @@ interface EfsAppProps {
  loginPasswordLabel?: string
  loginPasswordPlaceholder?: string
  loginOrgLabel?: string
+ loginOrgPlaceholder?: string
  loginSubmitLabel?: string
  loginSubmittingLabel?: string
 }
@@ -142,9 +150,15 @@ const props = withDefaults(defineProps<EfsAppProps>(), {
  loginPasswordLabel: '密码',
  loginPasswordPlaceholder: '请输入密码',
  loginOrgLabel: '组织',
+ loginOrgPlaceholder: '请输入组织编码',
  loginSubmitLabel: '登录',
  loginSubmittingLabel: '登录中…',
 })
+
+const emit = defineEmits<{
+ (e: 'update:locale', value: string): void
+ (e: 'update:theme', value: 'light' | 'dark'): void
+}>()
 
 const route = useRoute()
 const router = useRouter()
@@ -164,7 +178,8 @@ const authOrgOptions = computed(() => (props.app.auth.orgOptions ?? []).map((opt
  value: option.value,
  disabled: option.disabled,
 })))
-const showOrgField = computed(() => Boolean(props.app.auth.orgCode) && authOrgOptions.value.length > 0)
+const showOrgSelectField = computed(() => Boolean(props.app.auth.orgCode) && authOrgOptions.value.length > 0)
+const showOrgInputField = computed(() => Boolean(props.app.auth.orgCode) && authOrgOptions.value.length === 0)
 const firstRuntimePath = computed(() => sidebarMenus.value.find((item) => item.type === 'item')?.path ?? '')
 
 watch(() => route.path, (value) => {
@@ -179,8 +194,14 @@ watch([isAuthenticated, isLoginRoute, firstRuntimePath], async ([authenticated, 
  }
 }, { immediate: true })
 
+function handleLocaleUpdate(value: string) {
+ locale.value = value
+ emit('update:locale', value)
+}
+
 function handleThemeUpdate(value: string) {
  theme.value = value === 'light' ? 'light' : 'dark'
+ emit('update:theme', theme.value)
 }
 
 function handleOrgCodeUpdate(value: string) {
