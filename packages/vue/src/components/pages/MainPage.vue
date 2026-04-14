@@ -628,7 +628,7 @@ function handleAgentSessionsToggle() {
 }
 
 .efs-main-layout__nav :deep(.efs-sidebar-link:hover),
-.efs-main-layout__nav :deep(.efs-sidebar-link--active) {
+.efs-main-layout__nav :deep(.efs-sidebar-link.router-link-active) {
  background: var(--efs-surface-soft, #f4f7fb);
  color: var(--efs-primary, #2563eb);
 }

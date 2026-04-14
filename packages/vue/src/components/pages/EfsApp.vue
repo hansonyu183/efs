@@ -67,13 +67,13 @@
   @logout="handleLogout"
  >
   <template #sidebar>
-   <EfsSidebarNav :items="sidebarMenus" :current-path="activePath" @navigate="handleNavigate" />
+   <EfsSidebarNav :items="sidebarMenus" :current-path="route.path" />
   </template>
 
   <ResolvedResPage
    v-if="runtime"
    :runtime="runtime"
-   :path="activePath"
+   :path="route.path"
    :crud-subtitle="props.crudSubtitle"
    :report-subtitle="props.reportSubtitle"
    :unsupported-subtitle="props.unsupportedSubtitle"
@@ -85,7 +85,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import type { AppController, ResCrudRuntimeOptions, ResReportRuntimeOptions } from '@efs/vue/shared/AppController'
 import { flattenAppMenuNodes, resolveResRuntime } from '@efs/vue/shared/AppController'
 import type { FlatMenuNode } from '../../shared/NavigationMenu'
@@ -159,14 +160,14 @@ const emit = defineEmits<{
  (e: 'update:theme', value: 'light' | 'dark'): void
 }>()
 
+const route = useRoute()
+const router = useRouter()
 const locale = ref(props.locale)
 const theme = ref<'light' | 'dark'>(props.theme)
-const browserPath = ref(resolveBrowserPath())
 
 const sidebarMenus = computed<FlatMenuNode[]>(() => flattenAppMenuNodes(props.app))
-const activePath = computed(() => normalizeUiPath(browserPath.value))
-const runtime = computed(() => resolveResRuntime(props.app, activePath.value, props.runtimeOptions))
-const normalizedPath = computed(() => activePath.value.replace(/^\/+|\/+$/g, ''))
+const runtime = computed(() => resolveResRuntime(props.app, route.path, props.runtimeOptions))
+const normalizedPath = computed(() => route.path.replace(/^\/+|\/+$/g, ''))
 const isLoginRoute = computed(() => normalizedPath.value === 'login')
 const isAuthenticated = computed(() => props.app.auth.authenticated?.value ?? true)
 const showAuthPage = computed(() => !isAuthenticated.value || isLoginRoute.value)
@@ -181,33 +182,17 @@ const showOrgSelectField = computed(() => Boolean(props.app.auth.orgCode) && aut
 const showOrgInputField = computed(() => Boolean(props.app.auth.orgCode) && authOrgOptions.value.length === 0)
 const firstRuntimePath = computed(() => sidebarMenus.value.find((item) => item.type === 'item')?.path ?? '')
 
-watch(activePath, (value) => {
+watch(() => route.path, (value) => {
  if (!props.app.main.currentPath) return
  const normalized = value.replace(/^\/+/, '')
  props.app.main.currentPath.value = (normalized.includes('/') ? normalized : '') as never
 }, { immediate: true })
 
-watch([isAuthenticated, isLoginRoute, firstRuntimePath], ([authenticated, loginRoute, firstPath]) => {
- if (!authenticated) {
-  navigateTo('/login', { replace: true })
-  return
- }
-
- if (loginRoute && firstPath && activePath.value !== firstPath) {
-  navigateTo(firstPath, { replace: true })
+watch([isAuthenticated, isLoginRoute, firstRuntimePath], async ([authenticated, loginRoute, firstPath]) => {
+ if (authenticated && loginRoute && firstPath && route.path !== firstPath) {
+  await router.replace(firstPath)
  }
 }, { immediate: true })
-
-onMounted(() => {
- if (typeof window === 'undefined') return
- window.addEventListener('popstate', syncBrowserPath)
- syncBrowserPath()
-})
-
-onBeforeUnmount(() => {
- if (typeof window === 'undefined') return
- window.removeEventListener('popstate', syncBrowserPath)
-})
 
 function handleLocaleUpdate(value: string) {
  locale.value = value
@@ -224,40 +209,12 @@ function handleOrgCodeUpdate(value: string) {
  props.app.auth.orgCode.value = value
 }
 
-function handleNavigate(path: string) {
- navigateTo(path)
-}
-
 async function handleLogin() {
  await props.app.auth.login()
 }
 
 async function handleLogout() {
  await props.app.auth.logout?.()
-}
-
-function navigateTo(path: string, options: { replace?: boolean } = {}) {
- const normalized = normalizeUiPath(path)
- browserPath.value = normalized
- if (typeof window === 'undefined') return
- if (window.location.pathname === normalized) return
- const method = options.replace ? 'replaceState' : 'pushState'
- window.history[method](window.history.state, '', normalized)
-}
-
-function syncBrowserPath() {
- browserPath.value = resolveBrowserPath()
-}
-
-function resolveBrowserPath() {
- if (typeof window === 'undefined') return '/login'
- return normalizeUiPath(window.location.pathname || '/login')
-}
-
-function normalizeUiPath(path: string) {
- const normalized = typeof path === 'string' ? path.trim() : ''
- if (!normalized || normalized === '/') return '/login'
- return normalized.startsWith('/') ? normalized : `/${normalized}`
 }
 </script>
 
