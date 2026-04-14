@@ -52,8 +52,9 @@
       </slot>
      </header>
 
-     <section v-if="$slots.alerts" class="efs-auth-layout__alerts">
+     <section v-if="showAlertsRegion" class="efs-auth-layout__alerts">
       <slot name="alerts" />
+      <GlobalAlertsHost v-if="globalAlerts.hasItems.value" />
      </section>
 
      <section class="efs-auth-layout__body">
@@ -76,6 +77,8 @@
 import { computed, useSlots } from 'vue'
 import LocaleSwitcher from '../controls/LocaleSwitcher.vue'
 import ThemeSwitcher from '../controls/ThemeSwitcher.vue'
+import GlobalAlertsHost from '../interaction/GlobalAlertsHost.vue'
+import { useAppAlerts } from '../../shared/app-alerts'
 
 defineOptions({ name: 'AuthPage' })
 
@@ -147,8 +150,10 @@ const emit = defineEmits<{
 }>()
 
 const slots = useSlots()
+const globalAlerts = useAppAlerts()
 const showHeroArea = computed(() => props.showHero && (Boolean(slots.hero) || Boolean(slots.brand) || Boolean(props.logoSrc) || Boolean(props.appName) || Boolean(props.heroTitle) || Boolean(props.heroSubtitle) || props.layout === 'split'))
 const showActionsBar = computed(() => props.showLocaleSwitcher || props.showThemeSwitcher || Boolean(slots.actions) || Boolean(slots['locale-action']) || Boolean(slots['theme-action']))
+const showAlertsRegion = computed(() => Boolean(slots.alerts) || globalAlerts.hasItems.value)
 const panelStyle = computed(() => ({ '--efs-auth-panel-width': props.panelWidth }))
 const layoutClasses = computed(() => ({
  'efs-auth-layout--split': props.layout === 'split',

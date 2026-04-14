@@ -1,6 +1,6 @@
 <template>
  <MainPage
-  title="工作台"
+  :title="runtime?.title || '资源页'"
   app-name="EFS Demo"
   org-code="demo-org"
   :locale="locale"
@@ -12,24 +12,20 @@
    <DemoSidebarNav :items="demoSidebarMenus" :current-path="route.path" />
   </template>
 
-  <PagePanel title="工作台" subtitle="标准 Dashboard 页面">
-   <DashboardCardPanel title="今日任务" :value="12" subtitle="待处理">
-    <p>标准卡片页已接入。</p>
-   </DashboardCardPanel>
-  </PagePanel>
+  <ResolvedResPage :runtime="runtime" :path="route.path" />
  </MainPage>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import MainPage from '../../../../packages/vue/src/components/pages/MainPage.vue'
-import PagePanel from '../../../../packages/vue/src/components/panels/PagePanel.vue'
-import DashboardCardPanel from '../../../../packages/vue/src/components/panels/DashboardCardPanel.vue'
+import ResolvedResPage from '../../../../packages/vue/src/components/pages/ResolvedResPage.vue'
 import DemoSidebarNav from '../components/DemoSidebarNav.vue'
-import { demoSidebarMenus } from '../runtime/demo-app'
+import { demoSidebarMenus, resolveDemoResRuntime } from '../runtime/demo-app'
 
 const route = useRoute()
 const locale = ref('zh-CN')
 const theme = ref<'light' | 'dark'>('light')
+const runtime = computed(() => resolveDemoResRuntime(route.path))
 </script>

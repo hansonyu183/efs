@@ -4,25 +4,9 @@
    <div class="efs-resourcecrudpage__heading">
     <h2 class="efs-resourcecrudpage__title">{{ props.title }}</h2>
    </div>
-  <div class="efs-resourcecrudpage__header-actions">
-   <ActionBar :actions="visibleActions" align="end" :busy="resolvedBusy" />
-  </div>
   </header>
 
-  <div class="efs-resourcecrudpage__summary-bar">
-   <div class="efs-resourcecrudpage__summary-metrics">
-    <span>总数：{{ resolvedTotal }}</span>
-    <span>已选：{{ resolvedSelectedCount }}</span>
-   </div>
-  </div>
-
-  <section class="efs-resourcecrudpage__query-panel" @keydown.enter="handleQueryEnter">
-   <header class="efs-resourcecrudpage__query-header">
-    <div>
-     <h3 class="efs-resourcecrudpage__query-title">查询条件</h3>
-    </div>
-   </header>
-
+  <section v-if="!isMobile" class="efs-resourcecrudpage__query-panel" @keydown.enter="handleQueryEnter">
    <div v-if="normalizedQueryFields.length > 0" class="efs-resourcecrudpage__query-filters">
     <div class="efs-resourcecrudpage__filters-grid">
      <AppField
@@ -56,7 +40,7 @@
     </div>
    </div>
 
-   <div v-if="resolvedSelectedCount > 0 || visibleBatchActions.length > 0" class="efs-resourcecrudpage__query-after">
+   <div v-if="showBatchBar" class="efs-resourcecrudpage__query-after">
     <div class="efs-resourcecrudpage__batch-bar">
      <span class="efs-resourcecrudpage__batch-text">已选：{{ resolvedSelectedCount }}</span>
      <div class="efs-resourcecrudpage__batch-actions">
@@ -74,6 +58,49 @@
    </div>
   </section>
 
+  <div v-if="isMobile && querySheetOpen" class="efs-resourcecrudpage__query-sheet-backdrop" @click.self="querySheetOpen = false">
+   <section class="efs-resourcecrudpage__query-sheet" @keydown.enter="handleQueryEnter">
+    <header class="efs-resourcecrudpage__query-sheet-header">
+     <div class="efs-resourcecrudpage__query-sheet-heading">
+      <strong>筛选</strong>
+      <span v-if="activeQueryCount > 0" class="efs-resourcecrudpage__filter-count">已选 {{ activeQueryCount }}</span>
+     </div>
+     <AppButton variant="ghost" :disabled="resolvedBusy" @click="querySheetOpen = false">完成</AppButton>
+    </header>
+    <div v-if="normalizedQueryFields.length > 0" class="efs-resourcecrudpage__query-filters">
+     <div class="efs-resourcecrudpage__filters-grid">
+      <AppField
+       v-for="queryField in normalizedQueryFields"
+       :key="queryField.key"
+       :label="queryField.label"
+       :hint="queryField.hint"
+      >
+       <AppSelect
+        v-if="queryField.type === 'select'"
+        :model-value="stringValue(localQueryValues[queryField.key])"
+        :options="queryField.options"
+        :placeholder="queryField.placeholder"
+        @update:model-value="(value) => updateQueryValue(queryField.key, value)"
+       />
+       <AppInput
+        v-else
+        :model-value="stringValue(localQueryValues[queryField.key])"
+        :type="queryField.type"
+        :placeholder="queryField.placeholder"
+        @update:model-value="(value) => updateQueryValue(queryField.key, value)"
+       />
+      </AppField>
+     </div>
+    </div>
+    <div class="efs-resourcecrudpage__query-actions">
+     <div class="efs-resourcecrudpage__toolbar-actions-main">
+      <AppButton variant="primary" :disabled="resolvedBusy" @click="handleSearch">查询</AppButton>
+      <AppButton :disabled="resolvedBusy" @click="handleReset">重置</AppButton>
+     </div>
+    </div>
+   </section>
+  </div>
+
   <div class="efs-resourcecrudpage__content" :class="{ 'efs-resourcecrudpage__content--with-detail': hasDetail }">
    <EntityListTable
     class="efs-resourcecrudpage__list"
@@ -89,6 +116,21 @@
     @update:page="handlePageChange"
     @update:page-size="handlePageSizeChange"
    >
+    <template #header-actions>
+     <div class="efs-resourcecrudpage__list-header-actions">
+      <div class="efs-resourcecrudpage__list-summary-group">
+       <span class="efs-resourcecrudpage__list-summary">总数：{{ resolvedTotal }}</span>
+       <span v-if="props.selectableRows" class="efs-resourcecrudpage__list-summary">已选：{{ resolvedSelectedCount }}</span>
+      </div>
+      <div class="efs-resourcecrudpage__list-action-group">
+       <AppButton v-if="isMobile && normalizedQueryFields.length > 0" variant="ghost" :disabled="resolvedBusy" @click="querySheetOpen = true">
+        筛选
+        <span v-if="activeQueryCount > 0" class="efs-resourcecrudpage__filter-count">{{ activeQueryCount }}</span>
+       </AppButton>
+       <ActionBar :actions="visibleHeaderActions" align="end" :busy="resolvedBusy" />
+      </div>
+     </div>
+    </template>
     <template #default="slotProps">
      <div v-if="resolvedLoading" class="efs-resourcecrudpage__state-wrap">
       <LoadingState title="正在加载数据" message="请稍候，资源列表正在同步。" />
@@ -128,6 +170,24 @@
     :columns="2"
     empty-text="请选择一条记录查看详情。"
    />
+  </div>
+
+  <div v-if="isMobile && showBatchBar" class="efs-resourcecrudpage__mobile-batch-bar">
+   <div class="efs-resourcecrudpage__mobile-batch-summary">
+    <span class="efs-resourcecrudpage__batch-text">已选：{{ resolvedSelectedCount }}</span>
+    <span v-if="activeQueryCount > 0" class="efs-resourcecrudpage__list-summary">筛选：{{ activeQueryCount }}</span>
+   </div>
+   <div class="efs-resourcecrudpage__mobile-batch-actions">
+    <ActionBar :actions="visibleBatchActions" align="start" :busy="resolvedBusy" />
+    <AppButton
+     v-if="props.selectableRows && localSelectedRowKeys.length > 0"
+     variant="ghost"
+     :disabled="resolvedBusy"
+     @click="clearSelectedRows"
+    >
+     清空选择
+    </AppButton>
+   </div>
   </div>
 
   <CrudDialog
@@ -203,7 +263,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, getCurrentInstance, onMounted, ref, watch } from 'vue'
+import { computed, getCurrentInstance, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppButton from '../controls/AppButton.vue'
 import AppField from '../controls/AppField.vue'
 import AppInput from '../controls/AppInput.vue'
@@ -272,6 +332,8 @@ const localPageSize = ref(props.controller?.state?.pageSize ?? props.pageSizeOpt
 const localActiveItem = ref<Record<string, unknown> | null>(props.controller?.state?.activeItem ?? null)
 const dialogOpen = ref(false)
 const dialogMode = ref<'create' | 'edit'>('create')
+const isMobile = ref(false)
+const querySheetOpen = ref(false)
 const editingItem = ref<Record<string, unknown> | null>(null)
 const editingDraft = ref<Record<string, unknown>>({})
 
@@ -384,24 +446,34 @@ const resolvedDirty = computed(() => localDirty.value)
 const resolvedActiveItem = computed(() => localActiveItem.value)
 const resolvedErrorMessage = computed(() => typeof resolvedError.value === 'string' && resolvedError.value ? resolvedError.value : '资源列表加载异常，请稍后重试。')
 const resolvedSelectedCount = computed(() => props.selectableRows ? localSelectedRowKeys.value.length : 0)
+const activeQueryCount = computed(() => Object.values(localQueryValues.value).filter((value) => stringValue(value).trim().length > 0).length)
+const showBatchBar = computed(() => resolvedSelectedCount.value > 0 || (!isMobile.value && visibleBatchActions.value.length > 0))
 const resolvedPageCount = computed(() => Math.max(1, Math.ceil(Math.max(resolvedTotal.value, 0) / Math.max(localPageSize.value, 1))))
 const resolvedDetailFields = computed<ResourceCrudDetailField[]>(() => props.detailFields)
 const hasDetail = computed(() => resolvedDetailFields.value.length > 0)
 
 const defaultActions = computed<ResourceCrudAction[]>(() => {
  const actions: ResourceCrudAction[] = []
- if (props.controller?.handlers?.query || props.controller?.handlers?.refresh) {
-  actions.push({ key: 'refresh' })
- }
  actions.push({ key: 'create' })
  return actions
 })
 
 const visibleActions = computed(() => normalizeResourceActions(
- props.controller?.actions?.actions?.length ? props.controller.actions.actions : defaultActions.value,
+ (props.controller?.actions?.actions?.length ? props.controller.actions.actions : defaultActions.value)
+  .filter((action) => !['create', 'add', 'new'].includes(action.key)),
  'page',
  false,
 ))
+const visibleListActions = computed(() => normalizeResourceActions(
+ (props.controller?.actions?.actions?.length ? props.controller.actions.actions : defaultActions.value)
+  .filter((action) => ['create', 'add', 'new'].includes(action.key)),
+ 'page',
+ false,
+))
+const visibleHeaderActions = computed(() => [
+ ...visibleActions.value,
+ ...visibleListActions.value,
+])
 const visibleBatchActions = computed(() => normalizeResourceActions(props.controller?.actions?.batchActions ?? [], 'batch', true))
 
 const defaultRowActions = computed<ResourceCrudRowAction[]>(() => {
@@ -425,6 +497,8 @@ const resolvedRowActions = computed(() => {
 const resolvedDialogTitle = computed(() => dialogMode.value === 'edit' ? '编辑资源' : '新建资源')
 
 onMounted(async () => {
+ syncViewport()
+ if (typeof window !== 'undefined') window.addEventListener('resize', syncViewport)
  if (props.controller?.handlers?.query) {
   await runQuery()
   return
@@ -432,10 +506,20 @@ onMounted(async () => {
  ensureActiveItem()
 })
 
+onBeforeUnmount(() => {
+ if (typeof window !== 'undefined') window.removeEventListener('resize', syncViewport)
+})
+
 function setControllerState(key: string, value: unknown) {
  if (!props.controller) return
  if (!props.controller.state) props.controller.state = {}
  ;(props.controller.state as Record<string, unknown>)[key] = value
+}
+
+function syncViewport() {
+ if (typeof window === 'undefined') return
+ isMobile.value = window.innerWidth <= 960
+ if (!isMobile.value) querySheetOpen.value = false
 }
 
 function ensureActiveItem() {
@@ -518,6 +602,7 @@ async function handleSearch() {
  localPage.value = 1
  setControllerState('page', localPage.value)
  await runQuery()
+ if (isMobile.value) querySheetOpen.value = false
 }
 
 async function handleReset() {
@@ -527,6 +612,7 @@ async function handleReset() {
  setControllerState('queryValues', next)
  setControllerState('page', localPage.value)
  await runQuery()
+ if (isMobile.value) querySheetOpen.value = false
 }
 
 function handleQueryEnter(event: KeyboardEvent) {
@@ -760,27 +846,26 @@ async function handleDelete(row: Record<string, unknown>) {
 }
 
 .efs-resourcecrudpage__header,
-.efs-resourcecrudpage__summary-bar,
 .efs-resourcecrudpage__dialog-footer,
 .efs-resourcecrudpage__dialog-footer-actions,
-.efs-resourcecrudpage__query-header,
-.efs-resourcecrudpage__query-header-actions,
 .efs-resourcecrudpage__query-actions,
 .efs-resourcecrudpage__toolbar-actions-main,
 .efs-resourcecrudpage__toolbar-actions-secondary,
+.efs-resourcecrudpage__list-header-actions,
 .efs-resourcecrudpage__batch-bar,
-.efs-resourcecrudpage__header-actions,
-.efs-resourcecrudpage__summary-metrics,
-.efs-resourcecrudpage__batch-actions {
+.efs-resourcecrudpage__list-summary-group,
+.efs-resourcecrudpage__list-action-group,
+.efs-resourcecrudpage__batch-actions,
+.efs-resourcecrudpage__query-sheet-heading,
+.efs-resourcecrudpage__mobile-batch-summary,
+.efs-resourcecrudpage__mobile-batch-actions {
  display: flex;
  gap: 12px;
  flex-wrap: wrap;
 }
 
 .efs-resourcecrudpage__header,
-.efs-resourcecrudpage__summary-bar,
 .efs-resourcecrudpage__dialog-footer,
-.efs-resourcecrudpage__query-header,
 .efs-resourcecrudpage__batch-bar {
  justify-content: space-between;
  align-items: start;
@@ -795,7 +880,7 @@ async function handleDelete(row: Record<string, unknown>) {
  font-size: 1.3rem;
 }
 
-.efs-resourcecrudpage__summary-bar,
+.efs-resourcecrudpage__list-summary,
 .efs-resourcecrudpage__dialog-footer-meta,
 .efs-resourcecrudpage__batch-text,
 .efs-resourcecrudpage__loading-card p {
@@ -806,23 +891,75 @@ async function handleDelete(row: Record<string, unknown>) {
  margin: 6px 0 0;
 }
 
-.efs-resourcecrudpage__summary-bar {
- padding: 0 4px;
+.efs-resourcecrudpage__filter-count {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ min-width: 1.5rem;
+ padding: 2px 8px;
+ border-radius: 999px;
+ background: var(--efs-primary-soft, rgba(37, 99, 235, 0.12));
+ color: var(--efs-primary, #2563eb);
+ font-size: 0.82rem;
+ line-height: 1.4;
+}
+
+.efs-resourcecrudpage__list-header-actions {
+ align-items: center;
+ justify-content: space-between;
+ width: 100%;
+}
+
+.efs-resourcecrudpage__list-action-group {
+ justify-content: flex-end;
+ margin-left: auto;
+}
+
+.efs-resourcecrudpage__list-summary,
+.efs-resourcecrudpage__batch-text {
+ font-size: 0.92rem;
+}
+
+.efs-resourcecrudpage__query-sheet-backdrop {
+ position: fixed;
+ inset: 0;
+ z-index: 1200;
+ background: rgba(15, 23, 42, 0.42);
+ display: grid;
+ align-items: end;
+}
+
+.efs-resourcecrudpage__query-sheet {
+ background: var(--efs-surface, #fff);
+ border-radius: 20px 20px 0 0;
+ padding: 18px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+ display: grid;
+ gap: 12px;
+ max-height: min(80vh, 720px);
+ overflow: auto;
+ box-shadow: 0 -12px 32px rgba(15, 23, 42, 0.16);
+}
+
+.efs-resourcecrudpage__query-sheet-header {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 12px;
+}
+
+.efs-resourcecrudpage__query-sheet-heading,
+.efs-resourcecrudpage__mobile-batch-summary {
+ align-items: center;
 }
 
 .efs-resourcecrudpage__query-panel {
- padding: 18px 20px;
- border-radius: 20px;
- border: 1px solid var(--efs-border, #dbe3ef);
- background: var(--efs-surface, #fff);
- box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+ padding: 0;
+ border: 0;
+ border-radius: 0;
+ background: transparent;
+ box-shadow: none;
  display: grid;
- gap: 16px;
-}
-
-.efs-resourcecrudpage__query-title {
- margin: 0;
- font-size: 1rem;
+ gap: 12px;
 }
 
 .efs-resourcecrudpage__query-filters {
@@ -860,6 +997,49 @@ async function handleDelete(row: Record<string, unknown>) {
  padding: 20px 0;
 }
 
+.efs-resourcecrudpage__mobile-batch-bar {
+ position: sticky;
+ bottom: 0;
+ z-index: 20;
+ display: none;
+ gap: 12px;
+ padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+ border-top: 1px solid var(--efs-border, #dbe3ef);
+ border-radius: 16px 16px 0 0;
+ background: color-mix(in srgb, var(--efs-surface, #fff) 94%, transparent);
+ backdrop-filter: blur(10px);
+ box-shadow: 0 -10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.efs-resourcecrudpage__mobile-batch-summary {
+ justify-content: space-between;
+ align-items: baseline;
+ color: var(--efs-text, #0f172a);
+}
+
+.efs-resourcecrudpage__mobile-batch-actions {
+ align-items: stretch;
+}
+
+.efs-resourcecrudpage__mobile-batch-actions :deep(.efs-actionbar),
+.efs-resourcecrudpage__mobile-batch-actions :deep(.efs-actionbar__items),
+.efs-resourcecrudpage__mobile-batch-actions :deep(.efs-actionbar__items > *),
+.efs-resourcecrudpage__mobile-batch-actions > * {
+ flex: 1 1 100%;
+ width: 100%;
+ min-width: 0;
+}
+
+.efs-resourcecrudpage__mobile-batch-actions :deep(.efs-actionbar__items) {
+ gap: 10px;
+ align-items: stretch;
+}
+
+.efs-resourcecrudpage__mobile-batch-actions :deep(.efs-actionbar__items > * > *),
+.efs-resourcecrudpage__mobile-batch-actions > button {
+ width: 100%;
+}
+
 .efs-resourcecrudpage__dialog-footer {
  width: 100%;
 }
@@ -873,15 +1053,6 @@ async function handleDelete(row: Record<string, unknown>) {
  color: var(--efs-warning, #d97706);
 }
 
-.efs-resourcecrudpage__header-actions,
-.efs-resourcecrudpage__dialog-footer-actions,
-.efs-resourcecrudpage__toolbar-actions-main,
-.efs-resourcecrudpage__toolbar-actions-secondary {
- display: flex;
- gap: 12px;
- flex-wrap: wrap;
-}
-
 @media (max-width: 1100px) {
  .efs-resourcecrudpage__content--with-detail {
   grid-template-columns: 1fr;
@@ -889,7 +1060,6 @@ async function handleDelete(row: Record<string, unknown>) {
 }
 
 @media (max-width: 640px) {
- .efs-resourcecrudpage__summary-bar,
  .efs-resourcecrudpage__dialog-footer,
  .efs-resourcecrudpage__toolbar-actions,
  .efs-resourcecrudpage__batch-bar {
@@ -899,6 +1069,31 @@ async function handleDelete(row: Record<string, unknown>) {
 
  .efs-resourcecrudpage__header {
   align-items: stretch;
+ }
+
+ .efs-resourcecrudpage__list-header-actions {
+  align-items: stretch;
+ }
+
+ .efs-resourcecrudpage__list-summary-group,
+ .efs-resourcecrudpage__list-action-group {
+  width: 100%;
+ }
+
+ .efs-resourcecrudpage__list-action-group {
+  justify-content: flex-start;
+ }
+
+ .efs-resourcecrudpage__query-after {
+  display: none;
+ }
+
+ .efs-resourcecrudpage__mobile-batch-bar {
+  display: grid;
+ }
+
+ .efs-resourcecrudpage__query-sheet {
+  border-radius: 18px 18px 0 0;
  }
 }
 </style>

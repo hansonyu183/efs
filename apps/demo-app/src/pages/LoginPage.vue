@@ -45,7 +45,7 @@ const form = reactive({
 
 function submitLogin() {
   window.setTimeout(() => {
-    router.push('/workbench')
+    router.push('/admin/user')
   }, 250)
 }
 </script>

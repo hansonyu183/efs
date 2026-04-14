@@ -58,12 +58,14 @@
        :model-value="props.locale"
        :label="props.localeLabel"
        :options="props.localeOptions"
+       mode="menu"
        @update:model-value="(value) => emit('update:locale', value)"
       />
       <ThemeSwitcher
        :model-value="props.theme"
        :label="props.themeLabel"
        :options="props.themeOptions"
+       mode="menu"
        @update:model-value="(value) => emit('update:theme', value)"
       />
 
@@ -87,23 +89,27 @@
        <span class="efs-main-layout__menuicon" aria-hidden="true">
         <SemanticIcon name="profile" :label="resolvedProfileDialog.label" size="sm" />
        </span>
+       <span class="efs-main-layout__menulabel">{{ resolvedProfileDialog.label }}</span>
       </button>
       <button v-if="resolvedPasswordDialog.enabled" type="button" :title="resolvedPasswordDialog.label" :aria-label="resolvedPasswordDialog.label" @click="openPasswordDialog">
        <span class="efs-main-layout__menuicon" aria-hidden="true">
         <SemanticIcon name="password" :label="resolvedPasswordDialog.label" size="sm" />
        </span>
+       <span class="efs-main-layout__menulabel">{{ resolvedPasswordDialog.label }}</span>
       </button>
       <button type="button" class="efs-main-layout__logout-action" :title="props.logoutLabel" :aria-label="props.logoutLabel" @click="emitLogout">
        <span class="efs-main-layout__menuicon" aria-hidden="true">
         <SemanticIcon name="logout" :label="props.logoutLabel" size="sm" />
        </span>
+       <span class="efs-main-layout__menulabel">{{ props.logoutLabel }}</span>
       </button>
      </div>
     </details>
    </header>
 
-   <section v-if="$slots.alerts" class="efs-main-layout__alerts">
+   <section v-if="showAlertsRegion" class="efs-main-layout__alerts">
     <slot name="alerts" />
+    <GlobalAlertsHost v-if="globalAlerts.hasItems.value" />
    </section>
 
    <main class="efs-main-layout__content">
@@ -213,6 +219,8 @@ import AppSelect from '../controls/AppSelect.vue'
 import LocaleSwitcher from '../controls/LocaleSwitcher.vue'
 import ThemeSwitcher from '../controls/ThemeSwitcher.vue'
 import SemanticIcon from '../controls/SemanticIcon.vue'
+import GlobalAlertsHost from '../interaction/GlobalAlertsHost.vue'
+import { useAppAlerts } from '../../shared/app-alerts'
 
 defineOptions({ name: 'MainPage' })
 
@@ -359,6 +367,7 @@ const emit = defineEmits<{
 }>()
 
 const slots = useSlots()
+const globalAlerts = useAppAlerts()
 const moreMenuRef = ref<HTMLDetailsElement | null>(null)
 const profileDialogOpen = ref(false)
 const passwordDialogOpen = ref(false)
@@ -394,6 +403,7 @@ const resolvedProfileDialog = computed(() => ({
  submitLabel: props.profileDialog?.submitLabel ?? '保存',
  cancelLabel: props.profileDialog?.cancelLabel ?? '取消',
 }))
+const showAlertsRegion = computed(() => Boolean(slots.alerts) || globalAlerts.hasItems.value)
 const resolvedPasswordDialog = computed(() => ({
  enabled: props.passwordDialog?.enabled ?? true,
  label: props.passwordDialog?.label ?? '修改密码',
@@ -749,7 +759,7 @@ function handleAgentSessionsToggle() {
  position: absolute;
  top: calc(100% + 8px);
  right: 0;
- min-width: 220px;
+ width: min(196px, calc(100vw - 24px));
  padding: 8px;
  border-radius: 16px;
  border: 1px solid var(--efs-border, #dbe3ef);
@@ -761,6 +771,7 @@ function handleAgentSessionsToggle() {
 }
 
 .efs-main-layout__moremenu-panel button {
+ width: 100%;
  min-height: 40px;
  min-width: 40px;
  border: 0;
@@ -771,7 +782,7 @@ function handleAgentSessionsToggle() {
  cursor: pointer;
  display: inline-flex;
  align-items: center;
- justify-content: center;
+ justify-content: flex-start;
  gap: 8px;
 }
 
@@ -782,7 +793,6 @@ function handleAgentSessionsToggle() {
 .efs-main-layout__moremenu-panel :deep(.efs-localeswitcher),
 .efs-main-layout__moremenu-panel :deep(.efs-themeswitcher) {
  width: 100%;
- justify-content: flex-start;
  border-radius: 10px;
  box-shadow: none;
 }
@@ -800,6 +810,7 @@ function handleAgentSessionsToggle() {
  grid-template-columns: 18px minmax(0, 1fr);
  align-items: center;
  gap: 8px;
+ width: 100%;
  padding: 8px 12px;
  font-size: 0.86rem;
  color: var(--efs-text-muted, #64748b);
@@ -828,7 +839,9 @@ function handleAgentSessionsToggle() {
 }
 
 .efs-main-layout__moremenu-panel .efs-main-layout__menulabel {
- display: none;
+ display: inline-flex;
+ align-items: center;
+ min-width: 0;
 }
 
 .efs-main-layout__logout-action {

@@ -1,9 +1,13 @@
 export * from './components/views/resource-crud-types'
+export * from './components/views/report-view-types'
 export * from './shared/NavigationMenu'
 export * from './shared/SemanticIcons'
+export * from './shared/app-alerts'
+export * from './shared/AppController'
 
 export { default as AuthPage } from './components/pages/AuthPage.vue'
 export { default as MainPage } from './components/pages/MainPage.vue'
+export { default as ResolvedResPage } from './components/pages/ResolvedResPage.vue'
 export { default as ThemeSwitcher } from './components/controls/ThemeSwitcher.vue'
 export { default as LocaleSwitcher } from './components/controls/LocaleSwitcher.vue'
 export { default as PermissionGuard } from './components/controls/PermissionGuard.vue'
@@ -15,6 +19,7 @@ export { default as AppPanel } from './components/controls/AppPanel.vue'
 export { default as AppSelect } from './components/controls/AppSelect.vue'
 
 export { default as EntityListView } from './components/views/EntityListView.vue'
+export { default as ReportView } from './components/views/ReportView.vue'
 
 export { default as PagePanel } from './components/panels/PagePanel.vue'
 export { default as EntityListTable } from './components/panels/EntityListTable.vue'
@@ -27,6 +32,8 @@ export { default as DashboardCardPanel } from './components/panels/DashboardCard
 export { default as ReportPanel } from './components/panels/ReportPanel.vue'
 
 export { default as AppTag } from './components/interaction/AppTag.vue'
+export { default as AppAlerts } from './components/interaction/AppAlerts.vue'
+export { default as GlobalAlertsHost } from './components/interaction/GlobalAlertsHost.vue'
 export { default as DataTable } from './components/interaction/DataTable.vue'
 export { default as StatusChip } from './components/interaction/StatusChip.vue'
 export { default as ActionBar } from './components/interaction/ActionBar.vue'

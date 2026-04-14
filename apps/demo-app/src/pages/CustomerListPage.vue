@@ -29,16 +29,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import MainPage from '../../../../packages/vue/src/components/pages/MainPage.vue'
 import PagePanel from '../../../../packages/vue/src/components/panels/PagePanel.vue'
 import EntityListView from '../../../../packages/vue/src/components/views/EntityListView.vue'
 import type { ResourceCrudController } from '../../../../packages/vue/src/components/views/resource-crud-types'
+import { useAppAlerts } from '../../../../packages/vue/src/shared/app-alerts'
 import DemoSidebarNav from '../components/DemoSidebarNav.vue'
 import { demoSidebarMenus } from '../navigation'
 
 const route = useRoute()
+const { success, warning, danger, clear } = useAppAlerts()
 const locale = ref('zh-CN')
 const theme = ref<'light' | 'dark'>('light')
 
@@ -172,6 +174,7 @@ const customerCrud = reactive<ResourceCrudController>({
     }
     customers.value = [next, ...customers.value]
     if (customerCrud.state) customerCrud.state.activeItem = next
+    success({ key: 'customer-create', title: '新建成功', message: `客户“${next.name || next.code}”已创建。` })
    } else {
     const id = Number(draft.id ?? 0)
     customers.value = customers.value.map((row) => row.id === id
@@ -180,6 +183,7 @@ const customerCrud = reactive<ResourceCrudController>({
     if (customerCrud.state) {
      customerCrud.state.activeItem = customers.value.find((row) => row.id === id) ?? customerCrud.state.activeItem ?? null
     }
+    success({ key: 'customer-edit', title: '保存成功', message: '客户信息已更新。' })
    }
    tableState.value = 'default'
    return { refresh: true, close: true, activeItem: customerCrud.state?.activeItem ?? null }
@@ -191,6 +195,7 @@ const customerCrud = reactive<ResourceCrudController>({
    if (customerCrud.state) {
     customerCrud.state.activeItem = customers.value[0] ?? null
    }
+   warning({ key: 'customer-delete', title: '已删除', message: `客户“${customer.name}”已删除。` })
    return { refresh: true, activeItem: customerCrud.state?.activeItem ?? null }
   },
   actions: {
@@ -232,6 +237,18 @@ const detailFields = computed(() => {
 
 function setTableState(state: TableState) {
  tableState.value = state
+ clear()
+ if (state === 'loading') {
+  warning({ key: 'table-state-loading', title: '演示提示', message: '已切换为加载态。' })
+  return
+ }
+ if (state === 'error') {
+  danger({ key: 'table-state-error', title: '演示提示', message: '已切换为错误态。' })
+  return
+ }
+ if (state === 'empty') {
+  warning({ key: 'table-state-empty', title: '演示提示', message: '已切换为空态。' })
+ }
 }
 
 </script>

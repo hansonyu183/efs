@@ -2,11 +2,15 @@
  <button
   type="button"
   class="efs-themeswitcher"
+  :class="{ 'efs-themeswitcher--menu': props.mode === 'menu' }"
   :aria-label="props.label"
   :title="props.label"
   @click="cycleTheme"
  >
-  <SemanticIcon :name="iconName" :label="props.label" aria-hidden="true" />
+  <span class="efs-themeswitcher__lead">
+   <SemanticIcon :name="iconName" :label="props.label" aria-hidden="true" />
+   <span v-if="props.mode === 'menu'" class="efs-themeswitcher__label">{{ props.label }}</span>
+  </span>
   <span class="efs-themeswitcher__value">{{ currentLabel }}</span>
  </button>
 </template>
@@ -27,6 +31,7 @@ interface ThemeSwitcherProps {
  modelValue?: string
  label?: string
  options?: ThemeOption[]
+ mode?: 'pill' | 'menu'
 }
 
 const props = withDefaults(defineProps<ThemeSwitcherProps>(), {
@@ -36,6 +41,7 @@ const props = withDefaults(defineProps<ThemeSwitcherProps>(), {
   { label: '明', value: 'light' },
   { label: '暗', value: 'dark' },
  ],
+ mode: 'pill',
 })
 
 const emit = defineEmits<{
@@ -69,6 +75,7 @@ function cycleTheme() {
  padding: 0 12px;
  display: inline-flex;
  align-items: center;
+ justify-content: center;
  gap: 8px;
  cursor: pointer;
 }
@@ -77,7 +84,30 @@ function cycleTheme() {
  background: var(--efs-surface, #ffffff);
 }
 
+.efs-themeswitcher--menu {
+ width: 100%;
+ min-height: 40px;
+ border-radius: 10px;
+ justify-content: space-between;
+}
+
+.efs-themeswitcher__lead {
+ display: inline-flex;
+ align-items: center;
+ gap: 8px;
+ min-width: 0;
+}
+
+.efs-themeswitcher__label,
 .efs-themeswitcher__value {
  font-size: 0.85rem;
+}
+
+.efs-themeswitcher__label {
+ font-weight: 600;
+}
+
+.efs-themeswitcher__value {
+ color: var(--efs-text-muted, #64748b);
 }
 </style>

@@ -1,0 +1,663 @@
+# App Controller Contract
+
+本文定义 EFS 下一阶段面向 `const app = useApp()` 的控制器约定。
+
+目标不是让使用方继续拼装 `EntityListView / ReportView` 的页面配置，而是让使用方只声明：
+
+- 应用入口
+- 认证控制器
+- 主框架控制器
+- `domain/res` 资源控制器
+- 资源字段语义
+
+平台再基于这份约定去推导：
+
+- menu
+- url
+- view identity
+- query / list / form / detail 标准定义
+
+> 当前阶段先稳定 **controller tree 与字段语义约定**，不提前固化 `controller -> 具体 view` 的最终映射规则。
+
+---
+
+## 1. 设计目标
+
+EFS 运行时的最终使用目标是：
+
+```ts
+const app = useApp()
+```
+
+使用方不再直接写：
+
+- `queryFields`
+- `columns`
+- `formSections`
+- `detailFields`
+- 页面壳装配逻辑
+- route/menu/view 三套平行定义
+
+而是只写控制器树。
+
+---
+
+## 2. 强约定
+
+### 2.1 导航与资源身份统一使用 `domain/res`
+
+这是整个运行时约定的第一原则：
+
+- `domain` = 一级菜单
+- `res` = 二级菜单
+- 不允许更深层菜单
+- `domain + res` 在应用内唯一
+
+统一派生：
+
+- menu key = `domain/res`
+- url = `/domain/res`
+- view identity = `domain/res`
+
+推荐由平台统一使用辅助函数生成：
+
+```ts
+buildResPath('admin', 'user') // -> 'admin/user'
+```
+
+### 2.2 controller tree 固定结构
+
+平台只解释下面这棵树：
+
+```ts
+useApp()
+  -> auth
+  -> main
+      -> domains[]
+          -> items[]
+```
+
+推荐的 composable 形态：
+
+- `useApp()`
+- `useAuth()`
+- `useMain()`
+- `useAdmin()` / `useSales()`
+- `useUser()` / `useRole()` / `useOrder()`
+
+不推荐：
+
+- `useResView()`
+- `useResourceController()`
+- 运行时通过松散对象自由拼装 controller tree
+
+### 2.3 资源控制器以资源为中心，不以 view 为中心
+
+二级资源控制器必须表达“资源及其操作”，而不是“某个 view 的配置”。
+
+因此推荐：
+
+```ts
+useUser()
+useRole()
+useOrder()
+```
+
+不推荐：
+
+```ts
+useUserView()
+useResView()
+```
+
+---
+
+## 3. 类型约束文件
+
+EFS 约定把可静态约束的部分尽量落到 TypeScript 类型中。
+
+当前参考类型文件：
+
+- `packages/vue/src/shared/AppController.ts`
+
+其中定义了：
+
+- `AppController`
+- `AuthController`
+- `MainController`
+- `DomainController`
+- `ResController`
+- `ResField`
+- `DomainResPath`
+- `buildResPath()`
+- `splitResPath()`
+- `flattenAppMenuNodes()`
+- `findResByPath()`
+- `inferFieldUses()`
+- `inferListColumns()`
+- `inferQueryFields()`
+- `inferFormFields()`
+- `inferFormSections()`
+- `inferDetailFields()`
+
+---
+
+## 4. 最小类型草案
+
+### 4.1 顶层 app controller
+
+```ts
+export interface AppController {
+  kind: 'app'
+  auth: AuthController
+  main: MainController
+}
+```
+
+### 4.2 auth controller
+
+```ts
+export interface AuthController {
+  kind: 'auth'
+  name: Ref<string>
+  pwd: Ref<string>
+  login: () => void | Promise<void>
+  logout?: () => void | Promise<void>
+}
+```
+
+### 4.3 main controller
+
+```ts
+export interface MainController {
+  kind: 'main'
+  domains: readonly DomainController[]
+  currentPath?: Ref<DomainResPath | ''>
+}
+```
+
+### 4.4 domain controller
+
+```ts
+export interface DomainController<D extends string = string> {
+  kind: 'domain'
+  domain: D
+  title?: string
+  icon?: string
+  order?: number
+  items: readonly ResController<D, string>[]
+}
+```
+
+### 4.5 res controller
+
+```ts
+export interface ResController<D extends string = string, R extends string = string> {
+  kind: 'res'
+  domain: D
+  res: R
+  title?: string
+  icon?: string
+  order?: number
+  fields?: readonly ResField[]
+  query?: (params: ResQueryParams) => Promise<ResQueryResult>
+  save?: (params: ResSaveParams) => Promise<ResSaveResult | void>
+  remove?: (item: ResRow) => Promise<ResRemoveResult | void>
+  create?: () => void | Promise<void>
+  edit?: (row: ResRow) => void | Promise<void>
+  actions?: {
+    page?: readonly ResAction[]
+    batch?: readonly ResAction[]
+    row?: readonly ResRowAction[]
+    custom?: Record<string, (payload: ResActionHandlerPayload) => void | Promise<void>>
+  }
+  state?: {
+    queryValues?: Ref<Record<string, string>>
+    page?: Ref<number>
+    pageSize?: Ref<number>
+    selectedRowKeys?: Ref<string[]>
+    activeItem?: Ref<Record<string, unknown> | null>
+  }
+}
+```
+
+---
+
+## 5. 字段语义约定
+
+为了更好地自动推断，平台不直接要求使用方写 `columns / queryFields / formSections / detailFields`，而要求使用方写统一的 `fields`。
+
+### 5.1 最小字段模型
+
+```ts
+type ResField = {
+  key: string
+  kind?: 'text' | 'number' | 'bool' | 'date' | 'datetime' | 'enum' | 'ref' | 'tags' | 'json'
+  use?: readonly ('query' | 'list' | 'form' | 'detail')[]
+  required?: boolean
+  readonly?: boolean
+  order?: number
+  identity?: 'primary' | 'title' | 'code'
+  title?: string
+  queryType?: 'text' | 'search' | 'date' | 'number' | 'select'
+  widget?: 'text' | 'number' | 'switch' | 'date' | 'select' | 'tags' | 'json'
+  render?: 'text' | 'status' | 'tags'
+  summary?: boolean
+}
+```
+
+其中：
+
+- `identity` 用于默认推断字段优先级与默认 use
+- `order` 用于稳定 list/query/detail/form 的默认顺序
+- `title` 是资源字段自身的人类语义名，不是页面级 copy 拼装入口；平台仍应优先走 key-first i18n
+- `queryType / widget / render` 是**字段语义上的推断覆盖项**，用于修正平台默认推断，而不是让业务页重新写 view schema
+- `summary` 表示该字段适合作为摘要/概览候选，供后续 report/card/runtime 扩展使用
+
+### 5.2 enum / ref 的区分约定
+
+为了让平台更稳定地自动推断，`enum` 和 `ref` 不再只靠同一套弱约定混用，而是显式区分：
+
+#### `enum`
+表示资源内部枚举/字典值。
+
+必须至少提供一种：
+
+- `dict`
+- `options`
+
+```ts
+{ key: 'status', kind: 'enum', dict: 'user-status' }
+{ key: 'state', kind: 'enum', options: [...] }
+```
+
+#### `ref`
+表示指向另一个资源/实体的引用。
+
+必须提供：
+
+- `ref`
+
+可选再补：
+
+- `dict`
+- `options`
+
+```ts
+{ key: 'roleId', kind: 'ref', ref: 'admin/role' }
+{ key: 'orgId', kind: 'ref', ref: 'admin/org', dict: 'org' }
+```
+
+对应类型在 `AppController.ts` 中被拆成：
+
+- `ResValueField`
+- `ResEnumField`
+- `ResRefField`
+- `ResSelectField`
+
+这样可以通过类型系统约束：
+
+```ts
+{ key: 'status', kind: 'enum' } // 不合法
+{ key: 'status', kind: 'enum', dict: 'user-status' } // 合法
+{ key: 'roleId', kind: 'ref' } // 不合法
+{ key: 'roleId', kind: 'ref', ref: 'admin/role' } // 合法
+```
+
+### 5.3 `use` 的含义
+
+`use` 表示字段出现的业务区域，而不是具体组件实现细节：
+
+- `query`
+- `list`
+- `form`
+- `detail`
+
+例如：
+
+```ts
+fields: [
+  { key: 'name', identity: 'title', use: ['query', 'list', 'form', 'detail'] },
+  { key: 'status', kind: 'enum', dict: 'user-status', use: ['query', 'list', 'detail'] },
+  { key: 'createdAt', kind: 'datetime', use: ['list', 'detail'] },
+]
+```
+
+---
+
+## 6. 平台自动推断规则
+
+### 6.1 可高度自动推断的部分
+
+#### list columns
+平台应优先自动推断列表列：
+
+- `use` 包含 `list` -> 默认进入 columns
+- `kind=enum` 且 key 命名接近 `status/state/tier` -> 默认 `status` render
+- `kind=tags` 或数组值 -> 默认 `tags` render
+- 其他 -> 默认 `text`
+
+#### detail fields
+平台可直接根据：
+
+- `use` 包含 `detail`
+- `identity`
+- `order`
+
+生成详情字段顺序。
+
+### 6.2 可部分自动推断的部分
+
+#### query fields
+平台可以自动推断基础类型：
+
+- `enum/ref` -> `select`
+- `date/datetime` -> `date`
+- `text/code/name` -> `search/text`
+
+并允许通过 `queryType` 做字段级覆盖。
+
+但“是否应出现在默认查询区”仍优先依赖 `use`。
+
+#### form fields
+平台可以自动推断基础 widget：
+
+- `text` -> text input
+- `number` -> number input
+- `bool` -> switch/checkbox
+- `date/datetime` -> date input
+- `enum/ref` -> select
+
+并允许通过 `widget` 做字段级覆盖。
+
+#### list columns
+平台可以自动推断默认 render：
+
+- `status/state/tier` -> `status`
+- `tags` -> `tags`
+- 其他 -> `text`
+
+并允许通过 `render` 做字段级覆盖。
+
+但表单分组、复杂联动、条件显示不属于本版最小自动推断范围。
+
+---
+
+## 7. 默认推断优先级
+
+为了减少使用方标注量，平台可以使用下面的默认规则。
+
+### 7.1 `identity`
+
+- `primary`
+  - 默认进入 `detail`
+  - 通常不进入 `form`
+- `title`
+  - 默认进入 `query/list/form/detail`
+- `code`
+  - 默认进入 `query/list/detail`
+
+### 7.2 `kind`
+
+- `enum`
+  - 默认进入 `query/list/form/detail`
+- `ref`
+  - 默认进入 `query/list/form/detail`
+- `datetime`
+  - 默认进入 `list/detail`
+- `date`
+  - 默认进入 `query/list/detail`
+- `text/number/bool`
+  - 默认进入 `list/form/detail`
+
+### 7.3 key 命名启发式
+
+平台可使用 key 命名提高默认推断质量：
+
+- `name` / `title` -> 主文本字段
+- `code` -> 编码字段
+- `status` / `state` -> status-like 字段
+- `tags` -> tags-like 字段
+- `createdAt` / `updatedAt` -> 时间字段
+- `xxxId` -> ref 候选
+- `isXxx` / `enabled` -> bool 候选
+
+命名启发式只能作为默认兜底，不能替代显式 `kind`。
+
+---
+
+## 8. 运行时辅助能力
+
+在当前阶段，平台至少应提供下面这批 helper，而不是要求业务方自己重复做路由/menu/schema 推导：
+
+### 8.1 路径与定位
+
+- `buildResPath(domain, res)`
+- `splitResPath(path)`
+- `findResByPath(app, path)`
+- `listAllResControllers(app)`
+
+### 8.2 菜单推导
+
+- `flattenAppMenuNodes(app)`
+
+它直接把：
+
+```ts
+app.main.domains -> domain.items
+```
+
+推成可交给 `buildSidebarMenuTree()` 的扁平菜单节点数组。
+
+### 8.3 字段推导
+
+- `inferFieldUses(field)`
+- `inferFieldOrder(field)`
+- `inferListColumns(res)`
+- `inferQueryFields(res)`
+- `inferFormFields(res)`
+- `inferFormSections(res)`
+- `inferDetailFields(res)`
+
+也就是说，当前阶段先把：
+
+> `controller tree -> menu/path/标准定义默认值`
+
+这条链路做起来。
+
+### 8.4 共享运行时桥接 helper
+
+当前这条 bridge 已不再只停留在 demo-app 私有 glue，而是已经提升成共享 helper：
+
+- `resolveResRuntime(app, path, options)`
+- `buildResCrudRuntime(app, path, options)`
+
+其中建议的对外中性入口是：
+
+- `resolveResRuntime(app, path, options)`
+
+当前它内部仍然先委托给：
+
+- `buildResCrudRuntime(app, path, options)`
+
+也就是说现在先把解释入口抽象出来，但不在此时把未来所有 view mapping 规则定死。
+
+它会负责：
+
+- `path -> res controller` 定位
+- 根据资源当前声明选择运行时 kind（当前最小支持 `crud` / `report`）
+- `fields -> query/list/form/detail` 默认推导
+- 把 `ResController` 桥接成当前 view 可消费的 controller（当前已接 `ResourceCrudController` / `ReportViewController`）
+- 生成 detail 字段的默认值格式化逻辑
+
+对应类型：
+
+- `ResCrudRuntimeOptions`
+- `ResCrudRuntime`
+
+当前 bridge 已继续上收了几项运行时页面默认值：
+
+- `pageSizeOptions`
+- `selectableRows`
+- `title`
+- `rowKey`
+
+同时，共享层现在已经补上统一页面壳：
+
+- `ResolvedResPage`
+
+它负责消费 `ResRuntime`，并按 `runtime.kind` 分发到当前已接入的共享 view：
+
+- `kind='crud'` -> `EntityListView`
+- `kind='report'` -> `ReportView`
+- 其他 kind -> 显式未接入提示
+- runtime 不存在 -> 统一的资源不存在提示
+
+这样 demo 或业务 app 的 `RuntimeResPage` 只需要负责：
+
+- `MainPage` / sidebar 等应用壳
+- 当前 route/path
+- 调用 `resolveResRuntime()`
+- 把结果交给 `ResolvedResPage`
+
+而不必在每个 app 里重复手写 `runtime.kind` 分支和 view glue。
+
+### 8.5 demo 运行时最小接线
+
+EFS demo app 现在通过 `resolveResRuntime()` + `ResolvedResPage` 证明：
+
+- app 侧只保留应用壳和 route/path 接线
+- 共享页面壳统一按 `runtime.kind` 分发
+- 当前最小已接通 `kind='crud'` 与 `kind='report'`
+- 其余 kind 先落到显式未接入提示，而不是静默失败
+
+```ts
+const app = useApp()
+```
+
+至少已经可以驱动：
+
+- sidebar menu
+- `/:domain/:res` route
+- path -> res controller lookup
+- `fields -> query/list/form/detail` 默认推导
+- 现有 `EntityListView` 渲染
+
+参考文件：
+
+- `packages/vue/src/shared/AppController.ts`
+- `packages/vue/src/components/pages/ResolvedResPage.vue`
+- `apps/demo-app/src/runtime/demo-app.ts`
+- `apps/demo-app/src/pages/RuntimeResPage.vue`
+- `apps/demo-app/src/router.ts`
+
+## 9. 当前不提前定型的部分
+
+为了避免过早把平台做死，下面这些先不作为强约定：
+
+- `ResController -> EntityListView / ReportView / WorkflowView` 的固定映射
+- 多级菜单
+- breadcrumb 规则
+- 表单 section/group 细分约定
+- 复杂联动/依赖显示
+- query range 的通用建模
+- report/workflow 的最终 controller 形态
+
+当前阶段先定住：
+
+- app tree
+- `domain/res` 身份规则
+- res controller 最小能力
+- `fields` 语义约定
+
+---
+
+## 10. 推荐示例
+
+```ts
+import { ref } from 'vue'
+import type { AppController, AuthController, DomainController, MainController, ResController } from '@efs/vue'
+
+export function useAuth(): AuthController {
+  const name = ref('')
+  const pwd = ref('')
+
+  async function login() {}
+
+  return {
+    kind: 'auth',
+    name,
+    pwd,
+    login,
+  }
+}
+
+export function useUser(): ResController<'admin', 'user'> {
+  async function query({ queryValues, page, pageSize }) {
+    return { items: [], total: 0 }
+  }
+
+  async function save() {
+    return { refresh: true, close: true }
+  }
+
+  async function remove() {
+    return { refresh: true }
+  }
+
+  return {
+    kind: 'res',
+    domain: 'admin',
+    res: 'user',
+    title: 'user',
+    fields: [
+      { key: 'id', identity: 'primary', readonly: true, use: ['detail'] },
+      { key: 'name', identity: 'title', queryType: 'search' },
+      { key: 'status', kind: 'enum', dict: 'user-status', use: ['query', 'list', 'detail'], render: 'status' },
+      { key: 'roleId', kind: 'ref', ref: 'admin/role', use: ['query', 'form', 'detail'] },
+      { key: 'createdAt', kind: 'datetime', use: ['list', 'detail'] },
+    ],
+    query,
+    save,
+    remove,
+  }
+}
+
+export function useAdmin(): DomainController<'admin'> {
+  return {
+    kind: 'domain',
+    domain: 'admin',
+    items: [useUser()],
+  }
+}
+
+export function useMain(): MainController {
+  return {
+    kind: 'main',
+    domains: [useAdmin()],
+  }
+}
+
+export function useApp(): AppController {
+  return {
+    kind: 'app',
+    auth: useAuth(),
+    main: useMain(),
+  }
+}
+```
+
+---
+
+## 11. 最终建议
+
+EFS 下一阶段要解决的，不是“如何继续让使用方写更复杂的 view controller”，而是：
+
+> **如何让使用方只写 `useApp()` 及其资源控制器树，平台再从统一的 `domain/res + fields` 约定自动推出标准页面能力。**
+
+因此应优先推进：
+
+1. 固化 `App/Main/Domain/Res/Auth` 类型
+2. 固化 `domain/res` 身份规则
+3. 固化 `fields` 的语义约定
+4. 再在此基础上演进自动推断与 view runtime

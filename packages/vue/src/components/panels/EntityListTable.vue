@@ -38,7 +38,18 @@
     <article v-for="(item, index) in props.items" :key="resolveRowKey(item, index)" class="efs-entitylisttable__mobile-card">
      <div v-for="column in visibleColumns" :key="column.key" class="efs-entitylisttable__mobile-field">
       <span class="efs-entitylisttable__mobile-label">{{ column.title }}</span>
-      <strong class="efs-entitylisttable__mobile-value">{{ displayText(item[column.key]) }}</strong>
+      <div class="efs-entitylisttable__mobile-value">
+       <template v-if="column.render === 'status'">
+        <StatusChip :label="displayText(resolveDisplayValue(item, column))" :tone="resolveTone(item, column)" />
+       </template>
+       <template v-else-if="column.render === 'tags'">
+        <div class="efs-entitylisttable__mobile-taglist">
+         <AppTag v-for="tag in resolveTags(item, column)" :key="`${resolveRowKey(item, index)}-${column.key}-${tag}`">{{ tag }}</AppTag>
+         <span v-if="resolveTags(item, column).length === 0">-</span>
+        </div>
+       </template>
+       <strong v-else>{{ displayText(resolveDisplayValue(item, column)) }}</strong>
+      </div>
      </div>
     </article>
    </div>
@@ -68,20 +79,26 @@
 
 <script setup lang="ts">
 import { computed, getCurrentInstance, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import AppTag from '../interaction/AppTag.vue'
 import ColumnSettings from '../interaction/ColumnSettings.vue'
 import Pagination from '../interaction/Pagination.vue'
+import StatusChip from '../interaction/StatusChip.vue'
 import { resolveLabel } from '../../shared/LabelResolver'
 
 defineOptions({ name: 'EntityListTable' })
 
 type InputColumn = {
  key: string
+ render?: 'text' | 'status' | 'tags'
+ formatter?: (value: unknown, row: Record<string, unknown>) => unknown
  visible?: boolean
 }
 
 interface NormalizedColumn {
  key: string
  title: string
+ render: 'text' | 'status' | 'tags'
+ formatter?: (value: unknown, row: Record<string, unknown>) => unknown
  visible: boolean
  hideable: boolean
 }
@@ -167,6 +184,7 @@ const inferredColumns = computed<NormalizedColumn[]>(() => {
   .map((key) => ({
    key,
    title: resolveColumnTitle(key),
+   render: inferRenderer(key, firstRow[key]),
    visible: true,
    hideable: true,
   }))
@@ -176,6 +194,8 @@ const normalizedColumns = computed<NormalizedColumn[]>(() => (props.columns.leng
  ? props.columns.map((column) => ({
    key: column.key,
    title: resolveColumnTitle(column),
+   render: column.render ?? inferRenderer(column.key),
+   formatter: column.formatter,
    visible: column.visible !== false,
    hideable: true,
   }))
@@ -208,10 +228,59 @@ function resolveRowKey(row: Record<string, unknown>, rowIndex: number) {
  throw new Error(`EntityListTable row is missing required rowKey "${props.rowKey}" at index ${rowIndex}`)
 }
 
+function resolveDisplayValue(row: Record<string, unknown>, column: NormalizedColumn) {
+ const raw = row[column.key]
+ return column.formatter ? column.formatter(raw, row) : raw
+}
+
+function resolveTags(row: Record<string, unknown>, column: NormalizedColumn) {
+ const value = resolveDisplayValue(row, column)
+ if (Array.isArray(value)) return value.map((item) => displayText(item)).filter((item) => item !== '-')
+ if (typeof value === 'string' && value.includes(',')) {
+  return value.split(',').map((item) => item.trim()).filter(Boolean)
+ }
+ return value ? [displayText(value)] : []
+}
+
+function resolveTone(row: Record<string, unknown>, column: NormalizedColumn) {
+ const value = resolveDisplayValue(row, column)
+ const normalized = String(value ?? '').toLowerCase()
+ if (['enabled', 'active', 'ready', 'normal', 'success'].includes(normalized)) return 'success'
+ if (['pending', 'warning', 'attention', 'in_progress'].includes(normalized)) return 'warning'
+ if (['disabled', 'inactive', 'failed', 'error', 'blocked'].includes(normalized)) return 'danger'
+ return 'neutral'
+}
+
 function displayText(value: unknown) {
  if (value === null || value === undefined || value === '') return '-'
- if (Array.isArray(value)) return value.join(', ')
+ if (Array.isArray(value)) {
+  const parts = value.map((item) => displayText(item)).filter((item) => item !== '-')
+  return parts.length > 0 ? parts.join(', ') : '-'
+ }
+ if (typeof value === 'object') return summarizeObject(value as Record<string, unknown>)
  return String(value)
+}
+
+function summarizeObject(value: Record<string, unknown>) {
+ const preferredKeys = ['label', 'name', 'title', 'displayName', 'orgCode', 'code', 'id', 'value']
+ for (const key of preferredKeys) {
+  const candidate = value[key]
+  if (candidate !== null && candidate !== undefined && candidate !== '') return displayText(candidate)
+ }
+ const parts = Object.entries(value)
+  .map(([key, item]) => {
+   const text = displayText(item)
+   return text === '-' ? '' : `${key}: ${text}`
+  })
+  .filter(Boolean)
+ return parts.length > 0 ? parts.join(' · ') : '-'
+}
+
+function inferRenderer(key: string, sampleValue?: unknown): 'text' | 'status' | 'tags' {
+ const normalizedKey = key.toLowerCase()
+ if (Array.isArray(sampleValue)) return 'tags'
+ if (['status', 'state', 'tier'].some((token) => normalizedKey.includes(token))) return 'status'
+ return 'text'
 }
 
 function syncViewport() {
