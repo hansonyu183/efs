@@ -8,7 +8,7 @@
   :locale="locale"
   :theme="theme"
   @update:locale="locale = $event"
-  @update:theme="theme = $event"
+  @update:theme="handleThemeUpdate"
   @logout="handleLogout"
  >
   <template #sidebar>
@@ -80,6 +80,10 @@ watch(() => route.path, (value) => {
  const normalized = value.replace(/^\/+/, '')
  props.app.main.currentPath.value = (normalized.includes('/') ? normalized : '') as never
 }, { immediate: true })
+
+function handleThemeUpdate(value: string) {
+ theme.value = value === 'light' ? 'light' : 'dark'
+}
 
 async function handleLogout() {
  await props.app.auth.logout?.()

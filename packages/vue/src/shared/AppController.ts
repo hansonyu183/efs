@@ -13,6 +13,7 @@ import type {
 import type {
  ReportViewAction,
  ReportViewController,
+ ReportViewControllerHandlers,
  ReportViewResultColumn,
  ReportViewSummaryMetric,
 } from '../components/views/report-view-types'
@@ -432,7 +433,7 @@ export function buildResReportRuntime(app: AppController, path: string, options:
    export: res.export ? async ({ queryValues, page, pageSize, items, total, summary }) => {
     await res.export?.({ queryValues, page, pageSize, items, total, summary })
    } : undefined,
-   actions: res.actions?.custom,
+   actions: res.actions?.custom as ReportViewControllerHandlers['actions'],
   },
  })
 
@@ -463,11 +464,19 @@ export function buildResCrudRuntime(app: AppController, path: string, options: R
   actions: {
    actions: res.actions?.page ? [...res.actions.page] : [],
    batchActions: res.actions?.batch ? [...res.actions.batch] : [],
-   rowActions: res.actions?.row ? [...res.actions.row] : [],
+   rowActions: res.actions?.row
+    ? res.actions.row.map((action) => ({
+       ...action,
+       variant: action.variant === 'ghost' ? 'default' : action.variant,
+      }))
+    : [],
   },
   handlers: {
    query: res.query,
-   save: res.save,
+   save: res.save ? async ({ mode, item, queryValues, page, pageSize }) => {
+    if (!item) return
+    return await res.save?.({ mode, item, queryValues, page, pageSize })
+   } : undefined,
    remove: res.remove,
    create: res.create,
    edit: res.edit,
