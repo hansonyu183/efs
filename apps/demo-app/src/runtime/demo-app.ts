@@ -232,6 +232,7 @@ export function useMain(): MainController {
 export function useApp(): AppController {
  return {
   kind: 'app',
+  appName: 'EFS Demo',
   auth: useAuth(),
   main: useMain(),
  }

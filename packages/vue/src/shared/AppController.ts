@@ -207,6 +207,7 @@ export interface AuthController {
 
 export interface AppController {
  kind: 'app'
+ appName?: string
  auth: AuthController
  main: MainController
 }

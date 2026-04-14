@@ -7,6 +7,8 @@ export * from './shared/AppController'
 
 export { default as AuthPage } from './components/pages/AuthPage.vue'
 export { default as MainPage } from './components/pages/MainPage.vue'
+export { default as EfsSidebarNav } from './components/pages/EfsSidebarNav.vue'
+export { default as EfsApp } from './components/pages/EfsApp.vue'
 export { default as ResolvedResPage } from './components/pages/ResolvedResPage.vue'
 export { default as ThemeSwitcher } from './components/controls/ThemeSwitcher.vue'
 export { default as LocaleSwitcher } from './components/controls/LocaleSwitcher.vue'

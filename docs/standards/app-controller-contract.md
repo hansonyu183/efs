@@ -149,6 +149,7 @@ EFS 约定把可静态约束的部分尽量落到 TypeScript 类型中。
 ```ts
 export interface AppController {
   kind: 'app'
+  appName?: string
   auth: AuthController
   main: MainController
 }
@@ -502,32 +503,47 @@ app.main.domains -> domain.items
 - `title`
 - `rowKey`
 
-同时，共享层现在已经补上统一页面壳：
+同时，共享层现在已经补上两层页面壳：
 
 - `ResolvedResPage`
+- `EfsApp`
 
-它负责消费 `ResRuntime`，并按 `runtime.kind` 分发到当前已接入的共享 view：
+其中：
+
+- `ResolvedResPage` 负责消费 `ResRuntime`，并按 `runtime.kind` 分发到当前已接入的共享 view
+- `EfsApp` 负责再往上收一层，把 `MainPage` / sidebar / route.path / `resolveResRuntime()` 一起包起来
+
+`ResolvedResPage` 当前职责：
 
 - `kind='crud'` -> `EntityListView`
 - `kind='report'` -> `ReportView`
 - 其他 kind -> 显式未接入提示
 - runtime 不存在 -> 统一的资源不存在提示
 
-这样 demo 或业务 app 的 `RuntimeResPage` 只需要负责：
+`EfsApp` 当前职责：
 
-- `MainPage` / sidebar 等应用壳
-- 当前 route/path
-- 调用 `resolveResRuntime()`
-- 把结果交给 `ResolvedResPage`
+- 接收 `app: AppController`
+- 从 router 自动读取当前 `route.path`
+- 内部调用 `flattenAppMenuNodes(app)` 生成 sidebar
+- 内部调用 `resolveResRuntime(app, route.path, options)` 解析资源运行时
+- 用 `MainPage + ResolvedResPage` 组合成默认应用壳
 
-而不必在每个 app 里重复手写 `runtime.kind` 分支和 view glue。
+这样业务方已经可以直接写成：
+
+```vue
+<EfsApp :app="useApp()" />
+```
+
+其中 `appName` 应直接放在 `useApp()` 返回的 `AppController` 上，而不是再单独作为 `EfsApp` 输入；`EfsApp` 默认主题为 `dark`。
+
+如果要补品牌/组织等额外壳配置，再按需传额外 props；资源定义本身只需要 `useApp()`。
 
 ### 8.5 demo 运行时最小接线
 
-EFS demo app 现在通过 `resolveResRuntime()` + `ResolvedResPage` 证明：
+EFS demo app 现在通过 `EfsApp` 证明：
 
-- app 侧只保留应用壳和 route/path 接线
-- 共享页面壳统一按 `runtime.kind` 分发
+- 业务方资源入口最小可以只传 `useApp()`
+- 共享 app 壳统一处理 sidebar / route / runtime / view 分发
 - 当前最小已接通 `kind='crud'` 与 `kind='report'`
 - 其余 kind 先落到显式未接入提示，而不是静默失败
 
@@ -547,6 +563,7 @@ const app = useApp()
 
 - `packages/vue/src/shared/AppController.ts`
 - `packages/vue/src/components/pages/ResolvedResPage.vue`
+- `packages/vue/src/components/pages/EfsApp.vue`
 - `apps/demo-app/src/runtime/demo-app.ts`
 - `apps/demo-app/src/pages/RuntimeResPage.vue`
 - `apps/demo-app/src/router.ts`
