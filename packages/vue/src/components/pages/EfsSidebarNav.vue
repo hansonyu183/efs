@@ -7,18 +7,19 @@
       <SemanticIcon :name="node.icon || 'folder'" size="sm" />
       <span class="efs-sidebar-nav__label">{{ node.title }}</span>
      </div>
-     <EfsSidebarNav :items="node.children" :current-path="currentPath" :tree="true" />
+     <EfsSidebarNav :items="node.children" :current-path="currentPath" :tree="true" @navigate="emit('navigate', $event)" />
     </template>
 
-    <RouterLink
+    <a
      v-else
-     :to="node.path || '/'"
+     :href="node.path || '/'"
      class="efs-sidebar-nav__link"
      :class="{
       'efs-sidebar-nav__link--active': isActive(node.path),
       'efs-sidebar-nav__link--disabled': node.disabled,
      }"
      :aria-current="isActive(node.path) ? 'page' : undefined"
+     @click.prevent="handleNavigate(node.path, node.disabled)"
     >
      <span class="efs-sidebar-nav__icon" aria-hidden="true">
       <SemanticIcon :name="node.icon || 'folder'" size="sm" />
@@ -26,7 +27,7 @@
      <span class="efs-sidebar-nav__body">
       <span class="efs-sidebar-nav__label">{{ node.title }}</span>
      </span>
-    </RouterLink>
+    </a>
    </li>
   </ul>
  </nav>
@@ -34,7 +35,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { RouterLink } from 'vue-router'
 import type { FlatMenuNode, SidebarMenuTreeNode } from '../../shared/NavigationMenu'
 import { buildSidebarMenuTree } from '../../shared/NavigationMenu'
 import SemanticIcon from '../controls/SemanticIcon.vue'
@@ -55,6 +55,10 @@ const props = withDefaults(defineProps<EfsSidebarNavProps>(), {
  tree: false,
 })
 
+const emit = defineEmits<{
+ (e: 'navigate', path: string): void
+}>()
+
 const menuTree = computed<SidebarMenuTreeNode[]>(() => {
  if (props.tree) return (props.items as SidebarMenuTreeNode[]) || []
  return buildSidebarMenuTree(props.items as FlatMenuNode[])
@@ -62,6 +66,11 @@ const menuTree = computed<SidebarMenuTreeNode[]>(() => {
 
 function isActive(path?: string) {
  return Boolean(path && path === props.currentPath)
+}
+
+function handleNavigate(path?: string, disabled?: boolean) {
+ if (!path || disabled) return
+ emit('navigate', path)
 }
 </script>
 
