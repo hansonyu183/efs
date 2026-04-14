@@ -30,8 +30,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import type { AppController, ResCrudRuntimeOptions, ResReportRuntimeOptions } from '../../shared/AppController'
-import { flattenAppMenuNodes, resolveResRuntime } from '../../shared/AppController'
+import type { AppController, ResCrudRuntimeOptions, ResReportRuntimeOptions } from '@efs/vue/shared/AppController'
+import { flattenAppMenuNodes, resolveResRuntime } from '@efs/vue/shared/AppController'
 import type { FlatMenuNode } from '../../shared/NavigationMenu'
 import MainPage from './MainPage.vue'
 import EfsSidebarNav from './EfsSidebarNav.vue'

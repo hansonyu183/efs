@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { ResRuntime } from '../../shared/AppController'
+import type { ResRuntime } from '@efs/vue/shared/AppController'
 import PagePanel from '../panels/PagePanel.vue'
 import EntityListView from '../views/EntityListView.vue'
 import ReportView from '../views/ReportView.vue'
