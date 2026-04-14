@@ -251,25 +251,25 @@ function resolveTone(row: Record<string, unknown>, column: NormalizedColumn) {
  return 'neutral'
 }
 
-function displayText(value: unknown) {
+function displayText(value: unknown): string {
  if (value === null || value === undefined || value === '') return '-'
  if (Array.isArray(value)) {
-  const parts = value.map((item) => displayText(item)).filter((item) => item !== '-')
+  const parts: string[] = value.map((item) => displayText(item)).filter((item) => item !== '-')
   return parts.length > 0 ? parts.join(', ') : '-'
  }
  if (typeof value === 'object') return summarizeObject(value as Record<string, unknown>)
  return String(value)
 }
 
-function summarizeObject(value: Record<string, unknown>) {
+function summarizeObject(value: Record<string, unknown>): string {
  const preferredKeys = ['label', 'name', 'title', 'displayName', 'orgCode', 'code', 'id', 'value']
  for (const key of preferredKeys) {
   const candidate = value[key]
   if (candidate !== null && candidate !== undefined && candidate !== '') return displayText(candidate)
  }
- const parts = Object.entries(value)
+ const parts: string[] = Object.entries(value)
   .map(([key, item]) => {
-   const text = displayText(item)
+   const text: string = displayText(item)
    return text === '-' ? '' : `${key}: ${text}`
   })
   .filter(Boolean)
