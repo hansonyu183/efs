@@ -55,7 +55,7 @@
 
  <MainPage
   v-else
-  :title="runtime?.title || props.emptyTitle"
+  :title="resolvedMainTitle"
   :app-name="props.app.appName || ''"
   :brand-title="props.brandTitle"
   :brand-subtitle="props.brandSubtitle"
@@ -70,8 +70,9 @@
    <EfsSidebarNav :items="sidebarMenus" :current-path="route.path" />
   </template>
 
+  <slot v-if="$slots.default" />
   <ResolvedResPage
-   v-if="runtime"
+   v-else-if="runtime"
    :runtime="runtime"
    :path="route.path"
    :crud-subtitle="props.crudSubtitle"
@@ -104,6 +105,8 @@ defineOptions({ name: 'EfsApp' })
 
 interface EfsAppProps {
  app: AppController
+ title?: string
+ subtitle?: string
  brandTitle?: string
  brandSubtitle?: string
  orgCode?: string
@@ -130,6 +133,8 @@ interface EfsAppProps {
 }
 
 const props = withDefaults(defineProps<EfsAppProps>(), {
+ title: '',
+ subtitle: '',
  brandTitle: '',
  brandSubtitle: '',
  orgCode: '',
@@ -167,6 +172,7 @@ const theme = ref<'light' | 'dark'>(props.theme)
 
 const sidebarMenus = computed<FlatMenuNode[]>(() => flattenAppMenuNodes(props.app))
 const runtime = computed(() => resolveResRuntime(props.app, route.path, props.runtimeOptions))
+const resolvedMainTitle = computed(() => runtime.value?.title || props.title || props.emptyTitle)
 const normalizedPath = computed(() => route.path.replace(/^\/+|\/+$/g, ''))
 const isLoginRoute = computed(() => normalizedPath.value === 'login')
 const isAuthenticated = computed(() => props.app.auth.authenticated?.value ?? true)

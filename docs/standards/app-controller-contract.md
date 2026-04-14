@@ -510,8 +510,8 @@ app.main.domains -> domain.items
 
 其中：
 
-- `ResolvedResPage` 负责消费 `ResRuntime`，并按 `runtime.kind` 分发到当前已接入的共享 view
-- `EfsApp` 负责再往上收一层，把 `MainPage` / sidebar / route.path / `resolveResRuntime()` 一起包起来
+- `ResolvedResPage` 负责消费 `ResRuntime`，并按 `runtime.kind` 分发到当前已接入的共享 view（内部实现）
+- `EfsApp` 负责再往上收一层，把 `MainPage` / sidebar / route.path / `resolveResRuntime()` 一起包起来（公共入口）
 
 `ResolvedResPage` 当前职责：
 
@@ -534,7 +534,22 @@ app.main.domains -> domain.items
 <EfsApp :app="useApp()" />
 ```
 
-其中 `appName` 应直接放在 `useApp()` 返回的 `AppController` 上，而不是再单独作为 `EfsApp` 输入；`EfsApp` 默认主题为 `dark`。
+如果是工作台这类自定义内容页，也可以写成：
+
+```vue
+<EfsApp :app="useApp()" title="统一工作台">
+  <!-- workbench/dashboard content -->
+</EfsApp>
+```
+
+其中 `appName` 应直接放在 `useApp()` 返回的 `AppController` 上，而不是再单独作为 `EfsApp` 输入；`EfsApp` 默认主题为 `dark`。对使用方来说，公开建模入口仍然应以 `AppController` 这套 controller 类型为主，而不是 `EfsApp` 自身 props 类型。
+
+当前默认应用壳还额外做了四项收口：
+
+- 语言 / 主题切换从 more 菜单移到 topbar，仅保留 icon 入口
+- 资源列表默认去掉 `资源列表` 标题以及重复的总数/当前行数文案
+- 工作台等非 `domain/res` 页面也可以通过 `EfsApp` 的默认 slot 复用同一套 app shell
+- 手机端查询入口改成“摘要条 + 底部抽屉”，不再在列表头右侧放一个弱提示式 `筛选` 按钮
 
 如果要补品牌/组织等额外壳配置，再按需传额外 props；资源定义本身只需要 `useApp()`。
 
@@ -562,10 +577,12 @@ const app = useApp()
 参考文件：
 
 - `packages/vue/src/shared/AppController.ts`
-- `packages/vue/src/components/pages/ResolvedResPage.vue`
-- `packages/vue/src/components/pages/EfsApp.vue`
+- `packages/vue/src/components/pages/ResolvedResPage.vue`（内部）
+- `packages/vue/src/components/pages/EfsApp.vue`（公共入口）
+- `packages/vue/src/components/pages/efs-app-types.ts`（内部/保留）
 - `apps/demo-app/src/runtime/demo-app.ts`
 - `apps/demo-app/src/pages/RuntimeResPage.vue`
+- `apps/demo-app/src/pages/WorkbenchPage.vue`
 - `apps/demo-app/src/router.ts`
 
 ## 9. 当前不提前定型的部分

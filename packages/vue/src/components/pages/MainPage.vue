@@ -49,27 +49,27 @@
      </div>
     </div>
 
-    <details ref="moreMenuRef" class="efs-main-layout__moremenu">
-     <summary class="efs-main-layout__iconbutton" :aria-label="props.moreLabel" :title="props.moreLabel">
-      <SemanticIcon name="more" :label="props.moreLabel" aria-hidden="true" />
-     </summary>
-     <div class="efs-main-layout__moremenu-panel">
-      <LocaleSwitcher
-       :model-value="props.locale"
-       :label="props.localeLabel"
-       :options="props.localeOptions"
-       mode="menu"
-       @update:model-value="(value) => emit('update:locale', value)"
-      />
-      <ThemeSwitcher
-       :model-value="props.theme"
-       :label="props.themeLabel"
-       :options="props.themeOptions"
-       mode="menu"
-       @update:model-value="(value) => emit('update:theme', value)"
-      />
-
-      <label v-if="props.orgOptions.length > 0" class="efs-main-layout__menu-field" :aria-label="props.orgLabel">
+    <div class="efs-main-layout__header-actions">
+     <LocaleSwitcher
+      :model-value="props.locale"
+      :label="props.localeLabel"
+      :options="props.localeOptions"
+      mode="icon"
+      @update:model-value="(value) => emit('update:locale', value)"
+     />
+     <ThemeSwitcher
+      :model-value="props.theme"
+      :label="props.themeLabel"
+      :options="props.themeOptions"
+      mode="icon"
+      @update:model-value="(value) => emit('update:theme', value)"
+     />
+     <details ref="moreMenuRef" class="efs-main-layout__moremenu">
+      <summary class="efs-main-layout__iconbutton" :aria-label="props.moreLabel" :title="props.moreLabel">
+       <SemanticIcon name="more" :label="props.moreLabel" aria-hidden="true" />
+      </summary>
+      <div class="efs-main-layout__moremenu-panel">
+       <label v-if="props.orgOptions.length > 0" class="efs-main-layout__menu-field" :aria-label="props.orgLabel">
        <span class="efs-main-layout__menuicon" aria-hidden="true">
         <SemanticIcon name="org" :label="props.orgLabel" size="sm" />
        </span>
@@ -87,13 +87,13 @@
 
       <button v-if="resolvedProfileDialog.enabled" type="button" :title="resolvedProfileDialog.label" :aria-label="resolvedProfileDialog.label" @click="openProfileDialog">
        <span class="efs-main-layout__menuicon" aria-hidden="true">
-        <SemanticIcon name="profile" :label="resolvedProfileDialog.label" size="sm" />
+        <SemanticIcon name="user" :label="resolvedProfileDialog.label" size="sm" />
        </span>
        <span class="efs-main-layout__menulabel">{{ resolvedProfileDialog.label }}</span>
       </button>
       <button v-if="resolvedPasswordDialog.enabled" type="button" :title="resolvedPasswordDialog.label" :aria-label="resolvedPasswordDialog.label" @click="openPasswordDialog">
        <span class="efs-main-layout__menuicon" aria-hidden="true">
-        <SemanticIcon name="password" :label="resolvedPasswordDialog.label" size="sm" />
+        <SemanticIcon name="lock" :label="resolvedPasswordDialog.label" size="sm" />
        </span>
        <span class="efs-main-layout__menulabel">{{ resolvedPasswordDialog.label }}</span>
       </button>
@@ -105,6 +105,7 @@
       </button>
      </div>
     </details>
+   </div>
    </header>
 
    <section v-if="showAlertsRegion" class="efs-main-layout__alerts">

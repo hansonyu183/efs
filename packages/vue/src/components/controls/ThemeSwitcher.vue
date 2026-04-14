@@ -11,7 +11,7 @@
    <SemanticIcon :name="iconName" :label="props.label" aria-hidden="true" />
    <span v-if="props.mode === 'menu'" class="efs-themeswitcher__label">{{ props.label }}</span>
   </span>
-  <span class="efs-themeswitcher__value">{{ currentLabel }}</span>
+  <span v-if="props.mode !== 'icon'" class="efs-themeswitcher__value">{{ currentLabel }}</span>
  </button>
 </template>
 
@@ -31,7 +31,7 @@ interface ThemeSwitcherProps {
  modelValue?: string
  label?: string
  options?: ThemeOption[]
- mode?: 'pill' | 'menu'
+ mode?: 'pill' | 'menu' | 'icon'
 }
 
 const props = withDefaults(defineProps<ThemeSwitcherProps>(), {

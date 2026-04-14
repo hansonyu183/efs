@@ -1,12 +1,11 @@
 <template>
  <section class="efs-entitylisttable">
-  <header class="efs-entitylisttable__header">
-   <div>
-    <h3 class="efs-entitylisttable__title">{{ props.title }}</h3>
+  <header v-if="props.title || props.subtitle || $slots['header-actions'] || (enableColumnSettings && !isMobile)" class="efs-entitylisttable__header">
+   <div v-if="props.title || props.subtitle">
+    <h3 v-if="props.title" class="efs-entitylisttable__title">{{ props.title }}</h3>
     <p v-if="props.subtitle" class="efs-entitylisttable__subtitle">{{ props.subtitle }}</p>
    </div>
    <div class="efs-entitylisttable__header-actions">
-    <span class="efs-entitylisttable__total">{{ resolvedLabels.total }} {{ props.total }}</span>
     <ColumnSettings
      v-if="enableColumnSettings && !isMobile"
      :label="resolvedLabels.columnSettings"
@@ -55,8 +54,7 @@
    </div>
   </div>
 
-  <footer v-if="$slots.footer || props.items.length > 0 || props.showPagination" class="efs-entitylisttable__footer">
-   <div class="efs-entitylisttable__summary">{{ resolvedLabels.rows }} {{ props.items.length }}</div>
+  <footer v-if="$slots.footer || props.showPagination" class="efs-entitylisttable__footer">
    <div class="efs-entitylisttable__footer-actions">
     <slot name="footer" :visible-columns="visibleColumns" :visible-column-keys="visibleColumnKeys" />
     <Pagination
@@ -104,8 +102,6 @@ interface NormalizedColumn {
 }
 
 type EntityListTableLabels = {
- total?: string
- rows?: string
  columnSettings?: string
  resetColumns?: string
  showAllColumns?: string
@@ -144,8 +140,6 @@ const props = withDefaults(defineProps<EntityListTableProps>(), {
  pageSizeOptions: () => [],
  showPagination: true,
  labels: () => ({
-  total: '总数：',
-  rows: '当前行数：',
   columnSettings: '列设置',
   resetColumns: '重置',
   showAllColumns: '显示全部',
@@ -165,8 +159,6 @@ const instance = getCurrentInstance()
 const visibleColumnKeys = ref<string[]>([])
 const isMobile = ref(false)
 const resolvedLabels = computed(() => ({
- total: props.labels?.total ?? '总数：',
- rows: props.labels?.rows ?? '当前行数：',
  columnSettings: props.labels?.columnSettings ?? '列设置',
  resetColumns: props.labels?.resetColumns ?? '重置',
  showAllColumns: props.labels?.showAllColumns ?? '显示全部',

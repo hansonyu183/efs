@@ -58,14 +58,34 @@
    </div>
   </section>
 
+  <button
+   v-if="isMobile && normalizedQueryFields.length > 0"
+   type="button"
+   class="efs-resourcecrudpage__query-summary-bar"
+   :disabled="resolvedBusy"
+   @click="querySheetOpen = true"
+  >
+   <span class="efs-resourcecrudpage__query-summary-main">
+    <span class="efs-resourcecrudpage__query-summary-title">
+     <SemanticIcon name="settings" label="筛选" aria-hidden="true" />
+     {{ mobileQuerySummaryTitle }}
+    </span>
+    <span class="efs-resourcecrudpage__query-summary-text">{{ mobileQuerySummaryText }}</span>
+   </span>
+   <span class="efs-resourcecrudpage__query-summary-action">
+    {{ activeQueryCount > 0 ? '修改' : '筛选' }}
+    <span v-if="activeQueryCount > 0" class="efs-resourcecrudpage__filter-count">{{ activeQueryCount }}</span>
+   </span>
+  </button>
+
   <div v-if="isMobile && querySheetOpen" class="efs-resourcecrudpage__query-sheet-backdrop" @click.self="querySheetOpen = false">
    <section class="efs-resourcecrudpage__query-sheet" @keydown.enter="handleQueryEnter">
     <header class="efs-resourcecrudpage__query-sheet-header">
      <div class="efs-resourcecrudpage__query-sheet-heading">
-      <strong>筛选</strong>
-      <span v-if="activeQueryCount > 0" class="efs-resourcecrudpage__filter-count">已选 {{ activeQueryCount }}</span>
+      <strong>筛选条件</strong>
+      <span v-if="activeQueryCount > 0" class="efs-resourcecrudpage__query-sheet-summary">已筛选 {{ activeQueryCount }} 项</span>
      </div>
-     <AppButton variant="ghost" :disabled="resolvedBusy" @click="querySheetOpen = false">完成</AppButton>
+     <button type="button" class="efs-resourcecrudpage__query-sheet-close" :disabled="resolvedBusy" @click="querySheetOpen = false">关闭</button>
     </header>
     <div v-if="normalizedQueryFields.length > 0" class="efs-resourcecrudpage__query-filters">
      <div class="efs-resourcecrudpage__filters-grid">
@@ -92,11 +112,9 @@
       </AppField>
      </div>
     </div>
-    <div class="efs-resourcecrudpage__query-actions">
-     <div class="efs-resourcecrudpage__toolbar-actions-main">
-      <AppButton variant="primary" :disabled="resolvedBusy" @click="handleSearch">查询</AppButton>
-      <AppButton :disabled="resolvedBusy" @click="handleReset">重置</AppButton>
-     </div>
+    <div class="efs-resourcecrudpage__query-sheet-footer">
+     <AppButton :disabled="resolvedBusy" @click="handleReset">重置</AppButton>
+     <AppButton variant="primary" :disabled="resolvedBusy" @click="handleSearch">应用筛选</AppButton>
     </div>
    </section>
   </div>
@@ -104,7 +122,6 @@
   <div class="efs-resourcecrudpage__content" :class="{ 'efs-resourcecrudpage__content--with-detail': hasDetail }">
    <EntityListTable
     class="efs-resourcecrudpage__list"
-    title="资源列表"
     :row-key="props.rowKey"
     :columns="props.columns"
     :items="resolvedItems"
@@ -118,15 +135,7 @@
    >
     <template #header-actions>
      <div class="efs-resourcecrudpage__list-header-actions">
-      <div class="efs-resourcecrudpage__list-summary-group">
-       <span class="efs-resourcecrudpage__list-summary">总数：{{ resolvedTotal }}</span>
-       <span v-if="props.selectableRows" class="efs-resourcecrudpage__list-summary">已选：{{ resolvedSelectedCount }}</span>
-      </div>
       <div class="efs-resourcecrudpage__list-action-group">
-       <AppButton v-if="isMobile && normalizedQueryFields.length > 0" variant="ghost" :disabled="resolvedBusy" @click="querySheetOpen = true">
-        筛选
-        <span v-if="activeQueryCount > 0" class="efs-resourcecrudpage__filter-count">{{ activeQueryCount }}</span>
-       </AppButton>
        <ActionBar :actions="visibleHeaderActions" align="end" :busy="resolvedBusy" />
       </div>
      </div>
@@ -268,6 +277,7 @@ import AppButton from '../controls/AppButton.vue'
 import AppField from '../controls/AppField.vue'
 import AppInput from '../controls/AppInput.vue'
 import AppSelect from '../controls/AppSelect.vue'
+import SemanticIcon from '../controls/SemanticIcon.vue'
 import ActionBar from '../interaction/ActionBar.vue'
 import DataTable from '../interaction/DataTable.vue'
 import EmptyState from '../interaction/EmptyState.vue'
@@ -447,6 +457,16 @@ const resolvedActiveItem = computed(() => localActiveItem.value)
 const resolvedErrorMessage = computed(() => typeof resolvedError.value === 'string' && resolvedError.value ? resolvedError.value : '资源列表加载异常，请稍后重试。')
 const resolvedSelectedCount = computed(() => props.selectableRows ? localSelectedRowKeys.value.length : 0)
 const activeQueryCount = computed(() => Object.values(localQueryValues.value).filter((value) => stringValue(value).trim().length > 0).length)
+const activeQuerySummaries = computed(() => normalizedQueryFields.value
+ .map((field) => {
+  const raw = stringValue(localQueryValues.value[field.key]).trim()
+  if (!raw) return ''
+  const matchedOption = field.options.find((option) => option.value === raw)
+  return `${field.label}：${matchedOption?.label || raw}`
+ })
+ .filter(Boolean))
+const mobileQuerySummaryTitle = computed(() => activeQueryCount.value > 0 ? `已筛选 ${activeQueryCount.value} 项` : '全部数据')
+const mobileQuerySummaryText = computed(() => activeQueryCount.value > 0 ? activeQuerySummaries.value.join(' · ') : '点击设置筛选条件')
 const showBatchBar = computed(() => resolvedSelectedCount.value > 0 || (!isMobile.value && visibleBatchActions.value.length > 0))
 const resolvedPageCount = computed(() => Math.max(1, Math.ceil(Math.max(resolvedTotal.value, 0) / Math.max(localPageSize.value, 1))))
 const resolvedDetailFields = computed<ResourceCrudDetailField[]>(() => props.detailFields)
@@ -920,6 +940,51 @@ async function handleDelete(row: Record<string, unknown>) {
  font-size: 0.92rem;
 }
 
+.efs-resourcecrudpage__query-summary-bar {
+ width: 100%;
+ border: 1px solid var(--efs-border, #dbe3ef);
+ border-radius: 16px;
+ background: var(--efs-surface, #fff);
+ padding: 12px 14px;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 12px;
+ text-align: left;
+ box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.efs-resourcecrudpage__query-summary-main {
+ min-width: 0;
+ display: grid;
+ gap: 4px;
+}
+
+.efs-resourcecrudpage__query-summary-title {
+ display: inline-flex;
+ align-items: center;
+ gap: 8px;
+ font-weight: 700;
+ color: var(--efs-text, #172033);
+}
+
+.efs-resourcecrudpage__query-summary-text {
+ color: var(--efs-text-muted, #64748b);
+ font-size: 0.86rem;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+}
+
+.efs-resourcecrudpage__query-summary-action {
+ display: inline-flex;
+ align-items: center;
+ gap: 8px;
+ color: var(--efs-primary, #2563eb);
+ font-weight: 600;
+ flex-shrink: 0;
+}
+
 .efs-resourcecrudpage__query-sheet-backdrop {
  position: fixed;
  inset: 0;
@@ -934,8 +999,8 @@ async function handleDelete(row: Record<string, unknown>) {
  border-radius: 20px 20px 0 0;
  padding: 18px 16px calc(16px + env(safe-area-inset-bottom, 0px));
  display: grid;
- gap: 12px;
- max-height: min(80vh, 720px);
+ gap: 16px;
+ max-height: min(82vh, 720px);
  overflow: auto;
  box-shadow: 0 -12px 32px rgba(15, 23, 42, 0.16);
 }
@@ -950,6 +1015,29 @@ async function handleDelete(row: Record<string, unknown>) {
 .efs-resourcecrudpage__query-sheet-heading,
 .efs-resourcecrudpage__mobile-batch-summary {
  align-items: center;
+}
+
+.efs-resourcecrudpage__query-sheet-summary {
+ color: var(--efs-text-muted, #64748b);
+ font-size: 0.86rem;
+}
+
+.efs-resourcecrudpage__query-sheet-close {
+ border: 0;
+ background: transparent;
+ color: var(--efs-text-muted, #64748b);
+ font-weight: 600;
+ cursor: pointer;
+}
+
+.efs-resourcecrudpage__query-sheet-footer {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 12px;
+ position: sticky;
+ bottom: calc(-16px - env(safe-area-inset-bottom, 0px));
+ padding-top: 12px;
+ background: linear-gradient(180deg, rgba(255,255,255,0), var(--efs-surface, #fff) 24%);
 }
 
 .efs-resourcecrudpage__query-panel {
@@ -1075,13 +1163,17 @@ async function handleDelete(row: Record<string, unknown>) {
   align-items: stretch;
  }
 
- .efs-resourcecrudpage__list-summary-group,
  .efs-resourcecrudpage__list-action-group {
   width: 100%;
+  justify-content: flex-start;
  }
 
- .efs-resourcecrudpage__list-action-group {
-  justify-content: flex-start;
+ .efs-resourcecrudpage__query-summary-bar {
+  padding: 12px;
+ }
+
+ .efs-resourcecrudpage__query-summary-text {
+  white-space: normal;
  }
 
  .efs-resourcecrudpage__query-after {

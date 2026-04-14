@@ -11,7 +11,7 @@
    <SemanticIcon name="locale" :label="props.label" aria-hidden="true" />
    <span v-if="props.mode === 'menu'" class="efs-localeswitcher__label">{{ props.label }}</span>
   </span>
-  <span class="efs-localeswitcher__value">{{ currentLabel }}</span>
+  <span v-if="props.mode !== 'icon'" class="efs-localeswitcher__value">{{ currentLabel }}</span>
  </button>
 </template>
 
@@ -31,7 +31,7 @@ interface LocaleSwitcherProps {
  modelValue?: string
  label?: string
  options?: LocaleOption[]
- mode?: 'pill' | 'menu'
+ mode?: 'pill' | 'menu' | 'icon'
 }
 
 const props = withDefaults(defineProps<LocaleSwitcherProps>(), {
