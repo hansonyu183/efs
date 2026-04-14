@@ -198,10 +198,23 @@ export interface MainController {
  currentPath?: Ref<DomainResPath | ''>
 }
 
+export type AuthOption = {
+ key: string
+ value: string
+ title?: string
+ label?: string
+ disabled?: boolean
+}
+
 export interface AuthController {
  kind: 'auth'
  name: Ref<string>
  pwd: Ref<string>
+ orgCode?: Ref<string>
+ orgOptions?: readonly AuthOption[]
+ busy?: Ref<boolean>
+ error?: Ref<string>
+ authenticated?: Ref<boolean>
  login: () => void | Promise<void>
  logout?: () => void | Promise<void>
 }
