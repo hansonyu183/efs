@@ -173,9 +173,6 @@
      <AppField :label="resolvedProfileDialog.displayNameLabel">
       <AppInput v-model="profileForm.displayName" :placeholder="resolvedProfileDialog.displayNameLabel" />
      </AppField>
-     <AppField :label="resolvedProfileDialog.usernameLabel">
-      <AppInput :model-value="props.username" :placeholder="resolvedProfileDialog.usernameLabel" autocomplete="username" type="text" :readonly="true" />
-     </AppField>
      <div class="efs-main-layout__dialog-actions">
       <AppButton type="button" @click="profileDialogOpen = false">{{ resolvedProfileDialog.cancelLabel }}</AppButton>
       <AppButton variant="primary" type="submit" :disabled="!profileForm.displayName.trim()">{{ resolvedProfileDialog.submitLabel }}</AppButton>
@@ -239,8 +236,6 @@ interface MainPageProps {
  currentOrgCode?: string
  locale?: string
  theme?: string
- userDisplayName?: string
- username?: string
  orgOptions?: PageOption[]
  agentBusy?: boolean
  agentInput?: string
@@ -257,8 +252,6 @@ const props = withDefaults(defineProps<MainPageProps>(), {
  currentOrgCode: '',
  locale: 'zh-CN',
  theme: 'light',
- userDisplayName: '',
- username: '',
  orgOptions: () => [],
  agentBusy: false,
  agentInput: '',
@@ -286,14 +279,11 @@ const passwordDialogOpen = ref(false)
 const sidebarOpen = ref(false)
 const sidebarCompact = ref(false)
 const isMobile = ref(false)
-const profileForm = reactive({ displayName: props.userDisplayName })
+const profileForm = reactive({ displayName: '' })
 const passwordForm = reactive({ currentPassword: '', newPassword: '', confirmPassword: '' })
 const agentDraft = ref(props.agentInput)
 const agentSessionsPanelOpen = ref(props.agentSessionsOpen)
 
-watch(() => props.userDisplayName, (value) => {
- profileForm.displayName = value
-})
 watch(() => props.agentInput, (value) => {
  agentDraft.value = value
 })
@@ -321,7 +311,6 @@ const resolvedProfileDialog = computed(() => ({
  label: resolveCopy('efs.shell.profileDialog.label', '个人资料'),
  subtitle: resolveCopy('efs.shell.profileDialog.subtitle', '更新工作台中显示的个人资料信息。'),
  displayNameLabel: resolveCopy('efs.shell.profileDialog.displayNameLabel', '显示名称'),
- usernameLabel: resolveCopy('efs.shell.profileDialog.usernameLabel', '用户名'),
  submitLabel: resolveCopy('efs.shell.profileDialog.submitLabel', '保存'),
  cancelLabel: resolveCopy('efs.shell.profileDialog.cancelLabel', '取消'),
 }))
@@ -360,7 +349,7 @@ onBeforeUnmount(() => {
 })
 
 const initials = computed(() => {
- const source = (props.userDisplayName || props.username || resolvedTitle.value).trim()
+ const source = (profileForm.displayName || resolvedTitle.value).trim()
  if (!source) return 'U'
  return source
   .split(/\s+/)
@@ -396,7 +385,6 @@ function closeMoreMenu() {
 
 function openProfileDialog() {
  passwordDialogOpen.value = false
- profileForm.displayName = props.userDisplayName
  closeMoreMenu()
  profileDialogOpen.value = true
 }

@@ -45,6 +45,8 @@ test('MainPage exposes concrete shell and global agent contract', () => {
  assert.doesNotMatch(source, /topbarSubtitle\?: string/)
  assert.doesNotMatch(source, /userSubtitle\?: string/)
  assert.doesNotMatch(source, /showAgentBar\?: boolean/)
+ assert.doesNotMatch(source, /userDisplayName\?: string/)
+ assert.doesNotMatch(source, /username\?: string/)
  assert.match(source, /slot name="sidebar"/)
  assert.match(source, /resolveCopy\('efs\.shell\.mobileMenuLabel'/)
  assert.match(source, /resolveCopy\('efs\.shell\.profileDialog\.label'/)
@@ -74,6 +76,7 @@ test('MainPage exposes concrete shell and global agent contract', () => {
  assert.doesNotMatch(source, /profileLabel\?: string/)
  assert.doesNotMatch(source, /passwordLabel\?: string/)
  assert.doesNotMatch(source, /saveLabel\?: string/)
+ assert.doesNotMatch(source, /usernameLabel:/)
 })
 
 test('SemanticIcon exposes unified semantic token contract', () => {
@@ -434,7 +437,7 @@ test('EntityListTable exposes simplified column settings and pagination contract
  assert.match(source, /resolveTags\(/)
  assert.match(source, /resolveTone\(/)
  assert.match(source, /summarizeObject\(/)
- assert.match(source, /<StatusChip :label="displayText\(resolveDisplayValue\(item, column\)\)"/)
+ assert.match(source, /<StatusChip :tone="resolveTone\(item, column\)">\{\{ displayText\(resolveDisplayValue\(item, column\)\) \}\}<\/StatusChip>/)
  assert.match(source, /<AppTag v-for="tag in resolveTags\(item, column\)"/)
  assert.match(source, /storageKey = computed/)
  assert.match(source, /getCurrentInstance/)
@@ -824,6 +827,8 @@ test('Pagination exposes pageCount pageSizeOptions and update emits contract', (
 
 test('StatusChip constrains tone variants', () => {
  const source = read(path.join(repoRoot, 'packages/vue/src/interaction/StatusChip.vue'))
+ assert.doesNotMatch(source, /label\?: string/)
+ assert.match(source, /<slot>—<\/slot>/)
  assert.match(source, /new Set\(\['neutral', 'success', 'warning', 'danger', 'info'\]\)/)
 })
 

@@ -1,6 +1,6 @@
 <template>
  <span class="efs-statuschip" :class="`efs-statuschip--${resolvedTone}`">
-  {{ props.label || '—' }}
+  <slot>—</slot>
  </span>
 </template>
 
@@ -10,10 +10,8 @@ import { computed } from 'vue'
 defineOptions({ name: 'StatusChip' })
 
 const props = withDefaults(defineProps<{
- label?: string
  tone?: string
 }>(), {
- label: '',
  tone: 'neutral',
 })
 

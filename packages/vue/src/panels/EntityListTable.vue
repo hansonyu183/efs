@@ -36,7 +36,7 @@
       <span class="efs-entitylisttable__mobile-label">{{ column.title }}</span>
       <div class="efs-entitylisttable__mobile-value">
        <template v-if="column.render === 'status'">
-        <StatusChip :label="displayText(resolveDisplayValue(item, column))" :tone="resolveTone(item, column)" />
+        <StatusChip :tone="resolveTone(item, column)">{{ displayText(resolveDisplayValue(item, column)) }}</StatusChip>
        </template>
        <template v-else-if="column.render === 'tags'">
         <div class="efs-entitylisttable__mobile-taglist">

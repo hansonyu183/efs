@@ -36,7 +36,7 @@
      </td>
      <td v-for="column in normalizedColumns" :key="column.key">
       <template v-if="column.render === 'status'">
-       <StatusChip :label="displayText(resolveDisplayValue(row, column))" :tone="resolveTone(row, column)" />
+       <StatusChip :tone="resolveTone(row, column)">{{ displayText(resolveDisplayValue(row, column)) }}</StatusChip>
       </template>
       <template v-else-if="column.render === 'tags'">
        <div class="efs-datatable__taglist">
