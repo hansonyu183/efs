@@ -1,6 +1,6 @@
 # AgentOS 接入 EFS 规范
 
-本文定义 AgentOS 当前采用 EFS 的正式接入方式，后续项目默认参考同一模式。
+本文定义 AgentOS 当前采用 EFS 的正式接入方式，后续项目默认参考同一模式。**主线是 schema-first**：业务仓库优先维护 `app.schema.ts`，再由 EFS schema adapter 接入现有 Vue runtime。
 
 ## 当前正式接法
 
@@ -28,29 +28,94 @@ third_party/efs
 
 ```ts
 alias: {
- '@efs/vue': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/index.ts'),
- '@efs/vue/controller': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/controller/index.ts'),
- '@efs/vue/shared': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/shared'),
+  '@efs/vue': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/index.ts'),
+  '@efs/vue/controller': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/controller/index.ts'),
+  '@efs/vue/shared': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/shared'),
+  '@efs/schema': path.resolve(__dirname, '../../third_party/efs/packages/schema/src/index.ts'),
 }
 ```
 
 如果后续消费 runtime / 规范 / presets，也应增加对应 alias，而不是在业务项目内复制实现。
 
-### 3. 业务模块通过统一别名直接 import
+### 3. 业务模块优先维护 `app.schema.ts`
+
+标准写法：
+
+```ts
+import { defineAppSchema } from '@efs/schema'
+
+export const appSchema = defineAppSchema({
+  schemaVersion: 'v1',
+  app: { id: 'agentos', name: 'agentos', title: 'AgentOS' },
+  domains: [
+    {
+      key: 'crm',
+      title: '客户中心',
+      resources: [
+        {
+          key: 'customer',
+          title: '客户管理',
+          fields: [
+            { key: 'id', title: '编号', type: 'string', identity: 'id', readonly: true },
+            { key: 'name', title: '名称', type: 'string', identity: 'title' },
+          ],
+          operations: {
+            list: { path: '/api/crm/customers', method: 'GET' },
+            get: { path: '/api/crm/customers/:id', method: 'GET' },
+            create: { path: '/api/crm/customers', method: 'POST' },
+            update: { path: '/api/crm/customers/:id', method: 'PUT' },
+            remove: { path: '/api/crm/customers/:id', method: 'DELETE' },
+            export: { path: '/api/crm/customers/export', method: 'POST' },
+          },
+        },
+      ],
+    },
+  ],
+})
+```
+
+### 4. 用 schema adapter 接到现有 Vue runtime
 
 标准写法：
 
 ```ts
 import { EfsApp } from '@efs/vue'
-import type { AppController, ResController } from '@efs/vue/controller'
-import { buildSidebarMenuTree } from '@efs/vue/shared/navigation-menu'
+import { adaptAppSchemaToVueController } from '@efs/schema'
+import { appSchema } from './app.schema'
+
+export const app = adaptAppSchemaToVueController({
+  schema: appSchema,
+  auth: {
+    async login(input) {
+      return { accessToken: 'token' }
+    },
+  },
+  resources: {
+    'crm/customer': {
+      async list({ queryValues, page, pageSize }) {
+        return { items: [], total: 0 }
+      },
+      async create({ item }) {
+        return { refresh: true, close: true }
+      },
+      async update({ item }) {
+        return { refresh: true, close: true }
+      },
+      async remove({ item }) {
+        return { refresh: true, activeItem: null }
+      },
+      async export() {},
+    },
+  },
+})
 ```
 
-业务侧应优先消费稳定入口：根入口只用于 `EfsApp` / `AppController`，其他公开 helper 仅从文档约定的 `controller`、`shared` 子路径导入；不要直接依赖 `pages/*`、`panels/*`、`controls/*` 这类原始源码路径。
+业务侧应优先消费稳定入口：根入口只用于 `EfsApp`；schema authoring / adapter 从 `@efs/schema` 引入；运行时 helper 仅在确有需要时从文档约定的 `controller`、`shared` 子路径导入；不要直接依赖 `pages/*`、`panels/*`、`controls/*` 这类原始源码路径。
 
 ## 为什么当前采用这种接法
 
-- 适合内部试用阶段快速迭代
+- schema-first 让业务侧只维护应用/资源/operations 描述，而不是手写整棵 controller tree
+- EFS 可以基于 schema 自动推导 view mode、默认 actions 与基础字段展示规则
 - EFS 仍在高频调整，暂不要求先正式发布 registry 包
 - submodule 可以固定版本，降低标准库漂移风险
 - alias 可直接消费最新源码，便于联调

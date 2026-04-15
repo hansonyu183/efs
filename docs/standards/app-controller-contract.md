@@ -1,8 +1,10 @@
 # App Controller Contract
 
-本文定义 EFS 下一阶段面向 `const app = useApp()` 的控制器约定。
+> 状态：**legacy runtime contract**。当前 EFS 正式对外接入主线已经切到 schema-first：业务侧优先编写 `app.schema.ts`，通过 `defineAppSchema(...)` + `adaptAppSchemaToVueController(...)` 进入 `EfsApp`。本文保留给 runtime 兼容层、适配器实现和历史迁移参考，不再作为首选公开建模文档。正式入口见 `docs/standards/schema-first-authoring.md`。
 
-目标不是让使用方继续拼装 `EntityListView / ReportView` 的页面配置，而是让使用方只声明：
+本文定义 EFS 当前仍在运行时内部使用的 `useApp()` 控制器约定。
+
+目标不是让使用方继续拼装 `EntityListView / ReportView` 的页面配置，而是说明 legacy controller tree 如何承接 schema-first 适配结果，以及历史 controller-first 项目仍需满足哪些基本结构约束：
 
 - 应用入口
 - 认证控制器
