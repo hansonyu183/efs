@@ -8,7 +8,7 @@ import type {
 } from './resource-crud-types'
 import type { ReportViewResultColumn, ReportViewSummaryMetric } from './report-view-types'
 import type { FieldUse, ResField, ResFieldQueryType, ResFieldWidget, ResRow } from './shared-types'
-import type { ResController } from './res-controller'
+import type { LegacyResController } from './res-controller'
 
 export function inferFieldUses(field: ResField): readonly FieldUse[] {
   if (field.use?.length) return [...field.use]
@@ -31,7 +31,7 @@ export function inferFieldOrder(field: ResField): number {
   return 60
 }
 
-export function inferListColumns(res: ResController): ResourceCrudColumn[] {
+export function inferListColumns(res: LegacyResController): ResourceCrudColumn[] {
   return getOrderedFields(res)
     .filter((field) => inferFieldUses(field).includes('list'))
     .map((field) => ({
@@ -41,7 +41,7 @@ export function inferListColumns(res: ResController): ResourceCrudColumn[] {
     }))
 }
 
-export function inferQueryFields(res: ResController): ResourceCrudQueryField[] {
+export function inferQueryFields(res: LegacyResController): ResourceCrudQueryField[] {
   return getOrderedFields(res)
     .filter((field) => inferFieldUses(field).includes('query'))
     .map((field) => ({
@@ -51,7 +51,7 @@ export function inferQueryFields(res: ResController): ResourceCrudQueryField[] {
     }))
 }
 
-export function inferFormFields(res: ResController): ResourceCrudFormField[] {
+export function inferFormFields(res: LegacyResController): ResourceCrudFormField[] {
   return getOrderedFields(res)
     .filter((field) => !field.readonly && inferFieldUses(field).includes('form'))
     .map((field) => ({
@@ -60,19 +60,19 @@ export function inferFormFields(res: ResController): ResourceCrudFormField[] {
     }))
 }
 
-export function inferFormSections(res: ResController): ResourceCrudFormSection[] {
+export function inferFormSections(res: LegacyResController): ResourceCrudFormSection[] {
   const fields = inferFormFields(res)
   if (fields.length === 0) return []
   return [{ key: 'basic', fields }]
 }
 
-export function inferDetailFields(res: ResController): ResourceCrudDetailField[] {
+export function inferDetailFields(res: LegacyResController): ResourceCrudDetailField[] {
   return getOrderedFields(res)
     .filter((field) => inferFieldUses(field).includes('detail'))
     .map((field) => ({ key: field.key }))
 }
 
-export function inferReportColumns(res: ResController): ReportViewResultColumn[] {
+export function inferReportColumns(res: LegacyResController): ReportViewResultColumn[] {
   return getOrderedFields(res)
     .filter((field) => inferFieldUses(field).includes('list'))
     .map((field) => ({
@@ -82,7 +82,7 @@ export function inferReportColumns(res: ResController): ReportViewResultColumn[]
     }))
 }
 
-export function inferReportSummaryMetrics(res: ResController, items: ResRow[] = []): ReportViewSummaryMetric[] {
+export function inferReportSummaryMetrics(res: LegacyResController, items: ResRow[] = []): ReportViewSummaryMetric[] {
   const summaryFields = getOrderedFields(res).filter((field) => field.summary)
   return summaryFields.map((field) => ({
     key: field.key,
@@ -90,7 +90,7 @@ export function inferReportSummaryMetrics(res: ResController, items: ResRow[] = 
   }))
 }
 
-function getOrderedFields(res: ResController): ResField[] {
+function getOrderedFields(res: LegacyResController): ResField[] {
   return [...(res.fields ?? [])].sort((left, right) => {
     const orderDelta = inferFieldOrder(left) - inferFieldOrder(right)
     if (orderDelta !== 0) return orderDelta

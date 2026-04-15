@@ -23,7 +23,7 @@
 - `@efs/vue`
   - `EfsApp`
 
-`@efs/vue/controller`、`@efs/vue/shared/*` 仅在确有 runtime/helper 需求时按文档约定使用，不作为首选业务建模入口。
+`@efs/vue/legacy`、`@efs/vue/shared/*` 仅在确有 runtime/helper 需求时按文档约定使用，不作为首选业务建模入口。
 
 ---
 

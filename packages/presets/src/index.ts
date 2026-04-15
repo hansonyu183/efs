@@ -1,83 +1,247 @@
-const REQUIRED_CAPABILITIES = ['theme', 'i18n', 'alerts', 'permission', 'org-context'] as const
-
-type PresetPageType =
- | 'login'
- | 'workbench'
- | 'query-list'
- | 'paginated-list'
- | 'entity-list'
- | 'form-page'
- | 'detail-page'
- | 'report-page'
-
-const PRESETS: Record<PresetPageType, string[]> = {
- login: ['AuthPage'],
- workbench: ['MainPage', 'PagePanel', 'DashboardCardPanel', 'PermissionGuard'],
- 'query-list': ['MainPage', 'PagePanel', 'EntityListTable', 'PermissionGuard'],
- 'paginated-list': ['MainPage', 'PagePanel', 'EntityListTable', 'Pagination', 'PermissionGuard'],
- 'entity-list': ['MainPage', 'PagePanel', 'EntityListView', 'EntityListTable', 'CrudDialog', 'DetailPanel', 'PermissionGuard'],
- 'form-page': ['MainPage', 'PagePanel', 'FormPanel', 'ActionBar', 'PermissionGuard'],
- 'detail-page': ['MainPage', 'PagePanel', 'DetailPanel', 'StatusChip', 'PermissionGuard'],
- 'report-page': ['MainPage', 'PagePanel', 'ReportPanel', 'PermissionGuard'],
-}
-
-export type PresetManifest = {
- id: string
- name: string
- pageType: PresetPageType
- domain: string
- resource: string
- standardComponents: string[]
- runtimeCapabilities: string[]
- exception: null
-}
+type SchemaPresetType = 'crud' | 'report' | 'workbench'
 
 export type ScaffoldedPreset = {
- manifest: PresetManifest
- vue: string
- fileBaseName: string
+  appSchema: string
+  runtimeEntry: string
+  rootVue: string
 }
 
-function manifestForPreset(pageType: PresetPageType, name: string): PresetManifest {
- const standardComponents = PRESETS[pageType]
- if (!standardComponents) throw new Error(`Unknown preset: ${pageType}`)
- const slug = name.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/\s+/g, '-').toLowerCase()
- return {
-  id: slug,
-  name,
-  pageType,
-  domain: 'demo',
-  resource: slug,
-  standardComponents,
-  runtimeCapabilities: [...REQUIRED_CAPABILITIES],
-  exception: null,
- }
+function toSlug(value: string) {
+  return value.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/\s+/g, '-').toLowerCase()
 }
 
-function scriptBlock(pageType: PresetPageType, components: string[]) {
- const componentImports = components.map((name) => `// import ${name} from '@enterprise/${name}'`).join('\n')
- return `<script setup lang="ts">\nconst pageType = '${pageType}'\n${componentImports}\n</script>`
+function toResKey(value: string) {
+  return toSlug(value).replace(/^-+|-+$/g, '') || 'sample'
 }
 
-function templateBlock(pageType: PresetPageType) {
- return `<template>\n  <div class="enterprise-page" data-page-type="${pageType}">\n    <!-- Use standard Page/View/Panel components only. -->\n  </div>\n</template>`
+function buildAppSchema(preset: SchemaPresetType, name: string) {
+  const resKey = toResKey(name)
+  const domainKey = preset === 'workbench' ? 'platform' : 'demo'
+
+  if (preset === 'workbench') {
+    return `import { defineAppSchema } from '@efs/schema'
+
+export const appSchema = defineAppSchema({
+  schemaVersion: 'v1',
+  app: {
+    id: '${resKey}-app',
+    name: '${resKey}-app',
+    title: '${name}',
+    defaultDomain: '${domainKey}',
+    defaultRes: '${resKey}',
+  },
+  domains: [
+    {
+      key: '${domainKey}',
+      title: '平台',
+      resources: [
+        {
+          key: '${resKey}',
+          title: '工作台',
+          fields: [
+            { key: 'summary', title: '概览', type: 'string', identity: 'title' },
+          ],
+          operations: {
+            list: { path: '/api/${domainKey}/${resKey}', method: 'GET' },
+          },
+        },
+      ],
+    },
+  ],
+  ui: {
+    domains: {
+      ${domainKey}: {
+        resources: {
+          '${resKey}': {
+            view: { mode: 'workspace' },
+            actions: {
+              refresh: { runtime: 'refresh' },
+            },
+          },
+        },
+      },
+    },
+  },
+})
+`
+  }
+
+  if (preset === 'report') {
+    return `import { defineAppSchema } from '@efs/schema'
+
+export const appSchema = defineAppSchema({
+  schemaVersion: 'v1',
+  app: {
+    id: '${resKey}-app',
+    name: '${resKey}-app',
+    title: '${name}',
+    defaultDomain: '${domainKey}',
+    defaultRes: '${resKey}',
+  },
+  domains: [
+    {
+      key: '${domainKey}',
+      title: '演示域',
+      resources: [
+        {
+          key: '${resKey}',
+          title: '标准报表资源',
+          fields: [
+            { key: 'month', title: '月份', type: 'string', identity: 'code' },
+            { key: 'amount', title: '金额', type: 'number' },
+          ],
+          operations: {
+            query: { path: '/api/${domainKey}/${resKey}', method: 'GET' },
+            export: { path: '/api/${domainKey}/${resKey}/export', method: 'POST' },
+          },
+        },
+      ],
+    },
+  ],
+  ui: {
+    domains: {
+      ${domainKey}: {
+        resources: {
+          '${resKey}': {
+            view: { mode: 'report' },
+            actions: {
+              export: { api: 'export', placement: 'page' },
+              refresh: { runtime: 'refresh' },
+            },
+          },
+        },
+      },
+    },
+  },
+})
+`
+  }
+
+  return `import { defineAppSchema } from '@efs/schema'
+
+export const appSchema = defineAppSchema({
+  schemaVersion: 'v1',
+  app: {
+    id: '${resKey}-app',
+    name: '${resKey}-app',
+    title: '${name}',
+    defaultDomain: '${domainKey}',
+    defaultRes: '${resKey}',
+  },
+  domains: [
+    {
+      key: '${domainKey}',
+      title: '演示域',
+      resources: [
+        {
+          key: '${resKey}',
+          title: '标准 CRUD 资源',
+          fields: [
+            { key: 'id', title: '编号', type: 'string', identity: 'id', readonly: true },
+            { key: 'name', title: '名称', type: 'string', identity: 'title', required: true },
+          ],
+          operations: {
+            list: { path: '/api/${domainKey}/${resKey}', method: 'GET' },
+            get: { path: '/api/${domainKey}/${resKey}/:id', method: 'GET' },
+            create: { path: '/api/${domainKey}/${resKey}', method: 'POST' },
+            update: { path: '/api/${domainKey}/${resKey}/:id', method: 'PUT' },
+            remove: { path: '/api/${domainKey}/${resKey}/:id', method: 'DELETE' },
+          },
+        },
+      ],
+    },
+  ],
+  ui: {
+    domains: {
+      ${domainKey}: {
+        resources: {
+          '${resKey}': {
+            view: { mode: 'crud' },
+            actions: {
+              filter: { runtime: 'filter' },
+              refresh: { runtime: 'refresh' },
+            },
+          },
+        },
+      },
+    },
+  },
+})
+`
 }
 
-function styleBlock() {
- return `<style scoped>\n.enterprise-page {\n  display: block;\n}\n</style>`
+function buildRuntimeEntry(name: string) {
+  return `import type { LegacyAppController, ResQueryParams, ResRow } from '@efs/vue/legacy'
+import { adaptAppSchemaToVueController } from '@efs/schema'
+import { appSchema } from '../app.schema'
+
+const rows: ResRow[] = [
+  { id: 'sample-001', name: '${name} 示例' },
+]
+
+function paginate(items: ResRow[], { page, pageSize }: ResQueryParams) {
+  const start = Math.max(page - 1, 0) * pageSize
+  return items.slice(start, start + pageSize)
 }
 
-export function scaffoldPreset(pageType: PresetPageType, name: string): ScaffoldedPreset {
- const manifest = manifestForPreset(pageType, name)
- const vue = [
-  `<!-- standard-components: ${manifest.standardComponents.join(', ')} -->`,
-  scriptBlock(pageType, manifest.standardComponents),
-  templateBlock(pageType),
-  styleBlock(),
- ].join('\n\n')
- return { manifest, vue, fileBaseName: name }
+export const app = adaptAppSchemaToVueController({
+  schema: appSchema,
+  auth: {
+    async login() {
+      return { accessToken: 'demo-token' }
+    },
+  },
+  resources: {
+    'demo/${toResKey(name)}': {
+      async list({ queryValues, page, pageSize }) {
+        return {
+          items: paginate(rows, { queryValues, page, pageSize }),
+          total: rows.length,
+          activeItem: rows[0] ?? null,
+        }
+      },
+      async query({ queryValues, page, pageSize }) {
+        return {
+          items: paginate(rows, { queryValues, page, pageSize }),
+          total: rows.length,
+        }
+      },
+      async create() {
+        return { refresh: true, close: true }
+      },
+      async update() {
+        return { refresh: true, close: true }
+      },
+      async remove() {
+        return { refresh: true, activeItem: null }
+      },
+      async export() {},
+    },
+    'platform/${toResKey(name)}': {
+      async list({ queryValues, page, pageSize }) {
+        return {
+          items: paginate(rows, { queryValues, page, pageSize }),
+          total: rows.length,
+        }
+      },
+    },
+  },
+}) satisfies LegacyAppController
+`
 }
 
-export function listPresets(): PresetPageType[] {
- return Object.keys(PRESETS).sort() as PresetPageType[]
+function buildRootVue() {
+  return `<template>\n  <EfsApp :app="app" app-name="EFS Schema App" />\n</template>\n\n<script setup lang="ts">\nimport { EfsApp } from '@efs/vue'\nimport { app } from './app-from-schema'\n</script>\n`
+}
+
+export function scaffoldPreset(preset: SchemaPresetType, name: string): ScaffoldedPreset {
+  return {
+    appSchema: buildAppSchema(preset, name),
+    runtimeEntry: buildRuntimeEntry(name),
+    rootVue: buildRootVue(),
+  }
+}
+
+export function listPresets(): SchemaPresetType[] {
+  return ['crud', 'report', 'workbench']
 }

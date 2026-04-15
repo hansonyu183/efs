@@ -14,7 +14,7 @@ import type {
   ResQueryValues,
 } from './shared-types'
 
-export interface ResController<D extends string = string, R extends string = string> {
+export interface LegacyResController<D extends string = string, R extends string = string> {
   kind: 'res'
   domain: D
   res: R

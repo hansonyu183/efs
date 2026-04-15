@@ -1,4 +1,4 @@
-import type { AuthLoginResult } from '../controller/auth-controller'
+import type { AuthLoginResult } from '../legacy/auth-controller'
 
 export type AuthStatus = 'anonymous' | 'authenticated' | 'expired'
 

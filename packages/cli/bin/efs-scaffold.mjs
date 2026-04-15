@@ -15,14 +15,16 @@ const name = readArg('name')
 const out = readArg('out')
 
 if (!preset || !name || !out) {
- console.error('Usage: node packages/cli/bin/efs-scaffold.mjs --preset <preset> --name <PageName> --out <dir>')
+ console.error('Usage: node packages/cli/bin/efs-scaffold.mjs --preset <preset> --name <AppName> --out <dir>')
  console.error(`Available presets: ${listPresets().join(', ')}`)
  process.exit(1)
 }
 
 const generated = scaffoldPreset(preset, name)
 const outDir = path.resolve(out)
-fs.mkdirSync(outDir, { recursive: true })
-fs.writeFileSync(path.join(outDir, `${name}.vue`), generated.vue)
-fs.writeFileSync(path.join(outDir, `${name}.page.json`), `${JSON.stringify(generated.manifest, null, 2)}\n`)
-console.log(`Generated ${name}.vue and ${name}.page.json in ${outDir}`)
+const srcDir = path.join(outDir, 'src')
+fs.mkdirSync(srcDir, { recursive: true })
+fs.writeFileSync(path.join(outDir, 'app.schema.ts'), generated.appSchema)
+fs.writeFileSync(path.join(srcDir, 'app-from-schema.ts'), generated.runtimeEntry)
+fs.writeFileSync(path.join(srcDir, 'DemoRoot.vue'), generated.rootVue)
+console.log(`Generated app.schema.ts, src/app-from-schema.ts and src/DemoRoot.vue in ${outDir}`)

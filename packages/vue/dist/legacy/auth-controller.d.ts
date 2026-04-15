@@ -10,7 +10,7 @@ export interface AuthLoginResult {
     expiresAt?: string;
     tokenType?: string;
 }
-export interface AuthController {
+export interface LegacyAuthController {
     kind: 'auth';
     login: (input: AuthLoginInput) => AuthLoginResult | Promise<AuthLoginResult>;
     logout?: () => void | Promise<void>;

@@ -1,4 +1,10 @@
 import type { EfsAppSchema } from '../app/app-schema.js';
+/**
+ * Bridge schema-first app/resource input into the current Vue runtime's
+ * legacy controller contract. This adapter is the compatibility seam between
+ * the public authoring model (`app.schema.ts`) and the existing controller-
+ * shaped runtime consumed by `@efs/vue`.
+ */
 export interface SchemaAuthAdapter {
     login: (input: {
         name: string;

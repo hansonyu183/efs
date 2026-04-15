@@ -10,68 +10,67 @@ if (!root) {
 }
 
 const appRoot = path.resolve(root)
-const manifestDir = path.join(appRoot, 'enterprise-pages')
-const pagesDir = path.join(appRoot, 'src/pages')
-const exceptionsPath = path.join(appRoot, 'governance', 'exceptions.json')
+const schemaFile = path.join(appRoot, 'app.schema.ts')
+const runtimeFile = path.join(appRoot, 'src', 'app-from-schema.ts')
+const demoRootFile = path.join(appRoot, 'src', 'DemoRoot.vue')
 let failed = 0
 
-function walk(dir, matcher) {
- if (!fs.existsSync(dir)) return []
- const entries = fs.readdirSync(dir, { withFileTypes: true })
- const files = []
- for (const entry of entries) {
-  const abs = path.join(dir, entry.name)
-  if (entry.isDirectory()) files.push(...walk(abs, matcher))
-  else if (matcher(abs)) files.push(abs)
- }
- return files
+if (!fs.existsSync(schemaFile)) {
+ console.error('✗ missing app.schema.ts')
+ failed += 1
+}
+if (!fs.existsSync(runtimeFile)) {
+ console.error('✗ missing src/app-from-schema.ts')
+ failed += 1
+}
+if (!fs.existsSync(demoRootFile)) {
+ console.error('✗ missing src/DemoRoot.vue')
+ failed += 1
 }
 
-const manifestFiles = walk(manifestDir, (f) => f.endsWith('.json'))
-const pageFiles = walk(pagesDir, (f) => f.endsWith('.vue'))
-const exceptions = fs.existsSync(exceptionsPath)
- ? JSON.parse(fs.readFileSync(exceptionsPath, 'utf8')).exceptions || []
- : []
-const exceptionIds = new Set(exceptions.map((item) => item.id))
-
-function pageBaseName(name) {
- return name.replace(/\.page\.json$/, '').replace(/-([a-z])/g, (_, s) => s.toUpperCase())
-}
-
-for (const manifestFile of manifestFiles) {
- const manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'))
- const expectedName = `${pageBaseName(path.basename(manifestFile))}Page.vue`
- const exists = pageFiles.some((file) => path.basename(file) === expectedName)
- if (!exists) {
-  console.error(`✗ ${path.relative(process.cwd(), manifestFile)} missing matching Vue page ${expectedName}`)
+if (fs.existsSync(schemaFile)) {
+ const source = fs.readFileSync(schemaFile, 'utf8')
+ if (!/schemaVersion:\s*['"]v1['"]/.test(source)) {
+  console.error('✗ app.schema.ts must declare schemaVersion: "v1"')
   failed += 1
  }
-
- if (manifest.exception) {
-  if (!exceptionIds.has(manifest.id)) {
-   console.error(`✗ ${manifest.id} declares exception but governance/exceptions.json does not whitelist it`)
-   failed += 1
-  }
+ if (!/domains:\s*\[/.test(source)) {
+  console.error('✗ app.schema.ts must declare domains')
+  failed += 1
+ }
+ if (!/resources:\s*\[/.test(source)) {
+  console.error('✗ app.schema.ts must declare resources')
+  failed += 1
+ }
+ if (!/operations:\s*\{/.test(source)) {
+  console.error('✗ app.schema.ts must declare resource operations')
+  failed += 1
  }
 }
 
-const today = new Date().toISOString().slice(0, 10)
-for (const item of exceptions) {
- if (!item.id || !item.reason || !item.owner || !item.expiresAt) {
-  console.error('✗ every governance exception must include id/reason/owner/expiresAt')
+if (fs.existsSync(runtimeFile)) {
+ const source = fs.readFileSync(runtimeFile, 'utf8')
+ if (!/adaptAppSchemaToVueController/.test(source)) {
+  console.error('✗ src/app-from-schema.ts must adapt schema into runtime input')
   failed += 1
-  continue
  }
- if (item.expiresAt < today) {
-  console.error(`✗ governance exception expired: ${item.id} -> ${item.expiresAt}`)
+ if (/from '@efs\/vue\/controller'/.test(source)) {
+  console.error('✗ src/app-from-schema.ts must not import from @efs/vue/controller')
+  failed += 1
+ }
+}
+
+if (fs.existsSync(demoRootFile)) {
+ const source = fs.readFileSync(demoRootFile, 'utf8')
+ if (!/\.\/app-from-schema/.test(source)) {
+  console.error('✗ src/DemoRoot.vue must load ./app-from-schema')
   failed += 1
  }
 }
 
 if (failed > 0) {
- console.error(`
-Governance check failed with ${failed} violation(s).`)
+ console.error(`\nGovernance check failed with ${failed} violation(s).`)
  process.exit(1)
 }
 
-console.log(`Governance check passed for ${manifestFiles.length} manifest(s), ${pageFiles.length} page(s), ${exceptions.length} exception(s).`)
+console.log('Governance check passed for schema-first app fixture.')

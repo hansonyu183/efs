@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { computed, inject } from 'vue'
-import type { ResRuntime } from '../controller/index'
+import type { ResRuntime } from '../legacy/index'
 import PagePanel from '../panels/PagePanel.vue'
 import EntityListView from '../views/EntityListView.vue'
 import ReportView from '../views/ReportView.vue'

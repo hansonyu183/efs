@@ -1,6 +1,13 @@
 import { computed, reactive } from 'vue';
 import { defaultDetailValueFormatter, inferDetailFields, inferFormSections, inferListColumns, inferQueryFields, inferReportColumns, inferReportSummaryMetrics, } from './field-inference';
 import { findResByPath } from './path-helpers';
+/**
+ * Resolve a resource runtime from the legacy controller contract.
+ *
+ * Public app authoring should prefer schema-first input plus
+ * `adaptAppSchemaToVueController(...)`; this module remains the controller-side
+ * runtime compatibility layer consumed after that bridge step.
+ */
 export function resolveResRuntime(app, path, options = {}) {
     const res = findResByPath(app, path);
     if (!res)

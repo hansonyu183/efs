@@ -16,7 +16,6 @@
 - `packages/presets`：标准页面 preset 定义与平台脚手架模板
 - `packages/vue`：Vue 应用壳、资源运行时与共享前端平台能力
 - `packages/cli`：平台接入用 lint / scaffold / governance 命令
-- `standard-app`：legacy page-manifest fixture（主要用于 CLI/lint/governance 回归测试）
 - `apps/standard-demo`：可运行的 EfsApp 标准演示应用（schema-first 主路径，用于 build smoke test）
 - `tests/`：组件、脚手架、AST lint、治理与打包测试
 
@@ -53,7 +52,7 @@ npm run ci
 - 标准页面 preset registry
 - `EfsApp` 应用壳与认证/导航运行时
 - schema-first app authoring + schema -> controller adapter
-- controller-first 的 CRUD / Report 资源运行时（逐步降级为 legacy/runtime 兼容层）
+- legacy runtime compatibility layer（仅通过 `@efs/vue/legacy` 暴露，供 adapter/迁移过渡使用）
 - 基础控件与内部页面/交互壳
 - 页面 scaffold 生成器
 - regex lint + AST lint

@@ -88,9 +88,9 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue'
-import type { AppController, AuthOption } from '../controller/index'
-import { flattenAppMenuNodes } from '../controller/path-helpers'
-import { resolveResRuntime } from '../controller/runtime'
+import type { LegacyAppController, AuthOption } from '../legacy/index'
+import { flattenAppMenuNodes } from '../legacy/path-helpers'
+import { resolveResRuntime } from '../legacy/runtime'
 import type { EfsI18nConfig } from '../shared/efs-i18n'
 import { EFS_I18N_CONTEXT, mergeEfsI18nConfigs, resolveEfsI18nLabel } from '../shared/efs-i18n'
 import { normalizeEfsPath, useEfsNavigation } from '../shared/navigation-runtime'
@@ -117,7 +117,7 @@ import ResolvedResPage from './ResolvedResPage.vue'
 defineOptions({ name: 'EfsApp' })
 
 interface EfsAppProps {
- app: AppController
+ app: LegacyAppController
  appName?: string
  brandIcon?: string
  i18n?: EfsI18nConfig

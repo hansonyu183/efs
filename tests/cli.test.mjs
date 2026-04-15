@@ -11,14 +11,15 @@ function runNode(args, cwd = repoRoot) {
  return execFileSync(process.execPath, args, { cwd, encoding: 'utf8' })
 }
 
-test('efs-scaffold generates vue and manifest files', () => {
+test('efs-scaffold generates schema-first app files', () => {
  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'efs-'))
- runNode(['packages/cli/bin/efs-scaffold.mjs', '--preset', 'workbench', '--name', 'WorkbenchPage', '--out', tmp])
- assert.ok(fs.existsSync(path.join(tmp, 'WorkbenchPage.vue')))
- assert.ok(fs.existsSync(path.join(tmp, 'WorkbenchPage.page.json')))
+ runNode(['packages/cli/bin/efs-scaffold.mjs', '--preset', 'workbench', '--name', 'WorkbenchApp', '--out', tmp])
+ assert.ok(fs.existsSync(path.join(tmp, 'app.schema.ts')))
+ assert.ok(fs.existsSync(path.join(tmp, 'src', 'app-from-schema.ts')))
+ assert.ok(fs.existsSync(path.join(tmp, 'src', 'DemoRoot.vue')))
 })
 
-test('efs-lint passes for legacy standard-app fixture', () => {
- const output = runNode(['packages/cli/bin/efs-lint.mjs', 'standard-app'])
+test('efs-lint passes for schema-first standard demo fixture', () => {
+ const output = runNode(['packages/cli/bin/efs-lint.mjs', 'apps/standard-demo'])
  assert.match(output, /Lint passed/)
 })

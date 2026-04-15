@@ -1,7 +1,6 @@
 // Legacy controller-first fixture kept only as a migration/reference sample.
 // The runnable standard demo now uses app.schema.ts -> adaptAppSchemaToVueController.
-import type { AppController } from '@efs/vue'
-import type { DomainController, ResController, ResRow, ResQueryParams } from '@efs/vue/controller'
+import type { LegacyAppController, LegacyDomainController, LegacyResController, ResRow, ResQueryParams } from '@efs/vue/legacy'
 
 const customerRows: ResRow[] = [
   { id: 'C-001', name: '杭州云启', owner: '张三', status: 'active', createdAt: '2026-04-01 09:00:00' },
@@ -20,7 +19,7 @@ function paginate(items: ResRow[], { page, pageSize }: ResQueryParams) {
   return items.slice(start, start + pageSize)
 }
 
-const customerRes: ResController<'crm', 'customer'> = {
+const customerRes: LegacyResController<'crm', 'customer'> = {
   kind: 'res',
   domain: 'crm',
   res: 'customer',
@@ -63,7 +62,7 @@ const customerRes: ResController<'crm', 'customer'> = {
   },
 }
 
-const revenueRes: ResController<'bi', 'revenue'> = {
+const revenueRes: LegacyResController<'bi', 'revenue'> = {
   kind: 'res',
   domain: 'bi',
   res: 'revenue',
@@ -94,7 +93,7 @@ const revenueRes: ResController<'bi', 'revenue'> = {
   },
 }
 
-const crmDomain: DomainController<'crm'> = {
+const crmDomain: LegacyDomainController<'crm'> = {
   kind: 'domain',
   domain: 'crm',
   title: '客户中心',
@@ -103,7 +102,7 @@ const crmDomain: DomainController<'crm'> = {
   items: [customerRes],
 }
 
-const biDomain: DomainController<'bi'> = {
+const biDomain: LegacyDomainController<'bi'> = {
   kind: 'domain',
   domain: 'bi',
   title: '经营分析',
@@ -136,4 +135,4 @@ export const app = {
     defaultPath: 'crm/customer',
     domains: [crmDomain, biDomain],
   },
-} satisfies AppController
+} satisfies LegacyAppController

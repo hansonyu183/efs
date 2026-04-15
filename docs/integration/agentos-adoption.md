@@ -29,7 +29,7 @@ third_party/efs
 ```ts
 alias: {
   '@efs/vue': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/index.ts'),
-  '@efs/vue/controller': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/controller/index.ts'),
+  '@efs/vue/legacy': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/legacy/index.ts'),
   '@efs/vue/shared': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/shared'),
   '@efs/schema': path.resolve(__dirname, '../../third_party/efs/packages/schema/src/index.ts'),
 }

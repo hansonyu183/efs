@@ -89,12 +89,12 @@ test('SemanticIcon exposes unified semantic token contract', () => {
  assert.match(source, /resolveSemanticIcon/)
 })
 
-test('EfsApp exposes single-component app-shell contract around AppController', () => {
+test('EfsApp exposes single-component app-shell contract around LegacyAppController', () => {
  const source = read(path.join(repoRoot, 'packages/vue/src/pages/EfsApp.vue'))
  const indexSource = read(path.join(repoRoot, 'packages/vue/src/index.ts'))
  assert.match(source, /defineOptions\(\{ name: 'EfsApp' \}\)/)
  assert.match(source, /interface EfsAppProps/)
- assert.match(source, /app: AppController/)
+ assert.match(source, /app: LegacyAppController/)
  assert.match(source, /appName\?: string/)
  assert.match(source, /brandIcon\?: string/)
  assert.match(source, /i18n\?: EfsI18nConfig/)
@@ -236,27 +236,27 @@ test('AppAlerts and global alerts host expose reusable global alert contracts', 
  assert.match(storeSource, /danger\(/)
 })
 
-test('AppController types expose app/main/domain/res contract and typed domain-res path helpers', () => {
- const barrelSource = read(path.join(repoRoot, 'packages/vue/src/controller/index.ts'))
- const typesBarrelSource = read(path.join(repoRoot, 'packages/vue/src/controller/types.ts'))
- const sharedTypesSource = read(path.join(repoRoot, 'packages/vue/src/controller/shared-types.ts'))
- const resControllerSource = read(path.join(repoRoot, 'packages/vue/src/controller/res-controller.ts'))
- const domainControllerSource = read(path.join(repoRoot, 'packages/vue/src/controller/domain-controller.ts'))
- const mainControllerSource = read(path.join(repoRoot, 'packages/vue/src/controller/main-controller.ts'))
- const authControllerSource = read(path.join(repoRoot, 'packages/vue/src/controller/auth-controller.ts'))
- const appControllerSource = read(path.join(repoRoot, 'packages/vue/src/controller/app-controller.ts'))
+test('LegacyAppController types expose app/main/domain/res contract and typed domain-res path helpers', () => {
+ const barrelSource = read(path.join(repoRoot, 'packages/vue/src/legacy/index.ts'))
+ const typesBarrelSource = read(path.join(repoRoot, 'packages/vue/src/legacy/types.ts'))
+ const sharedTypesSource = read(path.join(repoRoot, 'packages/vue/src/legacy/shared-types.ts'))
+ const resControllerSource = read(path.join(repoRoot, 'packages/vue/src/legacy/res-controller.ts'))
+ const domainControllerSource = read(path.join(repoRoot, 'packages/vue/src/legacy/domain-controller.ts'))
+ const mainControllerSource = read(path.join(repoRoot, 'packages/vue/src/legacy/main-controller.ts'))
+ const authControllerSource = read(path.join(repoRoot, 'packages/vue/src/legacy/auth-controller.ts'))
+ const appControllerSource = read(path.join(repoRoot, 'packages/vue/src/legacy/app-controller.ts'))
  const i18nSource = read(path.join(repoRoot, 'packages/vue/src/shared/efs-i18n.ts'))
- const pathHelpersSource = read(path.join(repoRoot, 'packages/vue/src/controller/path-helpers.ts'))
- const inferenceSource = read(path.join(repoRoot, 'packages/vue/src/controller/field-inference.ts'))
- const runtimeSource = read(path.join(repoRoot, 'packages/vue/src/controller/runtime.ts'))
+ const pathHelpersSource = read(path.join(repoRoot, 'packages/vue/src/legacy/path-helpers.ts'))
+ const inferenceSource = read(path.join(repoRoot, 'packages/vue/src/legacy/field-inference.ts'))
+ const runtimeSource = read(path.join(repoRoot, 'packages/vue/src/legacy/runtime.ts'))
  const indexSource = read(path.join(repoRoot, 'packages/vue/src/index.ts'))
 
  assert.match(barrelSource, /export type \{/)
- assert.match(barrelSource, /AppController/)
- assert.match(barrelSource, /AuthController/)
- assert.match(barrelSource, /DomainController/)
- assert.match(barrelSource, /MainController/)
- assert.match(barrelSource, /ResController/)
+ assert.match(barrelSource, /LegacyAppController/)
+ assert.match(barrelSource, /LegacyAuthController/)
+ assert.match(barrelSource, /LegacyDomainController/)
+ assert.match(barrelSource, /LegacyMainController/)
+ assert.match(barrelSource, /LegacyResController/)
  assert.doesNotMatch(barrelSource, /buildResPath/)
  assert.doesNotMatch(barrelSource, /flattenAppMenuNodes/)
  assert.doesNotMatch(barrelSource, /resolveResRuntime/)
@@ -304,7 +304,7 @@ test('AppController types expose app/main/domain/res contract and typed domain-r
  assert.match(sharedTypesSource, /pageSizeOptions: number\[\]/)
  assert.match(sharedTypesSource, /selectableRows: boolean/)
 
- assert.match(resControllerSource, /export interface ResController<.*>/)
+ assert.match(resControllerSource, /export interface LegacyResController<.*>/)
  assert.match(resControllerSource, /kind: 'res'/)
  assert.match(resControllerSource, /domain: D/)
  assert.match(resControllerSource, /res: R/)
@@ -314,17 +314,17 @@ test('AppController types expose app/main/domain/res contract and typed domain-r
  assert.match(resControllerSource, /summary: ReportViewSummaryMetric\[\]/)
  assert.match(resControllerSource, /report\?: readonly ReportViewAction\[\]/)
 
- assert.match(domainControllerSource, /export interface DomainController<.*>/)
+ assert.match(domainControllerSource, /export interface LegacyDomainController<.*>/)
  assert.match(domainControllerSource, /kind: 'domain'/)
- assert.match(domainControllerSource, /items: readonly ResController<D, string>\[\]/)
+ assert.match(domainControllerSource, /items: readonly LegacyResController<D, string>\[\]/)
 
- assert.match(mainControllerSource, /export interface MainController/)
+ assert.match(mainControllerSource, /export interface LegacyMainController/)
  assert.match(mainControllerSource, /kind: 'main'/)
- assert.match(mainControllerSource, /domains: readonly DomainController\[\]/)
+ assert.match(mainControllerSource, /domains: readonly LegacyDomainController\[\]/)
  assert.match(mainControllerSource, /defaultPath\?: DomainResPath \| ''/)
  assert.doesNotMatch(mainControllerSource, /currentPath\?: Ref<DomainResPath \| ''>/)
 
- assert.match(authControllerSource, /export interface AuthController/)
+ assert.match(authControllerSource, /export interface LegacyAuthController/)
  assert.match(authControllerSource, /kind: 'auth'/)
  assert.match(authControllerSource, /export interface AuthLoginInput/)
  assert.match(authControllerSource, /name: string/)
@@ -343,13 +343,13 @@ test('AppController types expose app/main/domain/res contract and typed domain-r
  assert.doesNotMatch(authControllerSource, /error\?: Ref<string>/)
  assert.doesNotMatch(authControllerSource, /authenticated\?: Ref<boolean>/)
 
- assert.match(appControllerSource, /export interface AppController/)
+ assert.match(appControllerSource, /export interface LegacyAppController/)
  assert.match(appControllerSource, /kind: 'app'/)
  assert.doesNotMatch(appControllerSource, /appName\?: string/)
  assert.doesNotMatch(appControllerSource, /export interface AppShellConfig/)
  assert.doesNotMatch(appControllerSource, /shell\?: AppShellConfig/)
- assert.match(appControllerSource, /auth: AuthController/)
- assert.match(appControllerSource, /main: MainController/)
+ assert.match(appControllerSource, /auth: LegacyAuthController/)
+ assert.match(appControllerSource, /main: LegacyMainController/)
  assert.match(i18nSource, /export interface EfsI18nConfig/)
  assert.match(i18nSource, /messages\?: EfsI18nMessages \| Record<string, EfsI18nMessages>/)
  assert.match(i18nSource, /resolveEfsI18nLabel/)
@@ -388,11 +388,12 @@ test('AppController types expose app/main/domain/res contract and typed domain-r
  assert.match(runtimeSource, /selectableRows: options\.selectableRows \?\? true/)
  assert.match(runtimeSource, /defaultDetailValueFormatter/)
 
- assert.match(indexSource, /export type \{ AppController \} from '\.\/controller\/app-controller'/)
- assert.doesNotMatch(indexSource, /AuthController/)
- assert.doesNotMatch(indexSource, /DomainController/)
- assert.doesNotMatch(indexSource, /MainController/)
- assert.doesNotMatch(indexSource, /ResController/)
+ assert.match(indexSource, /export \{ default as EfsApp \} from '\.\/pages\/EfsApp\.vue'/)
+ assert.doesNotMatch(indexSource, /LegacyAppController/)
+ assert.doesNotMatch(indexSource, /LegacyAuthController/)
+ assert.doesNotMatch(indexSource, /LegacyDomainController/)
+ assert.doesNotMatch(indexSource, /LegacyMainController/)
+ assert.doesNotMatch(indexSource, /LegacyResController/)
 })
 
 test('AppButton exposes foundational action props and slots contract', () => {
@@ -481,7 +482,7 @@ test('EntityListTable exposes simplified column settings and pagination contract
  assert.doesNotMatch(source, /当前行数：/)
 })
 
-test('EntityListView exposes controller-first CRUD page shell contract', () => {
+test('EntityListView exposes legacy CRUD page shell contract', () => {
  const source = read(path.join(repoRoot, 'packages/vue/src/views/EntityListView.vue'))
  assert.match(source, /interface EntityListViewProps/)
  assert.match(source, /rowKey: string/)
@@ -565,7 +566,7 @@ test('EntityListView exposes controller-first CRUD page shell contract', () => {
  assert.doesNotMatch(source, /statusText\?: string/)
 })
 
-test('ReportView exposes controller-first report workbench contract', () => {
+test('ReportView exposes legacy report workbench contract', () => {
  const source = read(path.join(repoRoot, 'packages/vue/src/views/ReportView.vue'))
  assert.match(source, /defineOptions\(\{ name: 'ReportView' \}\)/)
  assert.match(source, /interface ReportViewProps/)
@@ -598,8 +599,8 @@ test('ReportView exposes controller-first report workbench contract', () => {
  assert.doesNotMatch(source, /slot name="result"/)
 })
 
-test('report view metadata types stay key-only and controller-first', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/controller/report-view-types.ts'))
+test('legacy report view metadata types stay key-only in the compat layer', () => {
+ const source = read(path.join(repoRoot, 'packages/vue/src/legacy/report-view-types.ts'))
  assert.match(source, /export type ReportViewQueryField = \{/) 
  assert.match(source, /export type ReportViewResultColumn = \{/) 
  assert.match(source, /export type ReportViewSummaryMetric = \{/) 
@@ -615,7 +616,7 @@ test('report view metadata types stay key-only and controller-first', () => {
 })
 
 test('resource-crud metadata types rely on key-only lookup instead of inline labels or explicit i18n keys', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/controller/resource-crud-types.ts'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/legacy/resource-crud-types.ts'))
  assert.match(source, /export type RowSelectionKey = string/)
  assert.match(source, /export type ResourceCrudColumn = \{/) 
  assert.match(source, /export type ResourceCrudQueryOption = \{/) 
@@ -857,8 +858,8 @@ test('StatusChip constrains tone variants', () => {
  assert.match(source, /new Set\(\['neutral', 'success', 'warning', 'danger', 'info'\]\)/)
 })
 
-test('controller barrel avoids exporting view-runtime controller shapes', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/controller/index.ts'))
+test('legacy barrel avoids exporting view-runtime controller shapes', () => {
+ const source = read(path.join(repoRoot, 'packages/vue/src/legacy/index.ts'))
  assert.doesNotMatch(source, /ReportViewController/)
  assert.doesNotMatch(source, /ReportViewControllerActions/)
  assert.doesNotMatch(source, /ReportViewControllerHandlers/)

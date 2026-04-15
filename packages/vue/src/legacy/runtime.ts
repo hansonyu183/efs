@@ -21,7 +21,7 @@ import type {
   ResReportRuntimeOptions,
   ResRuntime,
 } from './shared-types'
-import type { AppController } from './app-controller'
+import type { LegacyAppController } from './app-controller'
 
 /**
  * Resolve a resource runtime from the legacy controller contract.
@@ -31,7 +31,7 @@ import type { AppController } from './app-controller'
  * runtime compatibility layer consumed after that bridge step.
  */
 export function resolveResRuntime(
-  app: AppController,
+  app: LegacyAppController,
   path: string,
   options: ResCrudRuntimeOptions & ResReportRuntimeOptions = {},
 ): ResRuntime | null {
@@ -41,7 +41,7 @@ export function resolveResRuntime(
   return buildResCrudRuntime(app, path, options)
 }
 
-export function buildResReportRuntime(app: AppController, path: string, options: ResReportRuntimeOptions = {}): ResReportRuntime | null {
+export function buildResReportRuntime(app: LegacyAppController, path: string, options: ResReportRuntimeOptions = {}): ResReportRuntime | null {
   const res = findResByPath(app, path)
   if (!res) return null
 
@@ -85,7 +85,7 @@ export function buildResReportRuntime(app: AppController, path: string, options:
   }
 }
 
-export function buildResCrudRuntime(app: AppController, path: string, options: ResCrudRuntimeOptions = {}): ResCrudRuntime | null {
+export function buildResCrudRuntime(app: LegacyAppController, path: string, options: ResCrudRuntimeOptions = {}): ResCrudRuntime | null {
   const res = findResByPath(app, path)
   if (!res) return null
 

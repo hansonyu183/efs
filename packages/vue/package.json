@@ -12,9 +12,9 @@
    "types": "./dist/index.d.ts",
    "default": "./dist/index.js"
   },
-  "./controller": {
-   "types": "./dist/controller/index.d.ts",
-   "default": "./dist/controller/index.js"
+  "./legacy": {
+   "types": "./dist/legacy/index.d.ts",
+   "default": "./dist/legacy/index.js"
   },
   "./shared/navigation-menu": {
    "types": "./dist/shared/navigation-menu.d.ts",

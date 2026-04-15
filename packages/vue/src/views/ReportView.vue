@@ -108,7 +108,7 @@ import type {
  ReportViewQueryField,
  ReportViewResultColumn,
  ReportViewSummaryMetric,
-} from '../controller/report-view-types'
+} from '../legacy/report-view-types'
 
 defineOptions({ name: 'ReportView' })
 

@@ -40,9 +40,9 @@ test('publishable package manifests export built dist entries instead of src ent
  assert.equal(vuePkg.exports['.'].types, './dist/index.d.ts')
  assert.ok(!('./types' in vuePkg.exports))
  assert.ok(!('./components/*' in vuePkg.exports))
- assert.equal(vuePkg.exports['./controller'].default, './dist/controller/index.js')
- assert.equal(vuePkg.exports['./controller'].types, './dist/controller/index.d.ts')
- assert.ok(!('./controller/*' in vuePkg.exports))
+ assert.equal(vuePkg.exports['./legacy'].default, './dist/legacy/index.js')
+ assert.equal(vuePkg.exports['./legacy'].types, './dist/legacy/index.d.ts')
+ assert.ok(!('./legacy/*' in vuePkg.exports))
  assert.ok(!('./shared/*' in vuePkg.exports))
  assert.equal(vuePkg.exports['./shared/navigation-menu'].default, './dist/shared/navigation-menu.js')
  assert.equal(vuePkg.exports['./shared/navigation-menu'].types, './dist/shared/navigation-menu.d.ts')
@@ -52,17 +52,9 @@ test('publishable package manifests export built dist entries instead of src ent
 })
 
 test('cli package consumes publishable package entrypoints instead of sibling src paths', () => {
- const cliFiles = [
-  'packages/cli/bin/efs-lint.mjs',
-  'packages/cli/bin/efs-lint-ast.mjs',
-  'packages/cli/bin/efs-scaffold.mjs',
- ]
-
- for (const relativePath of cliFiles) {
-  const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8')
-  assert.match(source, /from '@efs\/presets'/)
-  assert.doesNotMatch(source, /\.\.\/\.\.\/presets\/src\/index\.mjs/)
- }
+ const scaffoldSource = fs.readFileSync(path.join(repoRoot, 'packages/cli/bin/efs-scaffold.mjs'), 'utf8')
+ assert.match(scaffoldSource, /from '@efs\/presets'/)
+ assert.doesNotMatch(scaffoldSource, /\.\.\/\.\.\/presets\/src\/index\.mjs/)
 })
 
 test('source packages do not keep duplicate runtime .mjs copies beside ts source', () => {

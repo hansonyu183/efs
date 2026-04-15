@@ -2,14 +2,15 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { listPresets, scaffoldPreset } from '@efs/presets'
 
-test('presets list includes core page types', () => {
+test('presets list includes core schema-first app types', () => {
  const presets = listPresets()
- assert.ok(presets.includes('paginated-list'))
+ assert.deepEqual(presets, ['crud', 'report', 'workbench'])
 })
 
-test('scaffoldPreset returns manifest and vue content', () => {
- const generated = scaffoldPreset('paginated-list', 'CustomerListPage')
- assert.equal(generated.manifest.pageType, 'paginated-list')
- assert.match(generated.vue, /const pageType = 'paginated-list'/)
- assert.match(generated.vue, /standard-components:/)
+test('scaffoldPreset returns schema-first app fixture content', () => {
+ const generated = scaffoldPreset('crud', 'CustomerApp')
+ assert.match(generated.appSchema, /defineAppSchema\(/)
+ assert.match(generated.appSchema, /operations:\s*\{/)
+ assert.match(generated.runtimeEntry, /adaptAppSchemaToVueController/)
+ assert.match(generated.rootVue, /<EfsApp/)
 })

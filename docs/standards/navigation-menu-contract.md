@@ -154,7 +154,7 @@ import { buildSidebarMenuTree } from '@efs/vue/shared/navigation-menu'
 const tree = buildSidebarMenuTree(flatMenus)
 ```
 
-说明：`@efs/vue` 根入口当前只保留 `AppController` 与 `EfsApp`；菜单 helper 属于运行时内部能力，请从 `@efs/vue/shared/navigation-menu` 子路径导入。
+说明：`@efs/vue` 根入口当前只保留 `EfsApp`；legacy 类型/工具需从 `@efs/vue/legacy` 子路径导入；菜单 helper 属于运行时内部能力，请从 `@efs/vue/shared/navigation-menu` 子路径导入。
 
 ```vue
 <CustomSidebarNav :items="sidebarMenus" :current-path="route.path" />

@@ -58,13 +58,13 @@ app
 对应最小类型关系：
 
 ```ts
-interface AppController {
+interface LegacyAppController {
   kind: 'app'
-  auth: AuthController
-  main: MainController
+  auth: LegacyAuthController
+  main: LegacyMainController
 }
 
-interface AuthController {
+interface LegacyAuthController {
   kind: 'auth'
   login: (input: AuthLoginInput) => AuthLoginResult | Promise<AuthLoginResult>
   logout?: () => void | Promise<void>
@@ -73,22 +73,22 @@ interface AuthController {
   setCurrentOrgCode?: (orgCode: string) => void | Promise<void>
 }
 
-interface MainController {
+interface LegacyMainController {
   kind: 'main'
-  domains: readonly DomainController[]
+  domains: readonly LegacyDomainController[]
   defaultPath?: string
 }
 
-interface DomainController {
+interface LegacyDomainController {
   kind: 'domain'
   domain: string
   title?: string
   icon?: string
   order?: number
-  items: readonly ResController[]
+  items: readonly LegacyResController[]
 }
 
-interface ResController {
+interface LegacyResController {
   kind: 'res'
   domain: string
   res: string
@@ -119,8 +119,8 @@ interface ResController {
 桥接口径大致如下：
 
 ### 4.1 资源身份
-- `domain.key` -> `DomainController.domain`
-- `resource.key` -> `ResController.res`
+- `domain.key` -> `LegacyDomainController.domain`
+- `resource.key` -> `LegacyResController.res`
 - 路径统一为 `domain/res`
 
 ### 4.2 runtime kind
@@ -214,18 +214,19 @@ export const app = adaptAppSchemaToVueController({
 
 ### 6.2 不再推荐的说法
 - “业务方最小只需要写 `useApp()`”
-- “AppController 是首选公开建模入口”
+- “legacy controller 类型是首选公开建模入口”
 
 现在更准确的说法应该是：
 - 业务方最小需要写 `app.schema.ts`
-- `AppController` 是当前 runtime 兼容层输入
+- `LegacyAppController` 是当前 runtime 兼容层输入
 
 ---
 
 ## 7. 公开入口边界
 
 当前文档口径：
-- `@efs/vue` 根入口只保留 `AppController` 与 `EfsApp`
+- `@efs/vue` 根入口只保留 `EfsApp`
+- legacy 类型/工具从 `@efs/vue/legacy` 导入
 - `@efs/schema` 提供正式 schema-first authoring / inference / adapter 入口
 - 其他 runtime helper 只从文档约定子路径引入
 

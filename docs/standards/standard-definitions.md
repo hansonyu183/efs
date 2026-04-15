@@ -126,8 +126,8 @@ app.schema.ts
 
 ### 5.4 legacy compat 定义
 下面这些仍可能存在于兼容层，但不再是公开主入口：
-- `AppController`
-- `ResController`
+- `LegacyAppController`
+- `LegacyResController`
 - `queryFields`
 - `columns`
 - `formSections`

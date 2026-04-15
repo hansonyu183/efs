@@ -1,0 +1,14 @@
+import type { ResourceCrudColumn, ResourceCrudDetailField, ResourceCrudFormField, ResourceCrudFormSection, ResourceCrudQueryField } from './resource-crud-types';
+import type { ReportViewResultColumn, ReportViewSummaryMetric } from './report-view-types';
+import type { FieldUse, ResField, ResRow } from './shared-types';
+import type { LegacyResController } from './res-controller';
+export declare function inferFieldUses(field: ResField): readonly FieldUse[];
+export declare function inferFieldOrder(field: ResField): number;
+export declare function inferListColumns(res: LegacyResController): ResourceCrudColumn[];
+export declare function inferQueryFields(res: LegacyResController): ResourceCrudQueryField[];
+export declare function inferFormFields(res: LegacyResController): ResourceCrudFormField[];
+export declare function inferFormSections(res: LegacyResController): ResourceCrudFormSection[];
+export declare function inferDetailFields(res: LegacyResController): ResourceCrudDetailField[];
+export declare function inferReportColumns(res: LegacyResController): ReportViewResultColumn[];
+export declare function inferReportSummaryMetrics(res: LegacyResController, items?: ResRow[]): ReportViewSummaryMetric[];
+export declare function defaultDetailValueFormatter(value: unknown): unknown;

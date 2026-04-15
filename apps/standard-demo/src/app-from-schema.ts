@@ -1,4 +1,4 @@
-import type { AppController, ResQueryParams, ResRow } from '@efs/vue/controller'
+import type { LegacyAppController, ResQueryParams, ResRow } from '@efs/vue/legacy'
 import { adaptAppSchemaToVueController } from '@efs/schema'
 import { appSchema } from '../app.schema'
 
@@ -83,4 +83,4 @@ export const app = adaptAppSchemaToVueController({
       async export() {},
     },
   },
-}) satisfies AppController
+}) satisfies LegacyAppController

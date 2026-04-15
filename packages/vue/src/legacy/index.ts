@@ -1,11 +1,11 @@
 export type {
-  AppController,
-  AuthController,
+  LegacyAppController,
+  LegacyAuthController,
   AuthLoginInput,
   AuthLoginResult,
-  DomainController,
-  MainController,
-  ResController,
+  LegacyDomainController,
+  LegacyMainController,
+  LegacyResController,
 } from './types'
 
 export type {
