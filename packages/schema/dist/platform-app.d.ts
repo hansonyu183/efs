@@ -7,6 +7,7 @@ export interface PlatformEfsAppProps {
     app: ReturnType<typeof createPlatformAppFromSchema>;
     appName: string;
     brandIcon?: string;
+    theme?: 'light' | 'dark';
     i18n?: EfsAppI18nSchema;
 }
 export declare function createPlatformAppFromSchema(schema: EfsAppSchema, options?: CreatePlatformAppFromSchemaOptions): {

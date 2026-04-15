@@ -55,6 +55,7 @@ const props = withDefaults(defineProps<AppButtonProps>(), {
  gap: 8px;
  min-height: 42px;
  padding: 0 16px;
+ box-sizing: border-box;
  border-radius: 12px;
  border: 1px solid var(--efs-border, #dbe3ef);
  background: var(--efs-surface, #fff);

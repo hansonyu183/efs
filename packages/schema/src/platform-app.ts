@@ -1,4 +1,5 @@
 import type { EfsAppI18nSchema, EfsAppSchema } from './app/app-schema.js'
+import type { EfsServiceSchema } from './app/service-schema.js'
 import type { EfsEndpointSchema, EfsResourceSchema } from './resource/resource-schema.js'
 import { adaptAppSchemaToVueController, type SchemaAuthAdapter, type SchemaOperationAdapterMap, type SchemaResourceAdapters } from './adapter/vue-controller.js'
 
@@ -11,7 +12,15 @@ export interface PlatformEfsAppProps {
   app: ReturnType<typeof createPlatformAppFromSchema>
   appName: string
   brandIcon?: string
+  theme?: 'light' | 'dark'
   i18n?: EfsAppI18nSchema
+}
+
+type TransportOptions = {
+  requestDataKey?: string
+  responseDataKey?: string
+  authHeader?: string
+  authScheme?: string
 }
 
 export function createPlatformAppFromSchema(schema: EfsAppSchema, options: CreatePlatformAppFromSchemaOptions = {}) {
@@ -22,12 +31,30 @@ export function createPlatformAppFromSchema(schema: EfsAppSchema, options: Creat
 
   const service = resolvePrimaryService(schema, options.serviceKey)
   const baseUrl = service?.baseUrl ?? ''
+  const transport = resolveTransportOptions(service)
   let currentOrgCode: string | undefined
+  let currentAccessToken: string | undefined
+  let cachedOrgs: Array<{ key: string; value: string; title?: string; label?: string; disabled?: boolean }> = []
 
-  const auth: SchemaAuthAdapter = buildAuthAdapter(schema, baseUrl, fetcher, () => currentOrgCode, (value) => {
-    currentOrgCode = value
-  })
-  const resources = buildResourceAdapters(schema, baseUrl, fetcher)
+  const auth: SchemaAuthAdapter = buildAuthAdapter(
+    schema,
+    baseUrl,
+    transport,
+    fetcher,
+    () => currentOrgCode,
+    (value) => {
+      currentOrgCode = value
+    },
+    () => currentAccessToken,
+    (value) => {
+      currentAccessToken = value
+    },
+    () => cachedOrgs,
+    (value) => {
+      cachedOrgs = value
+    },
+  )
+  const resources = buildResourceAdapters(schema, baseUrl, transport, fetcher, () => currentAccessToken)
 
   return adaptAppSchemaToVueController({
     schema,
@@ -44,6 +71,7 @@ export function createPlatformEfsAppPropsFromSchema(
     app: createPlatformAppFromSchema(schema, options),
     appName: schema.app.title || schema.app.name,
     brandIcon: schema.app.brandIcon,
+    theme: schema.app.theme,
     i18n: resolvePlatformI18n(schema),
   }
 }
@@ -66,12 +94,26 @@ function resolvePlatformI18n(schema: EfsAppSchema): EfsAppI18nSchema | undefined
   }
 }
 
+function resolveTransportOptions(service?: EfsServiceSchema): TransportOptions {
+  return {
+    requestDataKey: service?.transport?.requestDataKey,
+    responseDataKey: service?.transport?.responseDataKey,
+    authHeader: service?.transport?.authHeader || 'Authorization',
+    authScheme: service?.transport?.authScheme || 'Bearer',
+  }
+}
+
 function buildAuthAdapter(
   schema: EfsAppSchema,
   baseUrl: string,
+  transport: TransportOptions,
   fetcher: typeof fetch,
   getCurrentOrgCode: () => string | undefined,
   setCurrentOrgCode: (orgCode: string | undefined) => void,
+  getCurrentAccessToken: () => string | undefined,
+  setCurrentAccessToken: (token: string | undefined) => void,
+  getCachedOrgs: () => Array<{ key: string; value: string; title?: string; label?: string; disabled?: boolean }>,
+  setCachedOrgs: (orgs: Array<{ key: string; value: string; title?: string; label?: string; disabled?: boolean }>) => void,
 ): SchemaAuthAdapter {
   const auth = schema.auth
   const accessTokenField = auth?.token?.accessTokenField || 'accessToken'
@@ -87,33 +129,43 @@ function buildAuthAdapter(
           accessToken: 'anonymous-token',
         }
       }
-      const data = await requestJson(fetcher, baseUrl, auth.login, { json: input })
-      const token = String(data?.[accessTokenField] ?? data?.accessToken ?? 'anonymous-token')
-      const orgCode = data?.[currentOrgCodeField]
-      if (typeof orgCode === 'string') setCurrentOrgCode(orgCode)
+      const data = await requestJson(fetcher, baseUrl, transport, auth.login, {
+        json: {
+          ...input,
+          username: input.name,
+          password: input.pwd,
+        },
+      })
+      const token = asOptionalString(readPath(data, accessTokenField) ?? data?.accessToken) || 'anonymous-token'
+      const orgCode = asOptionalString(readPath(data, currentOrgCodeField) ?? data?.orgCode)
+      const orgs = normalizeAuthOptions(readOrganizations(data))
+      setCurrentAccessToken(token)
+      if (typeof orgCode === 'string' && orgCode) setCurrentOrgCode(orgCode)
+      if (orgs.length > 0) setCachedOrgs(orgs)
       return {
         accessToken: token,
-        refreshToken: asOptionalString(data?.[refreshTokenField]),
-        expiresAt: asOptionalString(data?.[expiresAtField]),
-        tokenType: asOptionalString(data?.[tokenTypeField]),
+        refreshToken: asOptionalString(readPath(data, refreshTokenField)),
+        expiresAt: asOptionalString(readPath(data, expiresAtField)),
+        tokenType: asOptionalString(readPath(data, tokenTypeField)) ?? transport.authScheme,
       }
     },
     logout: auth?.logout
       ? async () => {
-          await requestJson(fetcher, baseUrl, auth.logout!, { json: { orgCode: getCurrentOrgCode() } })
+          await requestJson(fetcher, baseUrl, transport, auth.logout!, {
+            json: { orgCode: getCurrentOrgCode() },
+            accessToken: getCurrentAccessToken(),
+          })
+          setCurrentAccessToken(undefined)
         }
       : undefined,
     getOrgs: auth?.orgs
       ? async () => {
-          const data = await requestJson(fetcher, baseUrl, auth.orgs!, {})
-          const items = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : []
-          return items.map((item: any) => ({
-            key: String(item?.key ?? item?.value ?? item?.code ?? item?.orgCode ?? ''),
-            value: String(item?.value ?? item?.code ?? item?.orgCode ?? item?.key ?? ''),
-            title: asOptionalString(item?.title ?? item?.label ?? item?.name),
-            label: asOptionalString(item?.label ?? item?.title ?? item?.name),
-            disabled: Boolean(item?.disabled),
-          }))
+          const accessToken = getCurrentAccessToken()
+          if (!accessToken && getCachedOrgs().length > 0) return getCachedOrgs()
+          const data = await requestJson(fetcher, baseUrl, transport, auth.orgs!, { accessToken })
+          const items = normalizeAuthOptions(Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : readOrganizations(data))
+          if (items.length > 0) setCachedOrgs(items)
+          return items
         }
       : undefined,
     getCurrentOrgCode,
@@ -123,22 +175,37 @@ function buildAuthAdapter(
   }
 }
 
-function buildResourceAdapters(schema: EfsAppSchema, baseUrl: string, fetcher: typeof fetch): SchemaResourceAdapters {
+function buildResourceAdapters(
+  schema: EfsAppSchema,
+  baseUrl: string,
+  transport: TransportOptions,
+  fetcher: typeof fetch,
+  getCurrentAccessToken: () => string | undefined,
+): SchemaResourceAdapters {
   const resources: SchemaResourceAdapters = {}
   for (const domain of schema.domains) {
     for (const resource of domain.resources) {
-      resources[`${domain.key}/${resource.key}`] = buildOperationAdapterMap(resource, baseUrl, fetcher)
+      resources[`${domain.key}/${resource.key}`] = buildOperationAdapterMap(resource, baseUrl, transport, fetcher, getCurrentAccessToken)
     }
   }
   return resources
 }
 
-function buildOperationAdapterMap(resource: EfsResourceSchema, baseUrl: string, fetcher: typeof fetch): SchemaOperationAdapterMap {
+function buildOperationAdapterMap(
+  resource: EfsResourceSchema,
+  baseUrl: string,
+  transport: TransportOptions,
+  fetcher: typeof fetch,
+  getCurrentAccessToken: () => string | undefined,
+): SchemaOperationAdapterMap {
   const handlers: SchemaOperationAdapterMap = {}
   for (const [operationKey, endpoint] of Object.entries(resource.operations || {})) {
     if (!endpoint) continue
     handlers[operationKey] = async (context: any = {}) => {
-      const response = await requestJson(fetcher, baseUrl, endpoint, { context })
+      const response = await requestJson(fetcher, baseUrl, transport, endpoint, {
+        context,
+        accessToken: getCurrentAccessToken(),
+      })
       return normalizeOperationResult(operationKey, response)
     }
   }
@@ -161,7 +228,7 @@ function normalizeOperationResult(operationKey: string, response: any) {
     }
   }
 
-  if (operationKey === 'remove') {
+  if (operationKey === 'remove' || operationKey === 'delete') {
     return {
       refresh: true,
       activeItem: null,
@@ -183,50 +250,68 @@ function normalizeOperationResult(operationKey: string, response: any) {
 async function requestJson(
   fetcher: typeof fetch,
   baseUrl: string,
+  transport: TransportOptions,
   endpoint: EfsEndpointSchema,
-  options: { json?: unknown; context?: any },
+  options: { json?: unknown; context?: any; accessToken?: string },
 ) {
   const method = endpoint.method || 'GET'
-  const { url, body } = buildRequest(baseUrl, endpoint, options.context, options.json)
+  const { url, body } = buildRequest(baseUrl, transport, endpoint, options.context, options.json)
+  const headers: Record<string, string> = {}
+  if (body != null) headers['content-type'] = 'application/json'
+  if (options.accessToken) headers[transport.authHeader || 'Authorization'] = `${transport.authScheme || 'Bearer'} ${options.accessToken}`
   const response = await fetcher(url, {
     method,
-    headers: body == null ? undefined : { 'content-type': 'application/json' },
+    headers: Object.keys(headers).length > 0 ? headers : undefined,
     body: body == null ? undefined : JSON.stringify(body),
   })
   const text = await response.text()
-  if (!text) return undefined
-  try {
-    return JSON.parse(text)
-  } catch {
-    return text
+  let data: any = undefined
+  if (text) {
+    try {
+      data = JSON.parse(text)
+    } catch {
+      data = text
+    }
   }
+  const unwrapped = unwrapResponseData(data, transport)
+  const isOk = typeof response.ok === 'boolean' ? response.ok : true
+  if (!isOk) {
+    const message = asOptionalString(data?.message ?? unwrapped?.message) || `${response.status} ${response.statusText}`
+    throw new Error(message)
+  }
+  return unwrapped
 }
 
-function buildRequest(baseUrl: string, endpoint: EfsEndpointSchema, context: any, explicitJson: unknown) {
+function buildRequest(
+  baseUrl: string,
+  transport: TransportOptions,
+  endpoint: EfsEndpointSchema,
+  context: any,
+  explicitJson: unknown,
+) {
   const method = endpoint.method || 'GET'
   const path = interpolatePath(endpoint.path, context)
-  const url = new URL(path, ensureBaseUrl(baseUrl))
+  const url = buildUrl(baseUrl, path)
 
   if (method === 'GET') {
+    const target = new URL(url)
     const queryValues = context?.queryValues && typeof context.queryValues === 'object' ? context.queryValues : {}
     for (const [key, value] of Object.entries(queryValues)) {
       if (value == null || value === '') continue
-      url.searchParams.set(key, String(value))
+      target.searchParams.set(key, String(value))
     }
-    if (typeof context?.page === 'number') url.searchParams.set('page', String(context.page))
-    if (typeof context?.pageSize === 'number') url.searchParams.set('pageSize', String(context.pageSize))
-    return { url: url.toString(), body: undefined }
+    if (typeof context?.page === 'number') target.searchParams.set('page', String(context.page))
+    if (typeof context?.pageSize === 'number') target.searchParams.set('pageSize', String(context.pageSize))
+    return { url: target.toString(), body: undefined }
   }
 
-  if (explicitJson !== undefined) {
-    return { url: url.toString(), body: explicitJson }
-  }
+  const payload = explicitJson !== undefined
+    ? explicitJson
+    : context?.item && typeof context.item === 'object'
+      ? context.item
+      : context
 
-  if (context?.item && typeof context.item === 'object') {
-    return { url: url.toString(), body: context.item }
-  }
-
-  return { url: url.toString(), body: context }
+  return { url, body: wrapRequestData(payload, transport) }
 }
 
 function interpolatePath(path: string, context: any) {
@@ -237,8 +322,63 @@ function interpolatePath(path: string, context: any) {
   })
 }
 
-function ensureBaseUrl(baseUrl: string) {
-  return baseUrl || 'http://127.0.0.1'
+function buildUrl(baseUrl: string, path: string) {
+  if (/^https?:\/\//i.test(path)) return path
+  const resolvedBase = resolveBaseUrl(baseUrl)
+  const normalizedBase = resolvedBase.replace(/\/+$/, '')
+  const normalizedPath = String(path || '').replace(/^\/+/, '')
+  return normalizedPath ? `${normalizedBase}/${normalizedPath}` : normalizedBase
+}
+
+function resolveBaseUrl(baseUrl: string) {
+  if (!baseUrl) {
+    if (typeof window !== 'undefined' && window.location?.origin) return window.location.origin
+    return 'http://127.0.0.1'
+  }
+  if (/^https?:\/\//i.test(baseUrl)) return baseUrl
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin}${baseUrl.startsWith('/') ? baseUrl : `/${baseUrl}`}`
+  }
+  return `http://127.0.0.1${baseUrl.startsWith('/') ? baseUrl : `/${baseUrl}`}`
+}
+
+function wrapRequestData(payload: unknown, transport: TransportOptions) {
+  if (!transport.requestDataKey) return payload
+  return {
+    [transport.requestDataKey]: payload,
+  }
+}
+
+function unwrapResponseData(data: any, transport: TransportOptions) {
+  if (!transport.responseDataKey) return data
+  if (data && typeof data === 'object' && transport.responseDataKey in data) return data[transport.responseDataKey]
+  return data
+}
+
+function readPath(value: any, path: string) {
+  if (!value || !path) return undefined
+  let current = value
+  for (const segment of path.split('.').filter(Boolean)) {
+    if (!current || typeof current !== 'object') return undefined
+    current = current[segment]
+  }
+  return current
+}
+
+function normalizeAuthOptions(items: any[]): Array<{ key: string; value: string; title?: string; label?: string; disabled?: boolean }> {
+  return items.map((item: any) => ({
+    key: String(item?.key ?? item?.value ?? item?.code ?? item?.orgCode ?? ''),
+    value: String(item?.value ?? item?.code ?? item?.orgCode ?? item?.key ?? ''),
+    title: asOptionalString(item?.title ?? item?.label ?? item?.name),
+    label: asOptionalString(item?.label ?? item?.title ?? item?.name),
+    disabled: Boolean(item?.disabled),
+  }))
+}
+
+function readOrganizations(data: any) {
+  if (Array.isArray(data?.organizations)) return data.organizations
+  if (Array.isArray(data?.orgs)) return data.orgs
+  return []
 }
 
 function asOptionalString(value: unknown) {

@@ -17,23 +17,27 @@ export const appSchema = defineAppSchema({
     logout: { path: '/session/logout', method: 'POST' },
     orgs: { path: '/session/orgs', method: 'GET' },
     token: {
-      accessTokenField: 'accessToken',
-      refreshTokenField: 'refreshToken',
-      expiresAtField: 'expiresAt',
+      accessTokenField: 'token',
       tokenTypeField: 'tokenType',
     },
     org: {
-      currentOrgCodeField: 'orgCode',
+      currentOrgCodeField: 'principal.orgCode',
     },
   },
   services: {
     api: {
       kind: 'http',
-      baseUrl: 'http://127.0.0.1:8002',
+      baseUrl: '/agentos-api',
       port: 8002,
       healthPath: '/healthz',
       devCommand: 'go run ./cmd/server',
       workingDir: '../../../go-dev/AgentOS',
+      transport: {
+        requestDataKey: 'data',
+        responseDataKey: 'data',
+        authHeader: 'Authorization',
+        authScheme: 'Bearer',
+      },
     },
   },
   i18n: {
@@ -43,11 +47,39 @@ export const appSchema = defineAppSchema({
         efs: {
           brand: {
             title: 'AgentOS',
+            subtitle: '企业管理平台',
           },
           auth: {
             title: '登录到 AgentOS',
             subtitle: '请输入账号凭证继续访问平台。',
+            nameLabel: '用户名',
+            namePlaceholder: '请输入用户名',
+            passwordLabel: '密码',
+            passwordPlaceholder: '请输入密码',
+            orgLabel: '组织',
+            orgPlaceholder: '请输入组织编码',
             submitLabel: '登录',
+            submittingLabel: '登录中…',
+          },
+          shell: {
+            localeLabel: '语言',
+            themeLabel: '主题',
+            orgLabel: '组织',
+            logoutLabel: '退出登录',
+            moreLabel: '更多',
+            closeLabel: '关闭',
+          },
+          localeOptions: {
+            'zh-CN': '中',
+            'en-US': 'EN',
+          },
+          themeOptions: {
+            light: '明',
+            dark: '暗',
+          },
+          runtime: {
+            emptyTitle: '资源不存在',
+            emptySubtitle: '当前 path 未注册对应资源。',
           },
         },
       },
@@ -55,11 +87,39 @@ export const appSchema = defineAppSchema({
         efs: {
           brand: {
             title: 'AgentOS',
+            subtitle: 'Enterprise workspace',
           },
           auth: {
             title: 'Sign in to AgentOS',
             subtitle: 'Enter your credentials to continue.',
+            nameLabel: 'Username',
+            namePlaceholder: 'Enter username',
+            passwordLabel: 'Password',
+            passwordPlaceholder: 'Enter password',
+            orgLabel: 'Organization',
+            orgPlaceholder: 'Enter organization code',
             submitLabel: 'Sign in',
+            submittingLabel: 'Signing in…',
+          },
+          shell: {
+            localeLabel: 'Language',
+            themeLabel: 'Theme',
+            orgLabel: 'Organization',
+            logoutLabel: 'Sign out',
+            moreLabel: 'More',
+            closeLabel: 'Close',
+          },
+          localeOptions: {
+            'zh-CN': 'ZH',
+            'en-US': 'EN',
+          },
+          themeOptions: {
+            light: 'Light',
+            dark: 'Dark',
+          },
+          runtime: {
+            emptyTitle: 'Resource not found',
+            emptySubtitle: 'The current path is not registered in the application shell.',
           },
         },
       },

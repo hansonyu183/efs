@@ -1,3 +1,9 @@
+export interface EfsServiceTransportSchema {
+    requestDataKey?: string;
+    responseDataKey?: string;
+    authHeader?: string;
+    authScheme?: string;
+}
 export interface EfsServiceSchema {
     kind: 'http' | 'mock' | 'gateway';
     baseUrl?: string;
@@ -6,4 +12,5 @@ export interface EfsServiceSchema {
     devCommand?: string;
     workingDir?: string;
     env?: Record<string, string>;
+    transport?: EfsServiceTransportSchema;
 }

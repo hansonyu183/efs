@@ -52,10 +52,35 @@ export const appSchema = defineAppSchema({
         efs: {
           brand: {
             title: 'Enterprise Frontend Standard Demo',
+            subtitle: '标准平台示例',
           },
           auth: {
             title: '登录到标准演示平台',
             subtitle: '请输入账号凭证继续访问标准演示。',
+            nameLabel: '用户名',
+            namePlaceholder: '请输入用户名',
+            passwordLabel: '密码',
+            passwordPlaceholder: '请输入密码',
+            orgLabel: '组织',
+            orgPlaceholder: '请输入组织编码',
+            submitLabel: '登录',
+            submittingLabel: '登录中…',
+          },
+          shell: {
+            localeLabel: '语言',
+            themeLabel: '主题',
+            orgLabel: '组织',
+            logoutLabel: '退出登录',
+            moreLabel: '更多',
+            closeLabel: '关闭',
+          },
+          localeOptions: {
+            'zh-CN': '中',
+            'en-US': 'EN',
+          },
+          themeOptions: {
+            light: '明',
+            dark: '暗',
           },
         },
       },
@@ -63,10 +88,35 @@ export const appSchema = defineAppSchema({
         efs: {
           brand: {
             title: 'Enterprise Frontend Standard Demo',
+            subtitle: 'Platform demo',
           },
           auth: {
             title: 'Sign in to the standard demo',
             subtitle: 'Enter your credentials to continue.',
+            nameLabel: 'Username',
+            namePlaceholder: 'Enter username',
+            passwordLabel: 'Password',
+            passwordPlaceholder: 'Enter password',
+            orgLabel: 'Organization',
+            orgPlaceholder: 'Enter organization code',
+            submitLabel: 'Sign in',
+            submittingLabel: 'Signing in…',
+          },
+          shell: {
+            localeLabel: 'Language',
+            themeLabel: 'Theme',
+            orgLabel: 'Organization',
+            logoutLabel: 'Sign out',
+            moreLabel: 'More',
+            closeLabel: 'Close',
+          },
+          localeOptions: {
+            'zh-CN': 'ZH',
+            'en-US': 'EN',
+          },
+          themeOptions: {
+            light: 'Light',
+            dark: 'Dark',
           },
         },
       },

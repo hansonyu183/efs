@@ -81,6 +81,7 @@ function onChange(event: Event) {
  width: 100%;
  min-height: 44px;
  padding: 0 12px;
+ box-sizing: border-box;
  border-radius: 12px;
  border: 1px solid var(--efs-border, #dbe3ef);
  background: var(--efs-surface, #fff);

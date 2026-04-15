@@ -23,10 +23,11 @@ test('schema i18n is formalized and platform shell props expose it for EfsApp bo
   assert.equal(appSchema.i18n.messages['en-US'].efs.auth.title, 'Sign in to AgentOS')
 
   const shellProps = createPlatformEfsAppPropsFromSchema(appSchema, {
-    fetcher: async () => json({ accessToken: 'noop-token' }),
+    fetcher: async () => json({ code: 'OK', data: { token: 'noop-token', principal: { orgCode: 'demo' } } }),
   })
 
   assert.equal(shellProps.appName, 'AgentOS')
+  assert.equal(shellProps.theme, 'light')
   assert.equal(shellProps.i18n.locale, 'zh-CN')
   assert.equal(shellProps.i18n.fallbackLocale, 'zh-CN')
   assert.equal(shellProps.i18n.messages['zh-CN'].efs.auth.title, '登录到 AgentOS')
@@ -40,31 +41,31 @@ test('createPlatformAppFromSchema maps AgentOS auth, CRUD, and workflow operatio
     const url = typeof input === 'string' ? input : input.toString()
     const bodyText = typeof init.body === 'string' ? init.body : undefined
     const body = bodyText ? JSON.parse(bodyText) : undefined
-    requests.push({ url, method: init.method || 'GET', body })
+    requests.push({ url, method: init.method || 'GET', body, headers: init.headers || {} })
 
     if (url.endsWith('/session/login')) {
-      return json({ accessToken: 'agentos-token', orgCode: 'demo' })
+      return json({ code: 'OK', data: { token: 'agentos-token', principal: { orgCode: 'demo' }, organizations: [{ code: 'demo', name: '演示组织' }] } })
     }
     if (url.endsWith('/session/orgs')) {
-      return json({ items: [{ code: 'demo', name: '演示组织' }] })
+      return json({ code: 'OK', data: [{ code: 'demo', name: '演示组织' }] })
     }
     if (url.includes('/admin/user/query')) {
-      return json({ items: [{ id: 1, username: 'admin', displayName: '管理员' }], total: 1 })
+      return json({ code: 'OK', data: { items: [{ id: 1, username: 'admin', displayName: '管理员' }], total: 1 } })
     }
     if (url.endsWith('/admin/user/create')) {
-      return json({ id: 2 })
+      return json({ code: 'OK', data: { id: 2 } })
     }
     if (url.endsWith('/admin/user/update')) {
-      return json({ updated: true })
+      return json({ code: 'OK', data: { updated: true } })
     }
     if (url.endsWith('/admin/user/delete')) {
-      return json({ deleted: true })
+      return json({ code: 'OK', data: { deleted: true } })
     }
     if (url.includes('/workflow/process/query')) {
-      return json({ items: [{ id: 10, title: '审批流程', status: 'pending', currentStep: 'manager', assigneeName: 'Alice' }], total: 1 })
+      return json({ code: 'OK', data: { items: [{ id: 10, title: '审批流程', status: 'pending', currentStep: 'manager', assigneeName: 'Alice' }], total: 1 } })
     }
     if (url.endsWith('/workflow/process/start')) {
-      return json({ id: 11 })
+      return json({ code: 'OK', data: { id: 11 } })
     }
     throw new Error(`Unexpected request: ${init.method || 'GET'} ${url}`)
   }
@@ -95,16 +96,16 @@ test('createPlatformAppFromSchema maps AgentOS auth, CRUD, and workflow operatio
   await processRes.actions.custom.start({ item: { definitionCode: 'leave', title: '请假审批' } })
 
   assert.deepEqual(
-    requests.map((entry) => [entry.method, entry.url.replace('http://127.0.0.1:8002', ''), entry.body]),
+    requests.map((entry) => [entry.method, entry.url.replace('http://127.0.0.1', ''), entry.body, entry.headers.Authorization || entry.headers.authorization || null]),
     [
-      ['POST', '/session/login', { name: 'admin', pwd: 'secret', orgCode: 'demo' }],
-      ['GET', '/session/orgs', undefined],
-      ['POST', '/admin/user/query', { queryValues: { keyword: 'adm' }, page: 2, pageSize: 20 }],
-      ['POST', '/admin/user/create', { username: 'ops', displayName: '运维' }],
-      ['POST', '/admin/user/update', { id: 1, displayName: '平台管理员' }],
-      ['POST', '/admin/user/delete', { id: 1 }],
-      ['POST', '/workflow/process/query', { queryValues: { status: 'pending' }, page: 1, pageSize: 10 }],
-      ['POST', '/workflow/process/start', { definitionCode: 'leave', title: '请假审批' }],
+      ['POST', '/agentos-api/session/login', { data: { name: 'admin', pwd: 'secret', orgCode: 'demo', username: 'admin', password: 'secret' } }, null],
+      ['GET', '/agentos-api/session/orgs', undefined, 'Bearer agentos-token'],
+      ['POST', '/agentos-api/admin/user/query', { data: { queryValues: { keyword: 'adm' }, page: 2, pageSize: 20 } }, 'Bearer agentos-token'],
+      ['POST', '/agentos-api/admin/user/create', { data: { username: 'ops', displayName: '运维' } }, 'Bearer agentos-token'],
+      ['POST', '/agentos-api/admin/user/update', { data: { id: 1, displayName: '平台管理员' } }, 'Bearer agentos-token'],
+      ['POST', '/agentos-api/admin/user/delete', { data: { id: 1 } }, 'Bearer agentos-token'],
+      ['POST', '/agentos-api/workflow/process/query', { data: { queryValues: { status: 'pending' }, page: 1, pageSize: 10 } }, 'Bearer agentos-token'],
+      ['POST', '/agentos-api/workflow/process/start', { data: { definitionCode: 'leave', title: '请假审批' } }, 'Bearer agentos-token'],
     ],
   )
 })

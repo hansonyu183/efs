@@ -84,7 +84,7 @@ const globalAlerts = useAppAlerts()
 const showActionsBar = computed(() => Boolean(slots.actions) || Boolean(slots['locale-action']) || Boolean(slots['theme-action']) || true)
 const showTopBar = computed(() => Boolean(slots.brand) || Boolean(props.logoSrc) || Boolean(props.appName) || showActionsBar.value)
 const showAlertsRegion = computed(() => Boolean(slots.alerts) || globalAlerts.hasItems.value)
-const contentStyle = computed(() => ({ maxWidth: '1120px', '--efs-auth-panel-width': '460px' }))
+const contentStyle = computed(() => ({ maxWidth: '560px', '--efs-auth-panel-width': '100%' }))
 const layoutClasses = computed(() => ({
  'efs-auth-layout--centered': true,
 }))
@@ -93,10 +93,8 @@ const layoutClasses = computed(() => ({
 <style scoped>
 .efs-auth-layout {
  min-height: 100vh;
- display: flex;
- align-items: center;
- justify-content: center;
- padding: 32px 20px;
+ display: block;
+ padding: 20px 16px 24px;
  background:
   radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 28%),
   radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.1), transparent 24%),
@@ -115,22 +113,23 @@ const layoutClasses = computed(() => ({
 }
 
 .efs-auth-layout__content {
- width: min(100%, 1120px);
+ width: min(100%, 560px);
+ margin: 0 auto;
  display: grid;
- gap: 20px;
+ gap: 14px;
 }
 
 .efs-auth-layout--centered .efs-auth-layout__content {
- justify-items: center;
+ justify-items: stretch;
 }
 
 .efs-auth-layout__topbar {
- width: min(100%, 1120px);
+ width: 100%;
  display: flex;
  align-items: center;
  justify-content: space-between;
- gap: 16px;
- padding: 0 4px;
+ gap: 12px;
+ padding: 0;
 }
 
 .efs-auth-layout__topbar-brand {
@@ -154,11 +153,11 @@ const layoutClasses = computed(() => ({
 }
 
 .efs-auth-layout__panel-shell {
- width: min(100%, var(--efs-auth-panel-width, 460px));
+ width: min(100%, var(--efs-auth-panel-width, 560px));
  min-width: 0;
- justify-self: center;
+ justify-self: stretch;
  display: grid;
- gap: 12px;
+ gap: 10px;
 }
 
 .efs-auth-layout__actions {
@@ -176,14 +175,15 @@ const layoutClasses = computed(() => ({
 
 .efs-auth-layout__panel {
  min-width: 0;
- border-radius: 28px;
+ width: 100%;
+ border-radius: 24px;
  border: 1px solid var(--efs-border, #dbe3ef);
  background: color-mix(in srgb, var(--efs-surface, #ffffff) 92%, transparent);
- box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+ box-shadow: var(--efs-shadow, 0 20px 45px rgba(15, 23, 42, 0.08));
  backdrop-filter: blur(10px);
- padding: 28px;
+ padding: 24px;
  display: grid;
- gap: 18px;
+ gap: 16px;
 }
 
 .efs-auth-layout__header {
@@ -250,16 +250,16 @@ const layoutClasses = computed(() => ({
 
 @media (max-width: 640px) {
  .efs-auth-layout {
-  padding: 20px 14px;
+  padding: 12px 12px 20px;
  }
 
  .efs-auth-layout__content {
-  gap: 16px;
+  gap: 12px;
  }
 
  .efs-auth-layout__panel {
-  padding: 22px 18px;
-  border-radius: 22px;
+  padding: 18px 16px;
+  border-radius: 20px;
  }
 
  .efs-auth-layout__title {
