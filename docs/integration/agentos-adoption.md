@@ -1,6 +1,6 @@
 # AgentOS 接入 EFS 规范
 
-本文定义 AgentOS 当前采用 EFS 的正式接入方式，后续项目默认参考同一模式。**主线是 schema-first**：业务仓库优先维护 `user-apps/<app-name>/app.schema.ts`，平台固定入口直接加载，不再要求业务自己写根组件。
+本文定义 AgentOS 当前采用 EFS 的正式接入方式，后续项目默认参考同一模式。**主线是 schema-first**：业务仓库优先维护 `schemas/<app-name>/app.schema.ts`，平台固定入口直接加载，不再要求业务自己写根组件。
 
 ## 当前正式接法
 
@@ -37,7 +37,7 @@ alias: {
 
 如果后续消费 runtime / 规范 / presets，也应增加对应 alias，而不是在业务项目内复制实现。
 
-### 3. 业务模块优先维护 `user-apps/<app-name>/app.schema.ts`
+### 3. 业务模块优先维护 `schemas/<app-name>/app.schema.ts`
 
 标准写法：
 
@@ -82,7 +82,7 @@ export const appSchema = defineAppSchema({
 import { createApp } from 'vue'
 import { createPlatformAppFromSchema } from '@efs/schema'
 import { EfsApp } from '@efs/vue'
-import { appSchema } from '../user-apps/agentos/app.schema'
+import { appSchema } from '../schemas/agentos/app.schema'
 
 const app = createPlatformAppFromSchema(appSchema)
 

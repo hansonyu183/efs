@@ -12,5 +12,5 @@ test('scaffoldPreset returns schema directory and platform bootstrap content', (
  assert.equal(generated.appDirName, 'customer-app')
  assert.match(generated.appSchema, /defineAppSchema\(/)
  assert.match(generated.mainEntry, /createPlatformAppFromSchema/)
- assert.match(generated.mainEntry, /user-apps\/customer-app\/app\.schema/)
+ assert.match(generated.mainEntry, /schemas\/customer-app\/app\.schema/)
 })

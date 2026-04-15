@@ -22,10 +22,10 @@ if (!preset || !name || !out) {
 
 const generated = scaffoldPreset(preset, name)
 const outDir = path.resolve(out)
-const userAppDir = path.join(outDir, 'user-apps', generated.appDirName)
+const userAppDir = path.join(outDir, 'schemas', generated.appDirName)
 const srcDir = path.join(outDir, 'src')
 fs.mkdirSync(userAppDir, { recursive: true })
 fs.mkdirSync(srcDir, { recursive: true })
 fs.writeFileSync(path.join(userAppDir, 'app.schema.ts'), generated.appSchema)
 fs.writeFileSync(path.join(srcDir, 'main.ts'), generated.mainEntry)
-console.log(`Generated user-apps/${generated.appDirName}/app.schema.ts and src/main.ts in ${outDir}`)
+console.log(`Generated schemas/${generated.appDirName}/app.schema.ts and src/main.ts in ${outDir}`)

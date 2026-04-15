@@ -10,7 +10,7 @@ if (!root) {
 }
 
 const appRoot = path.resolve(root)
-const userAppsDir = path.join(appRoot, 'user-apps')
+const userAppsDir = path.join(appRoot, 'schemas')
 const mainFile = path.join(appRoot, 'src', 'main.ts')
 const vueRoot = path.join(appRoot, 'src')
 const forbiddenTagPatterns = [/<table[\s>]/i, /<input[\s>]/i, /<select[\s>]/i]
@@ -33,7 +33,7 @@ const vueFiles = walk(vueRoot, (f) => f.endsWith('.vue'))
 let failed = 0
 
 if (schemaFiles.length === 0) {
- console.error('✗ no app.schema.ts found under user-apps/<app-name>/')
+ console.error('✗ no app.schema.ts found under schemas/<app-name>/')
  failed += 1
 }
 

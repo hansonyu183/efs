@@ -1,6 +1,6 @@
 # 资源 CRUD 输入瘦身设计
 
-> 状态：本文已按 **schema-first** 口径更新。当前 EFS 不再把 `EntityListView` 当成业务侧主要 authoring 面；业务侧优先维护 `user-apps/<app-name>/app.schema.ts`，由 runtime inference + adapter 生成当前 CRUD view 所需输入。旧的 `queryFields / columns / formSections / detailFields / controller.handlers.*` 只作为 legacy/runtime 兼容层讨论对象。
+> 状态：本文已按 **schema-first** 口径更新。当前 EFS 不再把 `EntityListView` 当成业务侧主要 authoring 面；业务侧优先维护 `schemas/<app-name>/app.schema.ts`，由 runtime inference + adapter 生成当前 CRUD view 所需输入。旧的 `queryFields / columns / formSections / detailFields / controller.handlers.*` 只作为 legacy/runtime 兼容层讨论对象。
 
 本文用于收敛 CRUD 资源页输入项，减少把运行时内部实现细节重新暴露给业务页面的情况。
 
@@ -12,7 +12,7 @@
 
 ## 1. schema-first 下，业务真正应该提供什么
 
-当前业务侧主输入应集中在 `user-apps/<app-name>/app.schema.ts`：
+当前业务侧主输入应集中在 `schemas/<app-name>/app.schema.ts`：
 
 ### 1.1 business schema
 - `fields`

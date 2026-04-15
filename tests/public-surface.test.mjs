@@ -11,7 +11,7 @@ function read(relativePath) {
 
 test('standard demo is schema-first while legacy controller fixture remains isolated', () => {
  const legacySource = read('apps/standard-demo/src/legacy-controller-app.ts')
- const schemaSource = read('apps/standard-demo/user-apps/standard-demo/app.schema.ts')
+ const schemaSource = read('apps/standard-demo/schemas/standard-demo/app.schema.ts')
  const mainSource = read('apps/standard-demo/src/main.ts')
 
  assert.match(legacySource, /import type \{ LegacyAppController, LegacyDomainController, LegacyResController, ResRow, ResQueryParams \} from '@efs\/vue\/legacy'/)
@@ -19,7 +19,7 @@ test('standard demo is schema-first while legacy controller fixture remains isol
  assert.match(schemaSource, /defineAppSchema\(/)
  assert.match(mainSource, /createPlatformAppFromSchema/)
  assert.match(mainSource, /createApp\(EfsApp/)
- assert.match(mainSource, /user-apps\/standard-demo\/app\.schema/)
+ assert.match(mainSource, /schemas\/standard-demo\/app\.schema/)
  assert.doesNotMatch(mainSource, /DemoRoot/)
 })
 
@@ -34,14 +34,14 @@ test('docs avoid raw component package imports and use lowercase navigation-menu
  assert.deepEqual(Object.keys(packageJson.exports).sort(), ['.', './legacy', './shared/navigation-menu'])
 })
 
-test('vue root export is shell-only while user schema lives under user-apps/<app-name>', () => {
+test('vue root export is shell-only while user schema lives under schemas/<app-name>', () => {
  const readme = read('README.md')
  const vueIndex = read('packages/vue/src/index.ts')
  const scaffoldingDoc = read('docs/standards/scaffolding.md')
 
- assert.match(readme, /user-apps\/<app-name>/)
+ assert.match(readme, /schemas\/<app-name>/)
  assert.match(vueIndex, /export \{ default as EfsApp \}/)
  assert.doesNotMatch(vueIndex, /LegacyAppController/)
- assert.match(scaffoldingDoc, /user-apps\/<app-name>\/app\.schema\.ts/)
+ assert.match(scaffoldingDoc, /schemas\/<app-name>\/app\.schema\.ts/)
  assert.match(scaffoldingDoc, /不再需要用户自己写根组件/)
 })

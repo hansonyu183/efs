@@ -17,12 +17,12 @@ node packages/cli/bin/efs-scaffold.mjs --preset crud --name CustomerApp --out ./
 
 每次 scaffold 至少生成：
 
-- `user-apps/<app-name>/app.schema.ts`
+- `schemas/<app-name>/app.schema.ts`
 - `src/main.ts`
 
 ## 约束
 
-1. 用户 schema 固定放在 `user-apps/<app-name>/app.schema.ts`。
+1. 用户 schema 固定放在 `schemas/<app-name>/app.schema.ts`。
 2. 子目录名必须与 `app.name` 一致。
 3. `src/main.ts` 由平台入口直接 `createPlatformAppFromSchema(...)` + `EfsApp` 挂载。
 4. 不再需要用户自己写根组件。

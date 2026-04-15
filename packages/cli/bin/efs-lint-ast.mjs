@@ -12,7 +12,7 @@ if (!root) {
 }
 
 const appRoot = path.resolve(root)
-const userAppsDir = path.join(appRoot, 'user-apps')
+const userAppsDir = path.join(appRoot, 'schemas')
 const mainFile = path.join(appRoot, 'src', 'main.ts')
 const srcDir = path.join(appRoot, 'src')
 let failed = 0
@@ -38,7 +38,7 @@ function walkTemplate(node, callback) {
 
 const schemaFiles = walk(userAppsDir, (f) => f.endsWith(path.join('', 'app.schema.ts')))
 if (schemaFiles.length === 0) {
- console.error('✗ AST: missing user-apps/<app-name>/app.schema.ts')
+ console.error('✗ AST: missing schemas/<app-name>/app.schema.ts')
  failed += 1
 }
 

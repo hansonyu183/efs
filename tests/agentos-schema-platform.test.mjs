@@ -7,10 +7,10 @@ import vm from 'node:vm'
 import { createPlatformAppFromSchema } from '../packages/schema/dist/index.js'
 
 const repoRoot = path.resolve(new URL('..', import.meta.url).pathname)
-const appSchema = loadSchema('apps/agentos-demo/user-apps/agentos/app.schema.ts')
+const appSchema = loadSchema('apps/agentos-demo/schemas/agentos/app.schema.ts')
 
-test('agentos demo fixture exists and keeps schema under user-apps/<app-name>', () => {
-  const schemaPath = path.join(repoRoot, 'apps/agentos-demo/user-apps/agentos/app.schema.ts')
+test('agentos demo fixture exists and keeps schema under schemas/<app-name>', () => {
+  const schemaPath = path.join(repoRoot, 'apps/agentos-demo/schemas/agentos/app.schema.ts')
   const mainPath = path.join(repoRoot, 'apps/agentos-demo/src/main.ts')
   assert.ok(fs.existsSync(schemaPath))
   assert.ok(fs.existsSync(mainPath))

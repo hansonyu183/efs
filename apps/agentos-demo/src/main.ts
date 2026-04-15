@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { createPlatformAppFromSchema } from '@efs/schema'
 import { EfsApp } from '@efs/vue'
-import { appSchema } from '../user-apps/agentos/app.schema'
+import { appSchema } from '../schemas/agentos/app.schema'
 
 const app = createPlatformAppFromSchema(appSchema)
 const appName = appSchema.app.title || appSchema.app.name

@@ -4,7 +4,7 @@
 
 结论先说：
 
-- 业务侧优先维护 `user-apps/<app-name>/app.schema.ts`
+- 业务侧优先维护 `schemas/<app-name>/app.schema.ts`
 - business schema 只描述应用、认证、服务、资源 fields 与 operations
 - 页面 mode、默认 actions、基础字段展示规则优先由 EFS runtime 推导
 - 如需少量前端覆盖，只在 `ui` 层写最小 override
@@ -32,7 +32,7 @@
 标准 demo 已切到下面这条主路径：
 
 ```text
-user-apps/<app-name>/app.schema.ts
+schemas/<app-name>/app.schema.ts
   -> defineAppSchema(...)
   -> createPlatformAppFromSchema(...)
   -> EfsApp
@@ -40,7 +40,7 @@ user-apps/<app-name>/app.schema.ts
 
 参考文件：
 
-- `apps/standard-demo/user-apps/standard-demo/app.schema.ts`
+- `apps/standard-demo/schemas/standard-demo/app.schema.ts`
 - `apps/standard-demo/src/main.ts`
 
 ---
@@ -155,7 +155,7 @@ ui: {
 import { createApp } from 'vue'
 import { createPlatformAppFromSchema } from '@efs/schema'
 import { EfsApp } from '@efs/vue'
-import { appSchema } from '../user-apps/demo-app/app.schema'
+import { appSchema } from '../schemas/demo-app/app.schema'
 
 const app = createPlatformAppFromSchema(appSchema)
 const appName = appSchema.app.title || appSchema.app.name
@@ -191,7 +191,7 @@ createApp(EfsApp, {
 
 一个新项目至少要有：
 
-1. `user-apps/<app-name>/app.schema.ts`
+1. `schemas/<app-name>/app.schema.ts`
 2. schema -> runtime adapter 文件（如 `app-from-schema.ts`）
 3. 平台直接挂载 `EfsApp`
 4. 对应 API/service 配置

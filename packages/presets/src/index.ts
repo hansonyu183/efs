@@ -195,7 +195,7 @@ function buildMainEntry(appName: string) {
   return `import { createApp } from 'vue'
 import { createPlatformAppFromSchema } from '@efs/schema'
 import { EfsApp } from '@efs/vue'
-import { appSchema } from '../user-apps/${appName}/app.schema'
+import { appSchema } from '../schemas/${appName}/app.schema'
 
 const app = createPlatformAppFromSchema(appSchema)
 const appNameText = appSchema.app.title || appSchema.app.name

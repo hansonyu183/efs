@@ -17,4 +17,10 @@ export default defineConfig({
     outDir: resolve(rootDir, 'dist'),
     emptyOutDir: true,
   },
+  server: {
+    allowedHosts: ['agentos.bytesucceed.com'],
+  },
+  preview: {
+    allowedHosts: ['agentos.bytesucceed.com'],
+  },
 })

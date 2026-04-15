@@ -14,7 +14,7 @@ function runNode(args, cwd = repoRoot) {
 test('efs-scaffold generates schema-first app files', () => {
  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'efs-'))
  runNode(['packages/cli/bin/efs-scaffold.mjs', '--preset', 'workbench', '--name', 'WorkbenchApp', '--out', tmp])
- assert.ok(fs.existsSync(path.join(tmp, 'user-apps', 'workbench-app', 'app.schema.ts')))
+ assert.ok(fs.existsSync(path.join(tmp, 'schemas', 'workbench-app', 'app.schema.ts')))
  assert.ok(fs.existsSync(path.join(tmp, 'src', 'main.ts')))
 })
 

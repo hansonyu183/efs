@@ -32,7 +32,7 @@
 
 | 能力 | 当前成熟度 | 现状判断 | 是否适合作为标准资产 | 下一步重点 |
 |---|---|---|---|---|
-| `user-apps/<app-name>/app.schema.ts` + `defineAppSchema(...)` | P0 | 已成为正式 authoring 主入口 | 是 | 继续补更多标准示例与校验 |
+| `schemas/<app-name>/app.schema.ts` + `defineAppSchema(...)` | P0 | 已成为正式 authoring 主入口 | 是 | 继续补更多标准示例与校验 |
 | `inferResourceRuntime(...)` | P0 | 已能推导 CRUD/Report mode 与默认 actions | 是 | 继续补细粒度 field / action 推导 |
 | `createPlatformAppFromSchema(...)` | P0 | 已能把 schema 接到当前 Vue runtime | 是 | 继续缩小 legacy bridge 面积 |
 | 查询区 | P0 | 已具备标准查询头部和扩展位 | 是 | 继续补查询字段组合标准写法 |

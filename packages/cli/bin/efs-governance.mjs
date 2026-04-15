@@ -10,7 +10,7 @@ if (!root) {
 }
 
 const appRoot = path.resolve(root)
-const userAppsDir = path.join(appRoot, 'user-apps')
+const userAppsDir = path.join(appRoot, 'schemas')
 const mainFile = path.join(appRoot, 'src', 'main.ts')
 let failed = 0
 
@@ -28,7 +28,7 @@ function walk(dir, matcher) {
 
 const schemaFiles = walk(userAppsDir, (f) => f.endsWith(path.join('', 'app.schema.ts')))
 if (schemaFiles.length === 0) {
- console.error('✗ missing user-apps/<app-name>/app.schema.ts')
+ console.error('✗ missing schemas/<app-name>/app.schema.ts')
  failed += 1
 }
 
@@ -50,7 +50,7 @@ for (const file of schemaFiles) {
   failed += 1
  }
  if (!appNameMatch || appNameMatch[1] !== appDirName) {
-  console.error(`✗ ${path.relative(process.cwd(), file)} must live under user-apps/<app-name>/ where dir name matches app.name`)
+  console.error(`✗ ${path.relative(process.cwd(), file)} must live under schemas/<app-name>/ where dir name matches app.name`)
   failed += 1
  }
 }

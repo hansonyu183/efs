@@ -1,6 +1,6 @@
 # App Controller Contract
 
-> 状态：**legacy runtime contract**。当前 EFS 正式对外接入主线已经切到 schema-first：业务侧优先编写 `user-apps/<app-name>/user-apps/<app-name>/app.schema.ts`，通过 `defineAppSchema(...)` + `createPlatformAppFromSchema(...)` 进入 `EfsApp`。本文只保留给 runtime 兼容层、适配器实现和历史迁移参考，不再作为首选公开建模文档。正式入口见 `docs/standards/schema-first-authoring.md`。
+> 状态：**legacy runtime contract**。当前 EFS 正式对外接入主线已经切到 schema-first：业务侧优先编写 `schemas/<app-name>/app.schema.ts`，通过 `defineAppSchema(...)` + `createPlatformAppFromSchema(...)` 进入 `EfsApp`。本文只保留给 runtime 兼容层、适配器实现和历史迁移参考，不再作为首选公开建模文档。正式入口见 `docs/standards/schema-first-authoring.md`。
 
 ## 1. 当前定位
 
@@ -21,7 +21,7 @@
 当前正式主路径是：
 
 ```text
-user-apps/<app-name>/app.schema.ts
+schemas/<app-name>/app.schema.ts
   -> defineAppSchema(...)
   -> inferResourceRuntime(...)
   -> createPlatformAppFromSchema(...)
@@ -217,7 +217,7 @@ export const app = adaptAppSchemaToVueController({
 - “legacy controller 类型是首选公开建模入口”
 
 现在更准确的说法应该是：
-- 业务方最小需要写 `user-apps/<app-name>/user-apps/<app-name>/app.schema.ts`
+- 业务方最小需要写 `schemas/<app-name>/app.schema.ts`
 - `LegacyAppController` 是当前 runtime 兼容层输入
 
 ---
@@ -236,7 +236,7 @@ export const app = adaptAppSchemaToVueController({
 
 如果你正在维护 controller-first 项目，推荐迁移顺序：
 
-1. 先补 `user-apps/<app-name>/user-apps/<app-name>/app.schema.ts`
+1. 先补 `schemas/<app-name>/app.schema.ts`
 2. 把资源 fields 和 operations 收回 schema
 3. 用 `createPlatformAppFromSchema(...)` 接住现有 runtime
 4. 逐步删除业务侧手写 controller tree 细节
