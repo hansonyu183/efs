@@ -1,6 +1,6 @@
 <template>
- <main class="efs-auth-layout" :class="layoutClasses" :data-layout="props.layout">
-  <div class="efs-auth-layout__content" :style="{ maxWidth: props.maxWidth }">
+<main class="efs-auth-layout" :class="layoutClasses" data-layout="split">
+ <div class="efs-auth-layout__content" :style="contentStyle">
    <section v-if="showHeroArea" class="efs-auth-layout__hero">
     <div class="efs-auth-layout__hero-inner">
      <div v-if="$slots.brand || props.logoSrc || props.appName" class="efs-auth-layout__brand">
@@ -19,24 +19,22 @@
     </div>
    </section>
 
-   <section class="efs-auth-layout__panel-shell" :style="panelStyle">
+   <section class="efs-auth-layout__panel-shell">
     <header v-if="showActionsBar" class="efs-auth-layout__actions">
      <slot name="locale-action">
-      <LocaleSwitcher
-       v-if="props.showLocaleSwitcher"
-       :model-value="props.locale"
-       :label="resolvedLocaleLabel"
-       :options="resolvedLocaleOptions"
+     <LocaleSwitcher
+      :model-value="props.locale"
+      :label="resolvedLocaleLabel"
+      :options="resolvedLocaleOptions"
        @update:model-value="(value) => emit('update:locale', value)"
       />
      </slot>
 
      <slot name="theme-action">
-      <ThemeSwitcher
-       v-if="props.showThemeSwitcher"
-       :model-value="props.theme"
-       :label="resolvedThemeLabel"
-       :options="resolvedThemeOptions"
+     <ThemeSwitcher
+      :model-value="props.theme"
+      :label="resolvedThemeLabel"
+      :options="resolvedThemeOptions"
        @update:model-value="(value) => emit('update:theme', value)"
       />
      </slot>
@@ -90,17 +88,11 @@ type PageOption = {
 interface AuthPageProps {
  title?: string
  subtitle?: string
- maxWidth?: string
  appName?: string
  logoSrc?: string
  logoAlt?: string
- layout?: 'centered' | 'split'
- panelWidth?: string
  heroTitle?: string
  heroSubtitle?: string
- showHero?: boolean
- showLocaleSwitcher?: boolean
- showThemeSwitcher?: boolean
  locale?: string
  theme?: string
 }
@@ -108,17 +100,11 @@ interface AuthPageProps {
 const props = withDefaults(defineProps<AuthPageProps>(), {
  title: '',
  subtitle: '',
- maxWidth: '1120px',
  appName: '',
  logoSrc: '',
  logoAlt: '',
- layout: 'centered',
- panelWidth: '460px',
  heroTitle: '',
  heroSubtitle: '',
- showHero: true,
- showLocaleSwitcher: false,
- showThemeSwitcher: false,
  locale: 'zh-CN',
  theme: 'light',
 })
@@ -131,8 +117,8 @@ const emit = defineEmits<{
 const slots = useSlots()
 const globalAlerts = useAppAlerts()
 const i18nContext = inject(EFS_I18N_CONTEXT, null)
-const showHeroArea = computed(() => props.showHero && (Boolean(slots.hero) || Boolean(slots.brand) || Boolean(props.logoSrc) || Boolean(props.appName) || Boolean(props.heroTitle) || Boolean(props.heroSubtitle) || props.layout === 'split'))
-const showActionsBar = computed(() => props.showLocaleSwitcher || props.showThemeSwitcher || Boolean(slots.actions) || Boolean(slots['locale-action']) || Boolean(slots['theme-action']))
+const showHeroArea = computed(() => Boolean(slots.hero) || Boolean(slots.brand) || Boolean(props.logoSrc) || Boolean(props.appName) || Boolean(props.heroTitle) || Boolean(props.heroSubtitle))
+const showActionsBar = computed(() => Boolean(slots.actions) || Boolean(slots['locale-action']) || Boolean(slots['theme-action']) || true)
 const showAlertsRegion = computed(() => Boolean(slots.alerts) || globalAlerts.hasItems.value)
 const resolvedLocaleLabel = computed(() => resolveCopy('efs.shell.localeLabel', '语言'))
 const resolvedThemeLabel = computed(() => resolveCopy('efs.shell.themeLabel', '主题'))
@@ -144,10 +130,10 @@ const resolvedThemeOptions = computed<PageOption[]>(() => [
  { label: resolveCopy('efs.themeOptions.light', '明'), value: 'light' },
  { label: resolveCopy('efs.themeOptions.dark', '暗'), value: 'dark' },
 ])
-const panelStyle = computed(() => ({ '--efs-auth-panel-width': props.panelWidth }))
+const contentStyle = computed(() => ({ maxWidth: '1120px', '--efs-auth-panel-width': '460px' }))
 const layoutClasses = computed(() => ({
- 'efs-auth-layout--split': props.layout === 'split',
- 'efs-auth-layout--centered': props.layout === 'centered',
+ 'efs-auth-layout--split': true,
+ 'efs-auth-layout--centered': false,
 }))
 
 function resolveCopy(key: string, fallback: string) {

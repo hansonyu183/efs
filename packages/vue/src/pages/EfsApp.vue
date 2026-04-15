@@ -4,15 +4,12 @@
   :app-name="props.app.appName || resolvedBrandTitle"
   :title="resolvedLoginTitle"
   :subtitle="resolvedLoginSubtitle"
-  :hero-title="resolvedLoginHeroTitle"
-  :hero-subtitle="resolvedLoginHeroSubtitle"
-  :locale="locale"
-  :theme="theme"
-  layout="split"
-  show-locale-switcher
-  show-theme-switcher
-  @update:locale="handleLocaleUpdate"
-  @update:theme="handleThemeUpdate"
+ :hero-title="resolvedLoginHeroTitle"
+ :hero-subtitle="resolvedLoginHeroSubtitle"
+ :locale="locale"
+ :theme="theme"
+ @update:locale="handleLocaleUpdate"
+ @update:theme="handleThemeUpdate"
  >
   <form class="efs-app__login-form" @submit.prevent="handleLogin">
    <AppField :label="resolvedLoginNameLabel">
@@ -56,10 +53,9 @@
  <MainPage
   v-else
   :title="resolvedMainTitle"
-  :app-name="props.app.appName || ''"
-  :brand-title="resolvedBrandTitle"
-  :brand-subtitle="resolvedBrandSubtitle"
-  :org-code="currentOrgCode"
+ :app-name="props.app.appName || ''"
+ :brand-title="resolvedBrandTitle"
+ :brand-subtitle="resolvedBrandSubtitle"
   :current-org-code="currentOrgCode"
   :org-options="authOrgOptions"
   :locale="locale"

@@ -1,5 +1,5 @@
 <template>
- <div class="efs-main-layout" :class="layoutClasses" :data-dense="props.dense ? 'true' : 'false'">
+ <div class="efs-main-layout" :class="layoutClasses" data-dense="false">
   <aside
    v-if="shouldRenderSidebar"
    class="efs-main-layout__sidebar"
@@ -75,7 +75,7 @@
        </span>
        <span class="efs-main-layout__visually-hidden">{{ resolvedOrgLabel }}</span>
        <AppSelect
-        :model-value="props.currentOrgCode || props.orgCode"
+        :model-value="props.currentOrgCode"
         :options="props.orgOptions"
         @update:model-value="(value) => emit('update:org', value)"
        />
@@ -236,9 +236,6 @@ interface MainPageProps {
  title?: string
  subtitle?: string
  brandTitle?: string
- orgCode?: string
- showSidebar?: boolean
- dense?: boolean
  appName?: string
  brandSubtitle?: string
  topbarSubtitle?: string
@@ -253,16 +250,12 @@ interface MainPageProps {
  agentBusy?: boolean
  agentInput?: string
  agentSessionsOpen?: boolean
- iconOnly?: boolean
 }
 
 const props = withDefaults(defineProps<MainPageProps>(), {
  title: '',
  subtitle: '',
  brandTitle: '',
- orgCode: '',
- showSidebar: true,
- dense: false,
  appName: '',
  brandSubtitle: '',
  topbarSubtitle: '',
@@ -277,7 +270,6 @@ const props = withDefaults(defineProps<MainPageProps>(), {
  agentBusy: false,
  agentInput: '',
  agentSessionsOpen: false,
- iconOnly: true,
 })
 
 const emit = defineEmits<{
@@ -316,11 +308,11 @@ watch(() => props.agentSessionsOpen, (value) => {
  agentSessionsPanelOpen.value = value
 })
 
-const shouldRenderSidebar = computed(() => props.showSidebar || Boolean(slots.sidebar))
+const shouldRenderSidebar = computed(() => Boolean(slots.sidebar))
 const resolvedTitle = computed(() => props.title || props.appName || 'Workbench')
-const resolvedSubtitle = computed(() => props.subtitle || props.topbarSubtitle || props.userSubtitle || props.orgCode)
+const resolvedSubtitle = computed(() => props.subtitle || props.topbarSubtitle || props.userSubtitle || props.currentOrgCode)
 const resolvedBrandTitle = computed(() => props.brandTitle || props.appName || 'Workbench')
-const resolvedBrandSubtitle = computed(() => props.brandSubtitle || props.userSubtitle || props.subtitle || props.orgCode)
+const resolvedBrandSubtitle = computed(() => props.brandSubtitle || props.userSubtitle || props.subtitle || props.currentOrgCode)
 const resolvedMobileMenuLabel = computed(() => resolveCopy('efs.shell.mobileMenuLabel', '切换导航'))
 const resolvedOrgLabel = computed(() => resolveCopy('efs.shell.orgLabel', '组织'))
 const resolvedLocaleLabel = computed(() => resolveCopy('efs.shell.localeLabel', '语言'))
