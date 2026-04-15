@@ -8,7 +8,7 @@
 
 - **不是普通组件库**：EFS 的核心产物是 `EfsApp`、资源运行时、认证与导航壳，而不是零散 UI 组件集合。
 - **企业只提供 schema 目录**：主入口是 `apps/<app-name>/schemas/app.schema.ts`，其中描述应用信息、认证、服务、资源 fields 与 operations；EFS 负责把这些输入编译/装配成运行时。
-- **平台内置入口与服务接线**：用户不再需要自己写根组件；平台入口会直接加载 schema，并基于 `services + operations` 自动接线。
+- **平台内置入口与服务接线**：用户不再需要自己写根组件；平台入口会直接加载 schema，并通过 `createPlatformEfsAppPropsFromSchema(...)` 把 app shell、i18n 与 `services + operations` 自动装配到 `EfsApp`。
 - **controller-first 已降级**：旧的 controller tree 仍作为内部 runtime 兼容层保留，但不再是推荐的对外接入方式。
 
 ## 仓库内容

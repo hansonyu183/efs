@@ -17,6 +17,14 @@ export function createPlatformAppFromSchema(schema, options = {}) {
         resources,
     });
 }
+export function createPlatformEfsAppPropsFromSchema(schema, options = {}) {
+    return {
+        app: createPlatformAppFromSchema(schema, options),
+        appName: schema.app.title || schema.app.name,
+        brandIcon: schema.app.brandIcon,
+        i18n: resolvePlatformI18n(schema),
+    };
+}
 function resolvePrimaryService(schema, serviceKey) {
     if (!schema.services)
         return undefined;
@@ -25,6 +33,17 @@ function resolvePrimaryService(schema, serviceKey) {
     if (schema.services.api)
         return schema.services.api;
     return Object.values(schema.services).find((service) => service.kind === 'http' || service.kind === 'gateway' || service.kind === 'mock');
+}
+function resolvePlatformI18n(schema) {
+    const locale = schema.i18n?.locale ?? schema.app.locale;
+    const fallbackLocale = schema.i18n?.fallbackLocale ?? schema.app.locale ?? schema.i18n?.locale;
+    if (!locale && !fallbackLocale && !schema.i18n?.messages)
+        return undefined;
+    return {
+        locale,
+        fallbackLocale,
+        messages: schema.i18n?.messages,
+    };
 }
 function buildAuthAdapter(schema, baseUrl, fetcher, getCurrentOrgCode, setCurrentOrgCode) {
     const auth = schema.auth;

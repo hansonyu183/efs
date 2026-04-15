@@ -19,6 +19,7 @@
 - `@efs/schema`
   - `defineAppSchema(...)`
   - `createPlatformAppFromSchema(...)`
+  - `createPlatformEfsAppPropsFromSchema(...)`
   - `inferResourceRuntime(...)`
 - `@efs/vue`
   - `EfsApp`
@@ -34,7 +35,7 @@
 ```text
 apps/<app-name>/schemas/app.schema.ts
   -> defineAppSchema(...)
-  -> createPlatformAppFromSchema(...)
+  -> createPlatformEfsAppPropsFromSchema(...)
   -> EfsApp
 ```
 
@@ -52,6 +53,7 @@ apps/<app-name>/schemas/app.schema.ts
 - `app`：应用 id、标题、默认入口等
 - `auth`：登录/登出/组织切换等认证契约
 - `services`：本地 dev 服务与 API 服务信息
+- `i18n`：schema 级 locale / fallbackLocale / messages
 - `domains[].resources[]`：资源 fields 与 operations
 
 资源层当前核心结构：
@@ -153,20 +155,14 @@ ui: {
 
 ```ts
 import { createApp } from 'vue'
-import { createPlatformAppFromSchema } from '@efs/schema'
+import { createPlatformEfsAppPropsFromSchema } from '@efs/schema'
 import { EfsApp } from '@efs/vue'
 import { appSchema } from '../schemas/app.schema'
 
-const app = createPlatformAppFromSchema(appSchema)
-const appName = appSchema.app.title || appSchema.app.name
-
-createApp(EfsApp, {
-  app,
-  appName,
-}).mount('#app')
+createApp(EfsApp, createPlatformEfsAppPropsFromSchema(appSchema)).mount('#app')
 ```
 
-平台会根据 schema 中声明的 `services + operations` 自动生成默认 HTTP 接线；业务主 authoring 面就是 schema 目录本身。
+平台会根据 schema 中声明的 `services + operations` 自动生成默认 HTTP 接线，并把 schema 里的 `i18n` 一并装配到 `EfsApp`；业务主 authoring 面就是 schema 目录本身。
 
 ---
 

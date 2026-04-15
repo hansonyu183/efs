@@ -121,6 +121,7 @@ interface EfsAppProps {
 
 const props = defineProps<EfsAppProps>()
 
+const initialLocale = computed(() => props.i18n?.locale || 'zh-CN')
 const locale = ref('zh-CN')
 const theme = ref<'light' | 'dark'>('dark')
 const loginName = ref('')
@@ -188,6 +189,10 @@ const showAuthPage = computed(() => !isAuthenticated.value || isLoginRoute.value
 const supportsOrg = computed(() => Boolean(authRuntime.getOrgs || authRuntime.getCurrentOrgCode || authRuntime.setCurrentOrgCode))
 const showOrgSelectField = computed(() => supportsOrg.value && authOrgOptions.value.length > 0)
 const showOrgInputField = computed(() => supportsOrg.value && authOrgOptions.value.length === 0)
+
+watch(initialLocale, (value) => {
+ locale.value = value
+}, { immediate: true })
 
 watch(authStatus, (value) => {
  if (value !== 'expired') return

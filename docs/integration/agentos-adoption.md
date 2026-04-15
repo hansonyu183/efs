@@ -80,16 +80,11 @@ export const appSchema = defineAppSchema({
 
 ```ts
 import { createApp } from 'vue'
-import { createPlatformAppFromSchema } from '@efs/schema'
+import { createPlatformEfsAppPropsFromSchema } from '@efs/schema'
 import { EfsApp } from '@efs/vue'
 import { appSchema } from '../schemas/app.schema'
 
-const app = createPlatformAppFromSchema(appSchema)
-
-createApp(EfsApp, {
-  app,
-  appName: appSchema.app.title || appSchema.app.name,
-}).mount('#app')
+createApp(EfsApp, createPlatformEfsAppPropsFromSchema(appSchema)).mount('#app')
 ```
 
 业务侧应优先消费稳定入口：根入口只用于 `EfsApp`；schema authoring / adapter 从 `@efs/schema` 引入；运行时 helper 仅在确有需要时从文档约定的 `controller`、`shared` 子路径导入；不要直接依赖 `pages/*`、`panels/*`、`controls/*` 这类原始源码路径。

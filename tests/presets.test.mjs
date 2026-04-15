@@ -11,6 +11,6 @@ test('scaffoldPreset returns schema file and platform bootstrap content', () => 
  const generated = scaffoldPreset('crud', 'Customer App')
  assert.match(generated.appSchema, /defineAppSchema\(/)
  assert.match(generated.appSchema, /name: 'customer-app'/)
- assert.match(generated.mainEntry, /createPlatformAppFromSchema/)
+ assert.match(generated.mainEntry, /createPlatformEfsAppPropsFromSchema/)
  assert.match(generated.mainEntry, /schemas\/app\.schema/)
 })

@@ -4,7 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import vm from 'node:vm'
 
-import { createPlatformAppFromSchema } from '../packages/schema/dist/index.js'
+import { createPlatformAppFromSchema, createPlatformEfsAppPropsFromSchema } from '../packages/schema/dist/index.js'
 
 const repoRoot = path.resolve(new URL('..', import.meta.url).pathname)
 const appSchema = loadSchema('apps/agentos/schemas/app.schema.ts')
@@ -15,6 +15,23 @@ test('agentos demo fixture exists and keeps schema under apps/<app-name>/schemas
   assert.ok(fs.existsSync(schemaPath))
   assert.ok(fs.existsSync(mainPath))
   assert.equal(appSchema.app.name, 'agentos')
+})
+
+test('schema i18n is formalized and platform shell props expose it for EfsApp bootstrap', () => {
+  assert.equal(appSchema.i18n.fallbackLocale, 'zh-CN')
+  assert.equal(appSchema.i18n.messages['zh-CN'].efs.auth.title, '登录到 AgentOS')
+  assert.equal(appSchema.i18n.messages['en-US'].efs.auth.title, 'Sign in to AgentOS')
+
+  const shellProps = createPlatformEfsAppPropsFromSchema(appSchema, {
+    fetcher: async () => json({ accessToken: 'noop-token' }),
+  })
+
+  assert.equal(shellProps.appName, 'AgentOS')
+  assert.equal(shellProps.i18n.locale, 'zh-CN')
+  assert.equal(shellProps.i18n.fallbackLocale, 'zh-CN')
+  assert.equal(shellProps.i18n.messages['zh-CN'].efs.auth.title, '登录到 AgentOS')
+  assert.equal(shellProps.i18n.messages['en-US'].efs.auth.title, 'Sign in to AgentOS')
+  assert.equal(shellProps.app.main.defaultPath, 'admin/user')
 })
 
 test('createPlatformAppFromSchema maps AgentOS auth, CRUD, and workflow operations onto the platform runtime', async () => {

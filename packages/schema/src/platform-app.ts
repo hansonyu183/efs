@@ -1,10 +1,17 @@
-import type { EfsAppSchema } from './app/app-schema.js'
+import type { EfsAppI18nSchema, EfsAppSchema } from './app/app-schema.js'
 import type { EfsEndpointSchema, EfsResourceSchema } from './resource/resource-schema.js'
 import { adaptAppSchemaToVueController, type SchemaAuthAdapter, type SchemaOperationAdapterMap, type SchemaResourceAdapters } from './adapter/vue-controller.js'
 
 export interface CreatePlatformAppFromSchemaOptions {
   fetcher?: typeof fetch
   serviceKey?: string
+}
+
+export interface PlatformEfsAppProps {
+  app: ReturnType<typeof createPlatformAppFromSchema>
+  appName: string
+  brandIcon?: string
+  i18n?: EfsAppI18nSchema
 }
 
 export function createPlatformAppFromSchema(schema: EfsAppSchema, options: CreatePlatformAppFromSchemaOptions = {}) {
@@ -29,11 +36,34 @@ export function createPlatformAppFromSchema(schema: EfsAppSchema, options: Creat
   })
 }
 
+export function createPlatformEfsAppPropsFromSchema(
+  schema: EfsAppSchema,
+  options: CreatePlatformAppFromSchemaOptions = {},
+): PlatformEfsAppProps {
+  return {
+    app: createPlatformAppFromSchema(schema, options),
+    appName: schema.app.title || schema.app.name,
+    brandIcon: schema.app.brandIcon,
+    i18n: resolvePlatformI18n(schema),
+  }
+}
+
 function resolvePrimaryService(schema: EfsAppSchema, serviceKey?: string) {
   if (!schema.services) return undefined
   if (serviceKey && schema.services[serviceKey]) return schema.services[serviceKey]
   if (schema.services.api) return schema.services.api
   return Object.values(schema.services).find((service) => service.kind === 'http' || service.kind === 'gateway' || service.kind === 'mock')
+}
+
+function resolvePlatformI18n(schema: EfsAppSchema): EfsAppI18nSchema | undefined {
+  const locale = schema.i18n?.locale ?? schema.app.locale
+  const fallbackLocale = schema.i18n?.fallbackLocale ?? schema.app.locale ?? schema.i18n?.locale
+  if (!locale && !fallbackLocale && !schema.i18n?.messages) return undefined
+  return {
+    locale,
+    fallbackLocale,
+    messages: schema.i18n?.messages,
+  }
 }
 
 function buildAuthAdapter(

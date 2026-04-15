@@ -24,7 +24,7 @@ node packages/cli/bin/efs-scaffold.mjs --preset crud --name CustomerApp --out ./
 
 1. 用户 schema 固定放在 `apps/<app-name>/schemas/app.schema.ts`。
 2. 子目录名必须与 `app.name` 一致。
-3. `src/main.ts` 由平台入口直接 `createPlatformAppFromSchema(...)` + `EfsApp` 挂载。
+3. `src/main.ts` 由平台入口直接 `createPlatformEfsAppPropsFromSchema(...)` + `EfsApp` 挂载，并自动接住 schema 里的 i18n。
 4. 不再需要用户自己写根组件。
 
 一句话：

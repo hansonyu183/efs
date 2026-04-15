@@ -36,6 +36,35 @@ export const appSchema = defineAppSchema({
       workingDir: '../../../go-dev/AgentOS',
     },
   },
+  i18n: {
+    fallbackLocale: 'zh-CN',
+    messages: {
+      'zh-CN': {
+        efs: {
+          brand: {
+            title: 'AgentOS',
+          },
+          auth: {
+            title: '登录到 AgentOS',
+            subtitle: '请输入账号凭证继续访问平台。',
+            submitLabel: '登录',
+          },
+        },
+      },
+      'en-US': {
+        efs: {
+          brand: {
+            title: 'AgentOS',
+          },
+          auth: {
+            title: 'Sign in to AgentOS',
+            subtitle: 'Enter your credentials to continue.',
+            submitLabel: 'Sign in',
+          },
+        },
+      },
+    },
+  },
   domains: [
     {
       key: 'admin',

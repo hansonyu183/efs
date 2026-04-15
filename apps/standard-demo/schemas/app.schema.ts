@@ -45,6 +45,33 @@ export const appSchema = defineAppSchema({
       workingDir: '../agentos-server',
     },
   },
+  i18n: {
+    fallbackLocale: 'zh-CN',
+    messages: {
+      'zh-CN': {
+        efs: {
+          brand: {
+            title: 'Enterprise Frontend Standard Demo',
+          },
+          auth: {
+            title: '登录到标准演示平台',
+            subtitle: '请输入账号凭证继续访问标准演示。',
+          },
+        },
+      },
+      'en-US': {
+        efs: {
+          brand: {
+            title: 'Enterprise Frontend Standard Demo',
+          },
+          auth: {
+            title: 'Sign in to the standard demo',
+            subtitle: 'Enter your credentials to continue.',
+          },
+        },
+      },
+    },
+  },
   domains: [
     {
       key: 'crm',

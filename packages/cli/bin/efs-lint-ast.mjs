@@ -53,8 +53,8 @@ if (!fs.existsSync(mainFile)) {
  failed += 1
 } else {
  const source = fs.readFileSync(mainFile, 'utf8')
- if (!/createPlatformAppFromSchema/.test(source)) {
-  console.error('✗ AST: src/main.ts missing createPlatformAppFromSchema(...)')
+ if (!/createPlatformEfsAppPropsFromSchema/.test(source)) {
+  console.error('✗ AST: src/main.ts missing createPlatformEfsAppPropsFromSchema(...)')
   failed += 1
  }
 }

@@ -1,7 +1,13 @@
-import type { EfsAppSchema } from './app/app-schema.js';
+import type { EfsAppI18nSchema, EfsAppSchema } from './app/app-schema.js';
 export interface CreatePlatformAppFromSchemaOptions {
     fetcher?: typeof fetch;
     serviceKey?: string;
+}
+export interface PlatformEfsAppProps {
+    app: ReturnType<typeof createPlatformAppFromSchema>;
+    appName: string;
+    brandIcon?: string;
+    i18n?: EfsAppI18nSchema;
 }
 export declare function createPlatformAppFromSchema(schema: EfsAppSchema, options?: CreatePlatformAppFromSchemaOptions): {
     kind: "app";
@@ -150,3 +156,4 @@ export declare function createPlatformAppFromSchema(schema: EfsAppSchema, option
         }[];
     };
 };
+export declare function createPlatformEfsAppPropsFromSchema(schema: EfsAppSchema, options?: CreatePlatformAppFromSchemaOptions): PlatformEfsAppProps;

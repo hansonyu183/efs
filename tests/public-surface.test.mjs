@@ -13,14 +13,19 @@ test('standard demo is schema-first while legacy controller fixture remains isol
  const legacySource = read('apps/standard-demo/src/legacy-controller-app.ts')
  const schemaSource = read('apps/standard-demo/schemas/app.schema.ts')
  const mainSource = read('apps/standard-demo/src/main.ts')
+ const schemaIndex = read('packages/schema/src/index.ts')
+ const schemaTypes = read('packages/schema/src/app/app-schema.ts')
 
  assert.match(legacySource, /import type \{ LegacyAppController, LegacyDomainController, LegacyResController, ResRow, ResQueryParams \} from '@efs\/vue\/legacy'/)
  assert.match(schemaSource, /from '@efs\/schema'/)
  assert.match(schemaSource, /defineAppSchema\(/)
- assert.match(mainSource, /createPlatformAppFromSchema/)
- assert.match(mainSource, /createApp\(EfsApp/)
+ assert.match(schemaSource, /i18n:/)
+ assert.match(mainSource, /createPlatformEfsAppPropsFromSchema/)
+ assert.match(mainSource, /createApp\(EfsApp, createPlatformEfsAppPropsFromSchema\(appSchema\)\)/)
  assert.match(mainSource, /schemas\/app\.schema/)
  assert.doesNotMatch(mainSource, /DemoRoot/)
+ assert.match(schemaIndex, /createPlatformEfsAppPropsFromSchema/)
+ assert.match(schemaTypes, /i18n\?: EfsAppI18nSchema/)
 })
 
 test('docs avoid raw component package imports and use lowercase navigation-menu helper path', () => {
