@@ -3,6 +3,13 @@ import type { EfsAppSchema } from '../app/app-schema.js'
 import type { EfsResourceSchema } from '../resource/resource-schema.js'
 import type { EfsResourceUiSchema } from '../resource/ui-schema.js'
 
+/**
+ * Bridge schema-first app/resource input into the current Vue runtime's
+ * legacy controller contract. This adapter is the compatibility seam between
+ * the public authoring model (`app.schema.ts`) and the existing controller-
+ * shaped runtime consumed by `@efs/vue`.
+ */
+
 export interface SchemaAuthAdapter {
   login: (input: { name: string; pwd: string; orgCode?: string }) => Promise<{ accessToken: string; refreshToken?: string; expiresAt?: string; tokenType?: string }> | { accessToken: string; refreshToken?: string; expiresAt?: string; tokenType?: string }
   logout?: () => Promise<void> | void
