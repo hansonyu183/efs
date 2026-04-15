@@ -88,14 +88,14 @@
  >
 
   <template #sidebar>
-   <EfsSidebarNav :items="sidebarMenus" :current-path="route.path" />
+   <EfsSidebarNav :items="sidebarMenus" :current-path="currentPath" @navigate="handleNavigate" />
   </template>
 
   <slot v-if="$slots.default" />
   <ResolvedResPage
    v-else-if="runtime"
    :runtime="runtime"
-   :path="route.path"
+   :path="currentPath"
    :crud-subtitle="resolvedCrudSubtitle"
    :report-subtitle="resolvedReportSubtitle"
    :unsupported-subtitle="resolvedUnsupportedSubtitle"
@@ -108,12 +108,12 @@
 
 <script setup lang="ts">
 import { computed, provide, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import type { AppController, ResCrudRuntimeOptions, ResReportRuntimeOptions } from '../controller/index'
 import { flattenAppMenuNodes } from '../controller/path-helpers'
 import { resolveResRuntime } from '../controller/runtime'
 import type { EfsI18nConfig } from '../shared/efs-i18n'
 import { EFS_I18N_CONTEXT, mergeEfsI18nConfigs, resolveEfsI18nLabel } from '../shared/efs-i18n'
+import { normalizeEfsPath, useEfsNavigation } from '../shared/navigation-runtime'
 import type { FlatMenuNode } from '../shared/navigation-menu'
 import AppButton from '../controls/AppButton.vue'
 import AppField from '../controls/AppField.vue'
@@ -146,8 +146,6 @@ const emit = defineEmits<{
  (e: 'update:theme', value: 'light' | 'dark'): void
 }>()
 
-const route = useRoute()
-const router = useRouter()
 const shell = computed(() => props.app.shell ?? {})
 const shellBrand = computed(() => shell.value.brand ?? {})
 const shellAuthPage = computed(() => shell.value.authPage ?? {})
@@ -162,7 +160,7 @@ provide(EFS_I18N_CONTEXT, {
 })
 
 const sidebarMenus = computed<FlatMenuNode[]>(() => flattenAppMenuNodes(props.app))
-const runtime = computed(() => resolveResRuntime(props.app, route.path, props.runtimeOptions))
+const runtime = computed(() => resolveResRuntime(props.app, currentPath.value, props.runtimeOptions))
 const resolvedBrandTitle = computed(() => resolveCopy('efs.brand.title', shellBrand.value.title || props.app.appName || ''))
 const resolvedBrandSubtitle = computed(() => resolveCopy('efs.brand.subtitle', shellBrand.value.subtitle || ''))
 const currentOrgCode = computed(() => props.app.auth.orgCode?.value || '')
@@ -203,9 +201,16 @@ const resolvedThemeOptions = computed(() => [
  { title: resolveCopy('efs.themeOptions.light', 'Light'), value: 'light' },
  { title: resolveCopy('efs.themeOptions.dark', 'Dark'), value: 'dark' },
 ])
-const normalizedPath = computed(() => route.path.replace(/^\/+|\/+$/g, ''))
-const isLoginRoute = computed(() => normalizedPath.value === 'login')
 const isAuthenticated = computed(() => props.app.auth.authenticated?.value ?? true)
+const firstRuntimePath = computed(() => sidebarMenus.value.find((item) => item.type === 'item')?.path ?? '')
+const nav = useEfsNavigation({
+ initialPath: props.app.main.currentPath?.value ? `/${props.app.main.currentPath.value}` : (isAuthenticated.value ? firstRuntimePath.value : '/login'),
+ loginPath: '/login',
+ firstResourcePath: firstRuntimePath.value,
+})
+const currentPath = computed(() => nav.currentPath.value)
+const normalizedPath = computed(() => nav.normalizedPath.value)
+const isLoginRoute = computed(() => nav.isLoginRoute.value)
 const showAuthPage = computed(() => !isAuthenticated.value || isLoginRoute.value)
 const authBusy = computed(() => props.app.auth.busy?.value ?? false)
 const authError = computed(() => props.app.auth.error?.value ?? '')
@@ -216,17 +221,20 @@ const authOrgOptions = computed(() => (props.app.auth.orgOptions ?? []).map((opt
 })))
 const showOrgSelectField = computed(() => Boolean(props.app.auth.orgCode) && authOrgOptions.value.length > 0)
 const showOrgInputField = computed(() => Boolean(props.app.auth.orgCode) && authOrgOptions.value.length === 0)
-const firstRuntimePath = computed(() => sidebarMenus.value.find((item) => item.type === 'item')?.path ?? '')
-
-watch(() => route.path, (value) => {
+watch(() => currentPath.value, (value) => {
  if (!props.app.main.currentPath) return
  const normalized = value.replace(/^\/+/, '')
  props.app.main.currentPath.value = (normalized.includes('/') ? normalized : '') as never
 }, { immediate: true })
 
-watch([isAuthenticated, isLoginRoute, firstRuntimePath], async ([authenticated, loginRoute, firstPath]) => {
- if (authenticated && loginRoute && firstPath && route.path !== firstPath) {
-  await router.replace(firstPath)
+watch([isAuthenticated, isLoginRoute, firstRuntimePath, currentPath], ([authenticated, loginRoute, firstPath, path]) => {
+ if (!authenticated && path !== '/login') {
+  nav.replace('/login')
+  return
+ }
+
+ if (authenticated && firstPath && (loginRoute || path === '/')) {
+  if (path !== firstPath) nav.replace(firstPath)
  }
 }, { immediate: true })
 
@@ -245,16 +253,23 @@ function handleOrgCodeUpdate(value: string) {
  props.app.auth.orgCode.value = value
 }
 
+function handleNavigate(path: string) {
+ nav.push(path)
+}
+
 function resolveCopy(key: string, fallback: string) {
  return resolveEfsI18nLabel({ key, config: mergedI18n.value }) || fallback
 }
 
 async function handleLogin() {
  await props.app.auth.login()
+ const target = firstRuntimePath.value || '/'
+ if (target) nav.replace(normalizeEfsPath(target))
 }
 
 async function handleLogout() {
  await props.app.auth.logout?.()
+ nav.replace('/login')
 }
 </script>
 

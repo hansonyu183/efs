@@ -41,7 +41,7 @@ test('publishable package manifests export built dist entries instead of src ent
  assert.equal(vuePkg.exports['./shared/navigation-menu'].default, './dist/shared/navigation-menu.js')
  assert.equal(vuePkg.exports['./shared/navigation-menu'].types, './dist/shared/navigation-menu.d.ts')
  assert.equal(vuePkg.peerDependencies.vue, '^3.5.13')
- assert.equal(vuePkg.peerDependencies['vue-router'], '^4.5.1')
+ assert.ok(!('vue-router' in vuePkg.peerDependencies))
  assert.deepEqual(vuePkg.files, ['dist'])
 })
 
