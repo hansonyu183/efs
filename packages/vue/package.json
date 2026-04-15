@@ -8,6 +8,7 @@
   ".": "./src/index.mjs",
   "./components/*": "./src/components/*",
   "./shared/*": "./src/shared/*",
+  "./controller/*": "./src/controller/*",
   "./types": "./src/types.mjs"
  },
  "files": [

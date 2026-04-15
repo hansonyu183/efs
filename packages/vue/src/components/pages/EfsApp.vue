@@ -88,8 +88,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import type { AppController, ResCrudRuntimeOptions, ResReportRuntimeOptions } from '@efs/vue/shared/AppController'
-import { flattenAppMenuNodes, resolveResRuntime } from '@efs/vue/shared/AppController'
+import type { AppController, ResCrudRuntimeOptions, ResReportRuntimeOptions } from '../../controller/AppController'
+import { flattenAppMenuNodes, resolveResRuntime } from '../../controller/AppController'
 import type { FlatMenuNode } from '../../shared/NavigationMenu'
 import AppButton from '../controls/AppButton.vue'
 import AppField from '../controls/AppField.vue'

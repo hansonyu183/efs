@@ -5,12 +5,12 @@ import type {
  DomainController,
  MainController,
  ResController,
-} from '../../../../packages/vue/src/shared/AppController'
+} from '../../../../packages/vue/src/controller/AppController'
 import type { FlatMenuNode } from '../../../../packages/vue/src/shared/NavigationMenu'
 import {
  flattenAppMenuNodes,
  resolveResRuntime,
-} from '../../../../packages/vue/src/shared/AppController'
+} from '../../../../packages/vue/src/controller/AppController'
 import { useAppAlerts } from '../../../../packages/vue/src/shared/app-alerts'
 
 type User = {
