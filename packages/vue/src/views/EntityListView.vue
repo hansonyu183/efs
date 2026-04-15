@@ -142,13 +142,13 @@
     </template>
     <template #default="slotProps">
      <div v-if="resolvedLoading" class="efs-resourcecrudpage__state-wrap">
-      <LoadingState title="正在加载数据" message="请稍候，资源列表正在同步。" />
+      <LoadingState variant="resource" />
      </div>
      <div v-else-if="resolvedError" class="efs-resourcecrudpage__state-wrap">
-      <ErrorState title="加载失败" :message="resolvedErrorMessage" />
+      <ErrorState variant="resource" :detail="resolvedErrorMessage" />
      </div>
      <div v-else-if="resolvedItems.length === 0" class="efs-resourcecrudpage__state-wrap">
-      <EmptyState title="暂无数据" description="当前没有可展示的资源记录。" />
+      <EmptyState variant="resource" />
      </div>
      <DataTable
       v-else
@@ -157,11 +157,9 @@
       :rows="resolvedItems"
       :clickable="props.clickableRows"
       :visible-column-keys="slotProps.visibleColumnKeys"
-      actions-label="操作"
       :row-actions="resolvedRowActions"
       :selectable="props.selectableRows"
       :selected-row-keys="localSelectedRowKeys"
-      selection-label="选择行"
       @row-click="handleRowClick"
       @update:selected-row-keys="handleSelectedRowKeysChange"
      />

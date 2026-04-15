@@ -1,9 +1,9 @@
 <template>
  <section class="efs-emptystate">
-  <div class="efs-emptystate__icon">{{ props.icon }}</div>
+  <div class="efs-emptystate__icon">{{ resolvedIcon }}</div>
   <div class="efs-emptystate__body">
-   <strong class="efs-emptystate__title">{{ props.title }}</strong>
-   <p class="efs-emptystate__description">{{ props.description }}</p>
+   <strong class="efs-emptystate__title">{{ resolvedTitle }}</strong>
+   <p class="efs-emptystate__description">{{ resolvedDescription }}</p>
   </div>
   <div v-if="$slots.actions" class="efs-emptystate__actions">
    <slot name="actions" />
@@ -12,19 +12,23 @@
 </template>
 
 <script setup lang="ts">
+import { computed, getCurrentInstance } from 'vue'
+import { resolveOptionalLabel } from '../shared/label-resolver'
+
 defineOptions({ name: 'EmptyState' })
 
 interface EmptyStateProps {
- title?: string
- description?: string
- icon?: string
+ variant?: 'default' | 'resource' | 'report'
 }
 
 const props = withDefaults(defineProps<EmptyStateProps>(), {
- title: '暂无数据',
- description: '当前没有可展示内容。',
- icon: '○',
+ variant: 'default',
 })
+
+const instance = getCurrentInstance()
+const resolvedTitle = computed(() => resolveOptionalLabel({ key: `${props.variant}.title`, instance, namespaces: ['efs.state.empty'] }) || '暂无数据')
+const resolvedDescription = computed(() => resolveOptionalLabel({ key: `${props.variant}.description`, instance, namespaces: ['efs.state.empty'] }) || '当前没有可展示内容。')
+const resolvedIcon = computed(() => resolveOptionalLabel({ key: `${props.variant}.icon`, instance, namespaces: ['efs.state.empty'] }) || '○')
 </script>
 
 <style scoped>

@@ -6,11 +6,8 @@
     <p v-if="props.subtitle" class="efs-entitylisttable__subtitle">{{ props.subtitle }}</p>
    </div>
    <div class="efs-entitylisttable__header-actions">
-    <ColumnSettings
-     v-if="enableColumnSettings && !isMobile"
-     :label="resolvedLabels.columnSettings"
-     :reset-label="resolvedLabels.resetColumns"
-     :show-all-label="resolvedLabels.showAllColumns"
+   <ColumnSettings
+    v-if="enableColumnSettings && !isMobile"
      :columns="normalizedColumns"
      :visible-keys="visibleColumnKeys"
      @update:visible-keys="onVisibleKeysChange"
@@ -59,14 +56,10 @@
     <slot name="footer" :visible-columns="visibleColumns" :visible-column-keys="visibleColumnKeys" />
     <Pagination
      v-if="props.showPagination"
-     :page="props.page"
-     :page-count="props.pageCount"
-     :page-size="props.pageSize"
-     :page-size-options="props.pageSizeOptions"
-     :page-size-label="resolvedLabels.pageSize"
-     :summary-label="resolvedLabels.pageSummary"
-     :previous-label="resolvedLabels.previous"
-     :next-label="resolvedLabels.next"
+    :page="props.page"
+    :page-count="props.pageCount"
+    :page-size="props.pageSize"
+    :page-size-options="props.pageSizeOptions"
      @update:page="(value) => emit('update:page', value)"
      @update:page-size="(value) => emit('update:pageSize', value)"
     />
@@ -101,16 +94,6 @@ interface NormalizedColumn {
  hideable: boolean
 }
 
-type EntityListTableLabels = {
- columnSettings?: string
- resetColumns?: string
- showAllColumns?: string
- pageSize?: string
- pageSummary?: string
- previous?: string
- next?: string
-}
-
 interface EntityListTableProps {
  rowKey: string
  title?: string
@@ -124,7 +107,6 @@ interface EntityListTableProps {
  pageSize?: number
  pageSizeOptions?: number[]
  showPagination?: boolean
- labels?: EntityListTableLabels
 }
 
 const props = withDefaults(defineProps<EntityListTableProps>(), {
@@ -139,15 +121,6 @@ const props = withDefaults(defineProps<EntityListTableProps>(), {
  pageSize: 20,
  pageSizeOptions: () => [],
  showPagination: true,
- labels: () => ({
-  columnSettings: '列设置',
-  resetColumns: '重置',
-  showAllColumns: '显示全部',
-  pageSize: '每页条数',
-  pageSummary: '页码',
-  previous: '上一页',
-  next: '下一页',
- }),
 })
 
 const emit = defineEmits<{
@@ -158,15 +131,6 @@ const emit = defineEmits<{
 const instance = getCurrentInstance()
 const visibleColumnKeys = ref<string[]>([])
 const isMobile = ref(false)
-const resolvedLabels = computed(() => ({
- columnSettings: props.labels?.columnSettings ?? '列设置',
- resetColumns: props.labels?.resetColumns ?? '重置',
- showAllColumns: props.labels?.showAllColumns ?? '显示全部',
- pageSize: props.labels?.pageSize ?? '每页条数',
- pageSummary: props.labels?.pageSummary ?? '页码',
- previous: props.labels?.previous ?? '上一页',
- next: props.labels?.next ?? '下一页',
-}))
 
 const inferredColumns = computed<NormalizedColumn[]>(() => {
  const firstRow = props.items[0] ?? null

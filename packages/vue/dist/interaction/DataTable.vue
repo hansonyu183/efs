@@ -8,12 +8,12 @@
        type="checkbox"
        :checked="allRowsSelected"
        :indeterminate="someRowsSelected && !allRowsSelected"
-       :aria-label="props.selectionLabel"
+       :aria-label="resolvedSelectionLabel"
        @change="toggleSelectAll"
       >
      </th>
      <th v-for="column in normalizedColumns" :key="column.key">{{ column.title }}</th>
-     <th v-if="props.rowActions.length > 0" class="efs-datatable__actions-header">{{ props.actionsLabel }}</th>
+     <th v-if="props.rowActions.length > 0" class="efs-datatable__actions-header">{{ resolvedActionsLabel }}</th>
     </tr>
    </thead>
    <tbody>
@@ -30,7 +30,7 @@
       <input
        type="checkbox"
        :checked="isSelected(row, rowIndex)"
-       :aria-label="`${props.selectionLabel} ${resolveRowKey(row, rowIndex)}`"
+       :aria-label="`${resolvedSelectionLabel} ${resolveRowKey(row, rowIndex)}`"
        @change="toggleRowSelection(row, rowIndex)"
       >
      </td>
@@ -75,7 +75,7 @@
 import { computed, getCurrentInstance } from 'vue'
 import AppTag from './AppTag.vue'
 import StatusChip from './StatusChip.vue'
-import { resolveLabel } from '../shared/label-resolver'
+import { resolveLabel, resolveOptionalLabel } from '../shared/label-resolver'
 
 defineOptions({ name: 'DataTable' })
 
@@ -111,11 +111,9 @@ interface DataTableProps {
  rows?: Record<string, unknown>[]
  clickable?: boolean
  visibleColumnKeys?: string[]
- actionsLabel?: string
  rowActions?: RowAction[]
  selectable?: boolean
  selectedRowKeys?: RowSelectionKey[]
- selectionLabel?: string
 }
 
 const props = withDefaults(defineProps<DataTableProps>(), {
@@ -123,11 +121,9 @@ const props = withDefaults(defineProps<DataTableProps>(), {
  rows: () => [],
  clickable: false,
  visibleColumnKeys: () => [],
- actionsLabel: '操作',
  rowActions: () => [],
  selectable: false,
  selectedRowKeys: () => [],
- selectionLabel: '选择行',
 })
 
 const emit = defineEmits<{
@@ -136,6 +132,8 @@ const emit = defineEmits<{
 }>()
 
 const instance = getCurrentInstance()
+const resolvedActionsLabel = computed(() => resolveOptionalLabel({ key: 'actionsLabel', instance, namespaces: ['efs.dataTable'] }) || '操作')
+const resolvedSelectionLabel = computed(() => resolveOptionalLabel({ key: 'selectionLabel', instance, namespaces: ['efs.dataTable'] }) || '选择行')
 
 const inferredColumns = computed<NormalizedColumn[]>(() => {
  const firstRow = props.rows[0] ?? null

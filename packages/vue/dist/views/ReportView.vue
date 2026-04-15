@@ -62,13 +62,13 @@
      </section>
 
      <div v-if="resolvedBusy" class="efs-reportview__state-wrap">
-      <LoadingState title="正在加载报表" message="请稍候，结果正在刷新。" />
+      <LoadingState variant="report" />
      </div>
      <div v-else-if="resolvedError" class="efs-reportview__state-wrap">
-      <ErrorState title="报表加载失败" :message="resolvedError" />
+      <ErrorState variant="report" :detail="resolvedError" />
      </div>
      <div v-else-if="resolvedItems.length === 0" class="efs-reportview__state-wrap">
-      <EmptyState title="暂无结果" description="当前条件下没有可展示的报表结果。" />
+      <EmptyState variant="report" />
      </div>
      <DataTable
       v-else
@@ -77,11 +77,9 @@
       :rows="resultRows"
       :clickable="false"
       :visible-column-keys="visibleColumnKeys"
-      actions-label="操作"
       :row-actions="[]"
       :selectable="false"
       :selected-row-keys="[]"
-      selection-label="选择行"
      />
     </div>
    </template>

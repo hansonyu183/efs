@@ -1,20 +1,23 @@
 <template>
  <div class="efs-pagination">
-  <div class="efs-pagination__summary">{{ props.summaryLabel }} {{ props.page }} / {{ Math.max(props.pageCount, 1) }}</div>
+  <div class="efs-pagination__summary">{{ resolvedSummaryLabel }} {{ props.page }} / {{ Math.max(props.pageCount, 1) }}</div>
   <label v-if="props.pageSizeOptions.length > 0" class="efs-pagination__pagesize">
-   <span>{{ props.pageSizeLabel }}</span>
+   <span>{{ resolvedPageSizeLabel }}</span>
    <select :value="String(props.pageSize)" @change="onPageSizeChange">
     <option v-for="size in props.pageSizeOptions" :key="size" :value="String(size)">{{ size }}</option>
    </select>
   </label>
   <div class="efs-pagination__actions">
-   <button type="button" :disabled="props.page <= 1" @click="emit('update:page', props.page - 1)">{{ props.previousLabel }}</button>
-   <button type="button" :disabled="props.page >= Math.max(props.pageCount, 1)" @click="emit('update:page', props.page + 1)">{{ props.nextLabel }}</button>
+   <button type="button" :disabled="props.page <= 1" @click="emit('update:page', props.page - 1)">{{ resolvedPreviousLabel }}</button>
+   <button type="button" :disabled="props.page >= Math.max(props.pageCount, 1)" @click="emit('update:page', props.page + 1)">{{ resolvedNextLabel }}</button>
   </div>
  </div>
 </template>
 
 <script setup lang="ts">
+import { computed, getCurrentInstance } from 'vue'
+import { resolveOptionalLabel } from '../shared/label-resolver'
+
 defineOptions({ name: 'Pagination' })
 
 const props = withDefaults(defineProps<{
@@ -22,25 +25,23 @@ const props = withDefaults(defineProps<{
  pageCount?: number
  pageSize?: number
  pageSizeOptions?: number[]
- pageSizeLabel?: string
- summaryLabel?: string
- previousLabel?: string
- nextLabel?: string
 }>(), {
  page: 1,
  pageCount: 1,
  pageSize: 20,
  pageSizeOptions: () => [],
- pageSizeLabel: '每页条数',
- summaryLabel: '页码',
- previousLabel: '上一页',
- nextLabel: '下一页',
 })
 
 const emit = defineEmits<{
  (e: 'update:page', value: number): void
  (e: 'update:pageSize', value: number): void
 }>()
+
+const instance = getCurrentInstance()
+const resolvedPageSizeLabel = computed(() => resolveOptionalLabel({ key: 'pageSizeLabel', instance, namespaces: ['efs.pagination'] }) || '每页条数')
+const resolvedSummaryLabel = computed(() => resolveOptionalLabel({ key: 'summaryLabel', instance, namespaces: ['efs.pagination'] }) || '页码')
+const resolvedPreviousLabel = computed(() => resolveOptionalLabel({ key: 'previousLabel', instance, namespaces: ['efs.pagination'] }) || '上一页')
+const resolvedNextLabel = computed(() => resolveOptionalLabel({ key: 'nextLabel', instance, namespaces: ['efs.pagination'] }) || '下一页')
 
 function onPageSizeChange(event: Event) {
  emit('update:pageSize', Number((event.target as HTMLSelectElement).value))

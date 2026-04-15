@@ -1,6 +1,6 @@
 <template>
  <details ref="detailsRef" class="efs-columnsettings">
-  <summary class="efs-columnsettings__trigger">{{ props.label }}</summary>
+  <summary class="efs-columnsettings__trigger">{{ resolvedLabel }}</summary>
   <div class="efs-columnsettings__panel">
    <div class="efs-columnsettings__list">
     <label v-for="column in normalizedColumns" :key="column.key" class="efs-columnsettings__item">
@@ -14,15 +14,16 @@
     </label>
    </div>
    <div class="efs-columnsettings__actions">
-    <button type="button" @click="emit('show-all')">{{ props.showAllLabel }}</button>
-    <button type="button" @click="emit('reset')">{{ props.resetLabel }}</button>
+    <button type="button" @click="emit('show-all')">{{ resolvedShowAllLabel }}</button>
+    <button type="button" @click="emit('reset')">{{ resolvedResetLabel }}</button>
    </div>
   </div>
  </details>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, getCurrentInstance, ref } from 'vue'
+import { resolveOptionalLabel } from '../shared/label-resolver'
 
 defineOptions({ name: 'ColumnSettings' })
 
@@ -34,15 +35,9 @@ type InputColumn = string | {
 }
 
 const props = withDefaults(defineProps<{
- label?: string
- resetLabel?: string
- showAllLabel?: string
  columns?: InputColumn[]
  visibleKeys?: string[]
 }>(), {
- label: '列设置',
- resetLabel: '重置',
- showAllLabel: '显示全部',
  columns: () => [],
  visibleKeys: () => [],
 })
@@ -54,6 +49,10 @@ const emit = defineEmits<{
 }>()
 
 const detailsRef = ref<HTMLDetailsElement | null>(null)
+const instance = getCurrentInstance()
+const resolvedLabel = computed(() => resolveOptionalLabel({ key: 'label', instance, namespaces: ['efs.columnSettings'] }) || '列设置')
+const resolvedResetLabel = computed(() => resolveOptionalLabel({ key: 'resetLabel', instance, namespaces: ['efs.columnSettings'] }) || '重置')
+const resolvedShowAllLabel = computed(() => resolveOptionalLabel({ key: 'showAllLabel', instance, namespaces: ['efs.columnSettings'] }) || '显示全部')
 
 const normalizedColumns = computed(() => props.columns.map((column) => {
  if (typeof column === 'string') {

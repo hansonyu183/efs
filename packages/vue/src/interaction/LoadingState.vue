@@ -2,24 +2,29 @@
  <section class="efs-loadingstate">
   <div class="efs-loadingstate__spinner" aria-hidden="true"></div>
   <div class="efs-loadingstate__body">
-   <strong class="efs-loadingstate__title">{{ props.title }}</strong>
-   <p class="efs-loadingstate__message">{{ props.message }}</p>
+   <strong class="efs-loadingstate__title">{{ resolvedTitle }}</strong>
+   <p class="efs-loadingstate__message">{{ resolvedMessage }}</p>
   </div>
  </section>
 </template>
 
 <script setup lang="ts">
+import { computed, getCurrentInstance } from 'vue'
+import { resolveOptionalLabel } from '../shared/label-resolver'
+
 defineOptions({ name: 'LoadingState' })
 
 interface LoadingStateProps {
- title?: string
- message?: string
+ variant?: 'default' | 'resource' | 'report'
 }
 
 const props = withDefaults(defineProps<LoadingStateProps>(), {
- title: '正在加载数据',
- message: '请稍候，系统正在准备当前资源内容。',
+ variant: 'default',
 })
+
+const instance = getCurrentInstance()
+const resolvedTitle = computed(() => resolveOptionalLabel({ key: `${props.variant}.title`, instance, namespaces: ['efs.state.loading'] }) || '正在加载数据')
+const resolvedMessage = computed(() => resolveOptionalLabel({ key: `${props.variant}.message`, instance, namespaces: ['efs.state.loading'] }) || '请稍候，系统正在准备当前资源内容。')
 </script>
 
 <style scoped>

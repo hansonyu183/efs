@@ -1,9 +1,9 @@
 <template>
  <section class="efs-errorstate">
-  <div class="efs-errorstate__icon">{{ props.icon }}</div>
+  <div class="efs-errorstate__icon">{{ resolvedIcon }}</div>
   <div class="efs-errorstate__body">
-   <strong class="efs-errorstate__title">{{ props.title }}</strong>
-   <p class="efs-errorstate__message">{{ props.message }}</p>
+   <strong class="efs-errorstate__title">{{ resolvedTitle }}</strong>
+   <p class="efs-errorstate__message">{{ resolvedMessage }}</p>
   </div>
   <div v-if="$slots.actions" class="efs-errorstate__actions">
    <slot name="actions" />
@@ -12,19 +12,25 @@
 </template>
 
 <script setup lang="ts">
+import { computed, getCurrentInstance } from 'vue'
+import { resolveOptionalLabel } from '../shared/label-resolver'
+
 defineOptions({ name: 'ErrorState' })
 
 interface ErrorStateProps {
- title?: string
- message?: string
- icon?: string
+ variant?: 'default' | 'resource' | 'report'
+ detail?: string
 }
 
 const props = withDefaults(defineProps<ErrorStateProps>(), {
- title: '加载失败',
- message: '请求未成功，请稍后重试。',
- icon: '!',
+ variant: 'default',
+ detail: '',
 })
+
+const instance = getCurrentInstance()
+const resolvedTitle = computed(() => resolveOptionalLabel({ key: `${props.variant}.title`, instance, namespaces: ['efs.state.error'] }) || '加载失败')
+const resolvedMessage = computed(() => props.detail || resolveOptionalLabel({ key: `${props.variant}.message`, instance, namespaces: ['efs.state.error'] }) || '请求未成功，请稍后重试。')
+const resolvedIcon = computed(() => resolveOptionalLabel({ key: `${props.variant}.icon`, instance, namespaces: ['efs.state.error'] }) || '!')
 </script>
 
 <style scoped>
