@@ -2,7 +2,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { scaffoldPreset, listPresets } from '../../presets/src/index.mjs'
+import { scaffoldPreset, listPresets } from '@efs/presets'
 
 const args = process.argv.slice(2)
 function readArg(name) {

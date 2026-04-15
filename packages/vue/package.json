@@ -4,15 +4,26 @@
  "type": "module",
  "private": false,
  "description": "Vue Page/View/Panel components and helpers for enterprise frontend standards.",
+ "scripts": {
+  "build": "node ./build.mjs"
+ },
  "exports": {
-  ".": "./src/index.mjs",
-  "./components/*": "./src/components/*",
-  "./shared/*": "./src/shared/*",
-  "./controller/*": "./src/controller/*",
-  "./types": "./src/types.mjs"
+  ".": {
+   "types": "./dist/index.d.ts",
+   "default": "./dist/index.js"
+  },
+  "./components/*": "./dist/components/*",
+  "./shared/*": {
+   "types": "./dist/shared/*.d.ts",
+   "default": "./dist/shared/*.js"
+  },
+  "./controller/*": {
+   "types": "./dist/controller/*.d.ts",
+   "default": "./dist/controller/*.js"
+  }
  },
  "files": [
-  "src"
+  "dist"
  ],
  "sideEffects": false
 }

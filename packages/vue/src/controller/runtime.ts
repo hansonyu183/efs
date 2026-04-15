@@ -64,7 +64,7 @@ export function buildResReportRuntime(app: AppController, path: string, options:
       export: res.export ? async ({ queryValues, page, pageSize, items, total, summary }) => {
         await res.export?.({ queryValues, page, pageSize, items, total, summary })
       } : undefined,
-      actions: res.actions?.custom as ReportViewControllerHandlers['actions'],
+      actions: res.actions?.custom as unknown as ReportViewControllerHandlers['actions'],
     },
   })
 

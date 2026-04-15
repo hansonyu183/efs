@@ -9,23 +9,25 @@
   "apps/*"
  ],
   "scripts": {
-    "test": "node --test",
-    "lint:standard": "node packages/cli/bin/efs-lint.mjs standard-app",
-    "lint:standard:ast": "node packages/cli/bin/efs-lint-ast.mjs standard-app",
+    "build": "npm run build --workspace @efs/presets && npm run build --workspace @efs/vue",
+    "test": "npm run build && node --test",
+    "lint:standard": "npm run build && node packages/cli/bin/efs-lint.mjs standard-app",
+    "lint:standard:ast": "npm run build && node packages/cli/bin/efs-lint-ast.mjs standard-app",
     "govern:standard": "node packages/cli/bin/efs-governance.mjs standard-app",
-    "demo:build": "vite build --config apps/standard-demo/vite.config.mjs",
-    "scaffold:standard": "node packages/cli/bin/efs-scaffold.mjs --preset paginated-list --name StandardListPage --out .tmp/standard-page",
-    "pack:check": "npm pack --dry-run --workspace @efs/presets && npm pack --dry-run --workspace @efs/vue && npm pack --dry-run --workspace @efs/cli",
+    "demo:build": "npm run build && vite build --config apps/standard-demo/vite.config.mjs",
+    "scaffold:standard": "npm run build && node packages/cli/bin/efs-scaffold.mjs --preset paginated-list --name StandardListPage --out .tmp/standard-page",
+    "pack:check": "npm run build && npm pack --dry-run --workspace @efs/presets && npm pack --dry-run --workspace @efs/vue && npm pack --dry-run --workspace @efs/cli",
     "ci": "npm run test && npm run lint:standard && npm run lint:standard:ast && npm run govern:standard && npm run demo:build && npm run pack:check"
   },
  "engines": {
   "node": ">=20"
  },
- "dependencies": {
+  "dependencies": {
   "@babel/parser": "^7.28.4",
   "@vitejs/plugin-vue": "^5.2.4",
   "@vue/compiler-dom": "^3.5.13",
   "@vue/compiler-sfc": "^3.5.13",
+  "typescript": "^5.9.2",
   "vite": "^5.4.19",
   "vue": "^3.5.13",
   "vue-router": "^4.5.1"

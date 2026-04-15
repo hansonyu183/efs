@@ -1,0 +1,28 @@
+export declare const semanticIconMap: {
+    readonly home: "⌂";
+    readonly workbench: "⌂";
+    readonly users: "◪";
+    readonly user: "👤";
+    readonly profile: "👤";
+    readonly lock: "🔒";
+    readonly password: "🔒";
+    readonly logout: "↗";
+    readonly settings: "⚙";
+    readonly more: "⋯";
+    readonly theme: "◐";
+    readonly light: "☼";
+    readonly dark: "☾";
+    readonly locale: "文";
+    readonly report: "▣";
+    readonly finance: "¤";
+    readonly workflow: "⇄";
+    readonly folder: "▤";
+    readonly ban: "⊘";
+    readonly agent: "✦";
+    readonly menu: "☰";
+    readonly close: "✕";
+    readonly send: "➜";
+    readonly org: "◎";
+    readonly sessions: "☷";
+};
+export declare function resolveSemanticIcon(key?: string, fallback?: string): string;

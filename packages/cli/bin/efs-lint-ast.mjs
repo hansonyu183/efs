@@ -5,7 +5,7 @@ import process from 'node:process'
 import { parse as parseSfc } from '@vue/compiler-sfc'
 import { parse as parseTemplate, NodeTypes } from '@vue/compiler-dom'
 import { parse as parseScript } from '@babel/parser'
-import { listPresets } from '../../presets/src/index.mjs'
+import { listPresets } from '@efs/presets'
 
 const knownPageTypes = new Set(listPresets())
 const root = process.argv[2]

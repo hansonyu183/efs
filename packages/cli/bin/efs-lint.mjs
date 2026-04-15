@@ -2,7 +2,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { listPresets } from '../../presets/src/index.mjs'
+import { listPresets } from '@efs/presets'
 
 const knownPageTypes = new Set(listPresets())
 const root = process.argv[2]

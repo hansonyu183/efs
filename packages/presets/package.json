@@ -4,11 +4,14 @@
  "type": "module",
  "private": false,
  "description": "Preset definitions and scaffold helpers for enterprise frontend standards.",
+ "scripts": {
+  "build": "node ./build.mjs"
+ },
  "exports": {
-  ".": "./src/index.mjs"
+  ".": "./dist/index.js"
  },
  "files": [
-  "src"
+  "dist"
  ],
  "sideEffects": false
 }
