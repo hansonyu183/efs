@@ -13,10 +13,6 @@
   <div class="efs-auth-layout__title">{{ resolvedLoginTitle }}</div>
   <div v-if="resolvedLoginSubtitle" class="efs-auth-layout__subtitle">{{ resolvedLoginSubtitle }}</div>
  </template>
- <template #hero>
-  <div v-if="resolvedLoginHeroTitle" class="efs-auth-layout__hero-title">{{ resolvedLoginHeroTitle }}</div>
-  <div v-if="resolvedLoginHeroSubtitle" class="efs-auth-layout__hero-subtitle">{{ resolvedLoginHeroSubtitle }}</div>
- </template>
  <form class="efs-app__login-form" @submit.prevent="handleLogin">
   <AppField :label="resolvedLoginNameLabel">
    <AppInput
@@ -177,8 +173,6 @@ const resolvedEmptyTitle = computed(() => resolveCopy('efs.runtime.emptyTitle', 
 const resolvedEmptySubtitle = computed(() => resolveCopy('efs.runtime.emptySubtitle', '当前 path 未在 app.main.domains 中注册对应 res controller。'))
 const resolvedLoginTitle = computed(() => resolveCopy('efs.auth.title', '登录到工作台'))
 const resolvedLoginSubtitle = computed(() => resolveCopy('efs.auth.subtitle', '请输入账号凭证继续访问当前系统。'))
-const resolvedLoginHeroTitle = computed(() => resolveCopy('efs.auth.heroTitle', resolvedBrandTitle.value || props.appName || 'Enterprise Frontend Shell'))
-const resolvedLoginHeroSubtitle = computed(() => resolveCopy('efs.auth.heroSubtitle', resolvedBrandSubtitle.value || '通过单一 EfsApp 入口承载认证与业务运行时。'))
 const resolvedLoginNameLabel = computed(() => resolveCopy('efs.auth.nameLabel', '用户名'))
 const resolvedLoginNamePlaceholder = computed(() => resolveCopy('efs.auth.namePlaceholder', '请输入用户名'))
 const resolvedLoginPasswordLabel = computed(() => resolveCopy('efs.auth.passwordLabel', '密码'))

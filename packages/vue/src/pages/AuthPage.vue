@@ -1,36 +1,29 @@
 <template>
-<main class="efs-auth-layout" :class="layoutClasses" data-layout="split">
+<main class="efs-auth-layout" :class="layoutClasses" data-layout="auth">
  <div class="efs-auth-layout__content" :style="contentStyle">
-   <section v-if="showHeroArea" class="efs-auth-layout__hero">
-    <div class="efs-auth-layout__hero-inner">
-     <div v-if="$slots.brand || props.logoSrc || props.appName" class="efs-auth-layout__brand">
-      <slot name="brand">
-       <img v-if="props.logoSrc" class="efs-auth-layout__logo" :src="props.logoSrc" :alt="props.logoAlt || props.appName" />
-       <div v-else class="efs-auth-layout__wordmark">{{ props.appName }}</div>
-      </slot>
-     </div>
+  <header v-if="showTopBar" class="efs-auth-layout__topbar">
+   <div class="efs-auth-layout__topbar-brand">
+    <slot name="brand">
+     <img v-if="props.logoSrc" class="efs-auth-layout__topbar-logo" :src="props.logoSrc" :alt="props.logoAlt || props.appName" />
+     <div v-if="props.appName" class="efs-auth-layout__topbar-title">{{ props.appName }}</div>
+    </slot>
+   </div>
 
-     <div v-if="$slots.hero" class="efs-auth-layout__hero-copy">
-      <slot name="hero">
-      </slot>
-     </div>
-    </div>
-   </section>
+   <div v-if="showActionsBar" class="efs-auth-layout__actions">
+    <slot name="locale-action">
+    <LocaleSwitcher :model-value="props.locale" @update:model-value="(value) => emit('update:locale', value)" />
+    </slot>
 
-   <section class="efs-auth-layout__panel-shell">
-    <header v-if="showActionsBar" class="efs-auth-layout__actions">
-     <slot name="locale-action">
-     <LocaleSwitcher :model-value="props.locale" @update:model-value="(value) => emit('update:locale', value)" />
-     </slot>
+    <slot name="theme-action">
+    <ThemeSwitcher :model-value="props.theme" @update:model-value="(value) => emit('update:theme', value)" />
+    </slot>
 
-     <slot name="theme-action">
-     <ThemeSwitcher :model-value="props.theme" @update:model-value="(value) => emit('update:theme', value)" />
-     </slot>
+    <slot name="actions" />
+   </div>
+  </header>
 
-     <slot name="actions" />
-    </header>
-
-    <div class="efs-auth-layout__panel">
+  <section class="efs-auth-layout__panel-shell">
+   <div class="efs-auth-layout__panel">
      <header v-if="$slots.header" class="efs-auth-layout__header">
       <slot name="header">
       </slot>
@@ -88,13 +81,12 @@ const emit = defineEmits<{
 
 const slots = useSlots()
 const globalAlerts = useAppAlerts()
-const showHeroArea = computed(() => Boolean(slots.hero) || Boolean(slots.brand) || Boolean(props.logoSrc) || Boolean(props.appName))
 const showActionsBar = computed(() => Boolean(slots.actions) || Boolean(slots['locale-action']) || Boolean(slots['theme-action']) || true)
+const showTopBar = computed(() => Boolean(slots.brand) || Boolean(props.logoSrc) || Boolean(props.appName) || showActionsBar.value)
 const showAlertsRegion = computed(() => Boolean(slots.alerts) || globalAlerts.hasItems.value)
 const contentStyle = computed(() => ({ maxWidth: '1120px', '--efs-auth-panel-width': '460px' }))
 const layoutClasses = computed(() => ({
- 'efs-auth-layout--split': true,
- 'efs-auth-layout--centered': false,
+ 'efs-auth-layout--centered': true,
 }))
 </script>
 
@@ -128,72 +120,37 @@ const layoutClasses = computed(() => ({
  gap: 20px;
 }
 
-.efs-auth-layout--split .efs-auth-layout__content {
- grid-template-columns: minmax(0, 1.15fr) minmax(320px, var(--efs-auth-panel-width, 460px));
- align-items: stretch;
-}
-
 .efs-auth-layout--centered .efs-auth-layout__content {
  justify-items: center;
 }
 
-.efs-auth-layout__hero {
- min-width: 0;
- display: grid;
-}
-
-.efs-auth-layout__hero-inner {
- min-height: 100%;
- border-radius: 28px;
- padding: 32px;
- background: color-mix(in srgb, var(--efs-primary, #2563eb) 7%, var(--efs-surface, #ffffff));
- border: 1px solid color-mix(in srgb, var(--efs-primary, #2563eb) 12%, var(--efs-border, #dbe3ef));
- display: grid;
- align-content: space-between;
- gap: 24px;
-}
-
-.efs-auth-layout--centered .efs-auth-layout__hero {
- width: min(100%, 560px);
-}
-
-.efs-auth-layout__brand {
+.efs-auth-layout__topbar {
+ width: min(100%, 1120px);
  display: flex;
- justify-content: flex-start;
+ align-items: center;
+ justify-content: space-between;
+ gap: 16px;
+ padding: 0 4px;
 }
 
-.efs-auth-layout--centered .efs-auth-layout__brand {
- justify-content: center;
-}
-
-.efs-auth-layout__logo {
- width: min(100%, 240px);
- height: auto;
- display: block;
-}
-
-.efs-auth-layout__wordmark {
- font-size: 1.75rem;
- font-weight: 800;
- color: var(--efs-text, #172033);
-}
-
-.efs-auth-layout__hero-copy {
- display: grid;
+.efs-auth-layout__topbar-brand {
+ min-width: 0;
+ display: flex;
+ align-items: center;
  gap: 12px;
 }
 
-.efs-auth-layout__hero-title {
- font-size: clamp(1.8rem, 3vw, 2.6rem);
- font-weight: 800;
- line-height: 1.12;
- color: var(--efs-text, #172033);
+.efs-auth-layout__topbar-logo {
+ width: 32px;
+ height: 32px;
+ object-fit: contain;
+ display: block;
 }
 
-.efs-auth-layout__hero-subtitle {
- max-width: 46ch;
- color: var(--efs-text-muted, #64748b);
- line-height: 1.7;
+.efs-auth-layout__topbar-title {
+ font-size: 1rem;
+ font-weight: 700;
+ color: var(--efs-text, #172033);
 }
 
 .efs-auth-layout__panel-shell {
@@ -204,16 +161,12 @@ const layoutClasses = computed(() => ({
  gap: 12px;
 }
 
-.efs-auth-layout--split .efs-auth-layout__panel-shell {
- justify-self: end;
- align-self: center;
-}
-
 .efs-auth-layout__actions {
  display: flex;
  align-items: center;
  justify-content: flex-end;
  gap: 10px;
+ flex-wrap: wrap;
 }
 
 .efs-auth-layout__actions :deep(.efs-localeswitcher),
