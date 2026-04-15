@@ -1,4 +1,5 @@
 export { defineAppSchema } from './authoring/define-app-schema'
+export { inferResourceRuntime } from './inference/resource-runtime'
 
 export type { EfsAppSchema, EfsAppInfoSchema } from './app/app-schema'
 export type { EfsAuthSchema, EfsTokenSchema, EfsOrgSchema } from './app/auth-schema'

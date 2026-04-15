@@ -15,7 +15,6 @@ export interface EfsResourceSchema {
 }
 
 export interface EfsResourceOperationsSchema {
-  list?: EfsEndpointSchema
   get?: EfsEndpointSchema
   query?: EfsEndpointSchema
   create?: EfsEndpointSchema
