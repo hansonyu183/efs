@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { listPresets, scaffoldPreset } from '../packages/presets/src/index.mjs'
+import { listPresets, scaffoldPreset } from '@efs/presets'
 
 test('presets list includes core page types', () => {
  const presets = listPresets()

@@ -25,7 +25,8 @@ test('publishable package manifests expose name and exports/bin', () => {
 
 test('publishable package manifests export built dist entries instead of src entries', () => {
  const presetsPkg = readPackage('packages/presets/package.json')
- assert.equal(presetsPkg.exports['.'], './dist/index.js')
+ assert.equal(presetsPkg.exports['.'].default, './dist/index.js')
+ assert.equal(presetsPkg.exports['.'].types, './dist/index.d.ts')
  assert.deepEqual(presetsPkg.files, ['dist'])
 
  const vuePkg = readPackage('packages/vue/package.json')
@@ -51,5 +52,18 @@ test('cli package consumes publishable package entrypoints instead of sibling sr
   const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8')
   assert.match(source, /from '@efs\/presets'/)
   assert.doesNotMatch(source, /\.\.\/\.\.\/presets\/src\/index\.mjs/)
+ }
+})
+
+test('source packages do not keep duplicate runtime .mjs copies beside ts source', () => {
+ const duplicateRuntimeSources = [
+  'packages/presets/src/index.mjs',
+  'packages/vue/src/index.mjs',
+  'packages/vue/src/shared/SemanticIcons.mjs',
+  'packages/vue/src/shared/NavigationMenu.mjs',
+ ]
+
+ for (const relativePath of duplicateRuntimeSources) {
+  assert.equal(fs.existsSync(path.join(repoRoot, relativePath)), false, `${relativePath} should not exist once ts source is canonical`)
  }
 })

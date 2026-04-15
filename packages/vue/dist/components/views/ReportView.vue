@@ -103,7 +103,7 @@ import ErrorState from '../interaction/ErrorState.vue'
 import LoadingState from '../interaction/LoadingState.vue'
 import DashboardCardPanel from '../panels/DashboardCardPanel.vue'
 import ReportPanel from '../panels/ReportPanel.vue'
-import { resolveLabel, resolveOptionalLabel } from '../../shared/LabelResolver'
+import { resolveLabel, resolveOptionalLabel } from '../../shared/label-resolver'
 import type {
  ReportViewAction,
  ReportViewActionHandlerPayload,

@@ -204,7 +204,7 @@ test('AppAlerts and global alerts host expose reusable global alert contracts', 
 })
 
 test('AppController types expose app/main/domain/res contract and typed domain-res path helpers', () => {
- const barrelSource = read(path.join(repoRoot, 'packages/vue/src/controller/AppController.ts'))
+ const barrelSource = read(path.join(repoRoot, 'packages/vue/src/controller/index.ts'))
  const typesBarrelSource = read(path.join(repoRoot, 'packages/vue/src/controller/types.ts'))
  const sharedTypesSource = read(path.join(repoRoot, 'packages/vue/src/controller/shared-types.ts'))
  const resControllerSource = read(path.join(repoRoot, 'packages/vue/src/controller/res-controller.ts'))
@@ -332,7 +332,7 @@ test('AppController types expose app/main/domain/res contract and typed domain-r
  assert.match(runtimeSource, /selectableRows: options\.selectableRows \?\? true/)
  assert.match(runtimeSource, /defaultDetailValueFormatter/)
 
- assert.match(indexSource, /export type \{ AppController \} from '\.\/controller\/AppController'/)
+ assert.match(indexSource, /export type \{ AppController \} from '\.\/controller\/app-controller'/)
  assert.doesNotMatch(indexSource, /AuthController/)
  assert.doesNotMatch(indexSource, /DomainController/)
  assert.doesNotMatch(indexSource, /MainController/)

@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import { computed, getCurrentInstance } from 'vue'
-import { resolveLabel, resolveOptionalLabel } from '../../shared/LabelResolver'
+import { resolveLabel, resolveOptionalLabel } from '../../shared/label-resolver'
 
 defineOptions({ name: 'DetailPanel' })
 

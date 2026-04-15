@@ -75,7 +75,7 @@
 import { computed, getCurrentInstance } from 'vue'
 import AppTag from './AppTag.vue'
 import StatusChip from './StatusChip.vue'
-import { resolveLabel } from '../../shared/LabelResolver'
+import { resolveLabel } from '../../shared/label-resolver'
 
 defineOptions({ name: 'DataTable' })
 

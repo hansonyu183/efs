@@ -81,7 +81,7 @@ import AppTag from '../interaction/AppTag.vue'
 import ColumnSettings from '../interaction/ColumnSettings.vue'
 import Pagination from '../interaction/Pagination.vue'
 import StatusChip from '../interaction/StatusChip.vue'
-import { resolveLabel } from '../../shared/LabelResolver'
+import { resolveLabel } from '../../shared/label-resolver'
 
 defineOptions({ name: 'EntityListTable' })
 

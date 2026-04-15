@@ -1,4 +1,4 @@
-import type { FlatMenuNode } from '../shared/NavigationMenu'
+import type { FlatMenuNode } from '../shared/navigation-menu'
 import type { DomainResPath } from './shared-types'
 import type { AppController } from './app-controller'
 import type { DomainController } from './domain-controller'

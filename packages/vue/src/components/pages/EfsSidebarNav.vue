@@ -35,8 +35,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import type { FlatMenuNode, SidebarMenuTreeNode } from '../../shared/NavigationMenu'
-import { buildSidebarMenuTree } from '../../shared/NavigationMenu'
+import type { FlatMenuNode, SidebarMenuTreeNode } from '../../shared/navigation-menu'
+import { buildSidebarMenuTree } from '../../shared/navigation-menu'
 import SemanticIcon from '../controls/SemanticIcon.vue'
 
 defineOptions({ name: 'EfsSidebarNav' })

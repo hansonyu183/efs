@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { resolveSemanticIcon } from '../../shared/SemanticIcons'
+import { resolveSemanticIcon } from '../../shared/semantic-icons'
 
 defineOptions({ name: 'SemanticIcon' })
 

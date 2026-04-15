@@ -88,10 +88,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import type { AppController, ResCrudRuntimeOptions, ResReportRuntimeOptions } from '../../controller/AppController'
+import type { AppController, ResCrudRuntimeOptions, ResReportRuntimeOptions } from '../../controller/index'
 import { flattenAppMenuNodes } from '../../controller/path-helpers'
 import { resolveResRuntime } from '../../controller/runtime'
-import type { FlatMenuNode } from '../../shared/NavigationMenu'
+import type { FlatMenuNode } from '../../shared/navigation-menu'
 import AppButton from '../controls/AppButton.vue'
 import AppField from '../controls/AppField.vue'
 import AppInput from '../controls/AppInput.vue'
