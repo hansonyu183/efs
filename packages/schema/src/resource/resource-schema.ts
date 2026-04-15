@@ -4,32 +4,26 @@ import type { EfsActionSchema } from './action-schema'
 export interface EfsDomainSchema {
   key: string
   title: string
-  icon?: string
-  order?: number
   resources: EfsResourceSchema[]
 }
 
 export interface EfsResourceSchema {
   key: string
   title: string
-  icon?: string
-  order?: number
-  path?: string
-  view: EfsViewSchema
-  datasource?: EfsDatasourceSchema
   fields?: EfsFieldSchema[]
+  apis?: EfsResourceApisSchema
   actions?: EfsActionSchema[]
+  description?: string
 }
 
-export interface EfsViewSchema {
-  kind: 'crud' | 'report' | 'dashboard' | 'workspace' | 'custom'
-}
-
-export interface EfsDatasourceSchema {
-  service: string
+export interface EfsResourceApisSchema {
+  list?: EfsEndpointSchema
+  get?: EfsEndpointSchema
   query?: EfsEndpointSchema
-  save?: EfsEndpointSchema
+  create?: EfsEndpointSchema
+  update?: EfsEndpointSchema
   remove?: EfsEndpointSchema
+  save?: EfsEndpointSchema
   export?: EfsEndpointSchema
 }
 

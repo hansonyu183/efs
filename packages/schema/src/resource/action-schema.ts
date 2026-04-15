@@ -1,10 +1,10 @@
+import type { EfsEndpointSchema } from './resource-schema'
+
 export interface EfsActionSchema {
   key: string
   title?: string
-  icon?: string
-  order?: number
-  scope: 'page' | 'row' | 'batch' | 'detail'
-  variant?: 'default' | 'primary' | 'danger' | 'ghost'
-  confirm?: boolean
-  dangerous?: boolean
+  intent?: 'create' | 'update' | 'delete' | 'export' | 'import' | 'submit' | 'approve' | 'reject' | 'custom'
+  permission?: string
+  api: EfsEndpointSchema
+  description?: string
 }

@@ -49,45 +49,38 @@ export const appSchema = defineAppSchema({
     {
       key: 'crm',
       title: '客户中心',
-      icon: 'group',
-      order: 10,
       resources: [
         {
           key: 'customer',
           title: '客户管理',
-          icon: 'group',
-          order: 10,
-          view: {
-            kind: 'crud',
-          },
-          datasource: {
-            service: 'api',
-            query: { path: '/api/crm/customers', method: 'GET' },
-            save: { path: '/api/crm/customers/save', method: 'POST' },
-            remove: { path: '/api/crm/customers/remove', method: 'POST' },
-            export: { path: '/api/crm/customers/export', method: 'POST' },
-          },
           fields: [
-            { key: 'id', title: '客户编号', identity: 'primary', readonly: true, use: ['list', 'detail'] },
-            { key: 'name', title: '客户名称', identity: 'title', queryType: 'search', use: ['query', 'list', 'form', 'detail'] },
-            { key: 'owner', title: '负责人', use: ['query', 'list', 'form', 'detail'] },
+            { key: 'id', title: '客户编号', type: 'string', identity: 'id', readonly: true },
+            { key: 'name', title: '客户名称', type: 'string', identity: 'title', required: true },
+            { key: 'owner', title: '负责人', type: 'string' },
             {
               key: 'status',
               title: '状态',
-              kind: 'enum',
-              render: 'status',
-              use: ['query', 'list', 'form', 'detail'],
+              type: 'enum',
               options: [
                 { key: 'active', value: 'active', title: '启用' },
                 { key: 'inactive', value: 'inactive', title: '停用' },
               ],
             },
+            { key: 'createdAt', title: '创建时间', type: 'datetime', readonly: true },
           ],
+          apis: {
+            query: { path: '/api/crm/customers', method: 'GET' },
+            get: { path: '/api/crm/customers/:id', method: 'GET' },
+            create: { path: '/api/crm/customers', method: 'POST' },
+            update: { path: '/api/crm/customers/:id', method: 'PUT' },
+            remove: { path: '/api/crm/customers/:id', method: 'DELETE' },
+            export: { path: '/api/crm/customers/export', method: 'POST' },
+          },
           actions: [
-            { key: 'create', title: '新建', scope: 'page', variant: 'primary' },
-            { key: 'edit', title: '编辑', scope: 'row' },
-            { key: 'remove', title: '删除', scope: 'row', variant: 'danger', confirm: true, dangerous: true },
-            { key: 'export', title: '导出', scope: 'page' },
+            { key: 'create', title: '新建客户', intent: 'create', api: { path: '/api/crm/customers', method: 'POST' } },
+            { key: 'update', title: '更新客户', intent: 'update', api: { path: '/api/crm/customers/:id', method: 'PUT' } },
+            { key: 'remove', title: '删除客户', intent: 'delete', api: { path: '/api/crm/customers/:id', method: 'DELETE' } },
+            { key: 'export', title: '导出客户', intent: 'export', api: { path: '/api/crm/customers/export', method: 'POST' } },
           ],
         },
       ],
@@ -95,31 +88,57 @@ export const appSchema = defineAppSchema({
     {
       key: 'bi',
       title: '经营分析',
-      icon: 'report',
-      order: 20,
       resources: [
         {
           key: 'customer-report',
           title: '客户分析',
-          icon: 'report',
-          order: 10,
-          view: {
-            kind: 'report',
-          },
-          datasource: {
-            service: 'api',
+          description: '客户分析报表资源，由 EFS runtime 自动推导报表 UI。',
+          fields: [
+            { key: 'month', title: '月份', type: 'string', identity: 'code' },
+            { key: 'count', title: '客户数', type: 'number' },
+            { key: 'revenue', title: '营收', type: 'number' },
+          ],
+          apis: {
             query: { path: '/api/bi/customer-report', method: 'GET' },
             export: { path: '/api/bi/customer-report/export', method: 'POST' },
           },
-          fields: [
-            { key: 'month', title: '月份', use: ['query', 'list'] },
-            { key: 'count', title: '客户数', kind: 'number', summary: true, use: ['list', 'detail'] },
-          ],
           actions: [
-            { key: 'export', title: '导出报表', scope: 'page' },
+            { key: 'export', title: '导出报表', intent: 'export', api: { path: '/api/bi/customer-report/export', method: 'POST' } },
           ],
         },
       ],
     },
   ],
+  ui: {
+    domains: {
+      crm: {
+        resources: {
+          customer: {
+            view: {
+              mode: 'crud',
+            },
+            fields: {
+              createdAt: {
+                hidden: true,
+              },
+            },
+            actions: {
+              export: {
+                placement: 'page',
+              },
+            },
+          },
+        },
+      },
+      bi: {
+        resources: {
+          'customer-report': {
+            view: {
+              mode: 'report',
+            },
+          },
+        },
+      },
+    },
+  },
 })

@@ -1,6 +1,7 @@
 import type { EfsAuthSchema } from './auth-schema'
 import type { EfsServiceSchema } from './service-schema'
 import type { EfsDomainSchema } from '../resource/resource-schema'
+import type { EfsAppUiSchema } from '../resource/ui-schema'
 
 export interface EfsAppSchema {
   schemaVersion: 'v1'
@@ -8,6 +9,7 @@ export interface EfsAppSchema {
   auth?: EfsAuthSchema
   services?: Record<string, EfsServiceSchema>
   domains: EfsDomainSchema[]
+  ui?: EfsAppUiSchema
 }
 
 export interface EfsAppInfoSchema {

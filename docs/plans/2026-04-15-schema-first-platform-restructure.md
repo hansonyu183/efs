@@ -123,6 +123,32 @@ Long term this should become secondary to schema-driven generation.
 
 The new platform should revolve around a single app schema root.
 
+### Core modeling rule
+
+Schema should be split into two distinct kinds:
+
+- **Business schema** — describes only business data and API contracts: app identity, auth capability, services, domain/resource definitions, business fields, business actions, datasource/API endpoints, permissions, and related metadata.
+- **UI schema** — a separate later layer for rendering/runtime overrides if needed.
+
+Strict boundary for business schema:
+
+- do **not** describe how fields are displayed
+- do **not** describe how fields are entered
+- do **not** describe query widgets, table columns, form widgets, detail layout, button style, icon, placement, ordering, or other presentation concerns
+- business schema should answer only:
+  - what data exists
+  - what APIs exist
+  - what business actions exist
+  - what services/auth capabilities exist
+
+Design bias:
+
+- business schema is the primary source of truth
+- UI concerns must not leak into business schema
+- standardize presentation inside the runtime instead of making app authors configure it
+- if a UI schema is introduced later, it should be optional and layered on top of business schema rather than mixed into it
+- keep the UI override surface intentionally small; start with only a few high-value override points instead of exposing every rendering knob
+
 ## 3.1 App schema root
 
 Proposed conceptual shape:
@@ -138,10 +164,10 @@ interface EfsAppSchema {
     locale?: string
     theme?: 'light' | 'dark'
   }
-  auth: EfsAuthSchema
+  auth?: EfsAuthSchema
   services?: Record<string, EfsServiceSchema>
-  navigation?: EfsNavigationSchema
-  resources: EfsResourceSchema[]
+  domains: EfsDomainSchema[]
+  ui?: EfsAppUiSchema
 }
 ```
 
@@ -205,23 +231,33 @@ This is the first place to put the new “port config” and service startup res
 ```ts
 interface EfsResourceSchema {
   key: string
-  domain: string
-  title?: string
-  icon?: string
-  runtime: 'crud' | 'report'
-  datasource: {
-    service: string
+  title: string
+  fields?: EfsFieldSchema[]
+  apis?: {
+    list?: EndpointSpec
+    get?: EndpointSpec
     query?: EndpointSpec
-    save?: EndpointSpec
+    create?: EndpointSpec
+    update?: EndpointSpec
     remove?: EndpointSpec
+    save?: EndpointSpec
     export?: EndpointSpec
   }
-  fields: EfsFieldSchema[]
   actions?: EfsActionSchema[]
 }
 ```
 
-This becomes the long-term replacement for hand-authored `ResController` objects.
+The business resource schema should describe only data and APIs. Runtime/view generation is inferred by EFS. Optional UI overrides, if needed, should live in a separate UI schema layer rather than inside the business resource contract.
+
+### Minimal UI override policy
+
+The first UI schema should stay deliberately small and only cover a few high-value overrides:
+
+- `resource.view.mode` — let apps hint the runtime mode when inference is not enough
+- `resource.fields.<field>.hidden` / `label` — let apps hide a field or override a UI label
+- `resource.actions.<action>.hidden` / `placement` — let apps hide an action or choose a coarse placement
+
+Do **not** expand the first UI schema into a full per-widget/per-column/per-form configuration language.
 
 ---
 
