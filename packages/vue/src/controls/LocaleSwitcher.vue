@@ -3,21 +3,22 @@
   type="button"
   class="efs-localeswitcher"
   :class="{ 'efs-localeswitcher--menu': props.mode === 'menu' }"
-  :aria-label="props.label"
-  :title="props.label"
+  :aria-label="resolvedLabel"
+  :title="resolvedLabel"
   @click="cycleLocale"
  >
   <span class="efs-localeswitcher__lead">
-   <SemanticIcon name="locale" :label="props.label" aria-hidden="true" />
-   <span v-if="props.mode === 'menu'" class="efs-localeswitcher__label">{{ props.label }}</span>
+   <SemanticIcon name="locale" :label="resolvedLabel" aria-hidden="true" />
+   <span v-if="props.mode === 'menu'" class="efs-localeswitcher__label">{{ resolvedLabel }}</span>
   </span>
   <span v-if="props.mode !== 'icon'" class="efs-localeswitcher__value">{{ currentLabel }}</span>
  </button>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
 import SemanticIcon from './SemanticIcon.vue'
+import { EFS_I18N_CONTEXT } from '../shared/efs-i18n'
 
 defineOptions({ name: 'LocaleSwitcher' })
 
@@ -29,18 +30,11 @@ type LocaleOption = {
 
 interface LocaleSwitcherProps {
  modelValue?: string
- label?: string
- options?: LocaleOption[]
  mode?: 'pill' | 'menu' | 'icon'
 }
 
 const props = withDefaults(defineProps<LocaleSwitcherProps>(), {
  modelValue: 'zh-CN',
- label: '语言',
- options: () => [
-  { label: '中', value: 'zh-CN' },
-  { label: 'EN', value: 'en-US' },
- ],
  mode: 'pill',
 })
 
@@ -48,17 +42,28 @@ const emit = defineEmits<{
  (e: 'update:modelValue', value: string): void
 }>()
 
+const i18nContext = inject(EFS_I18N_CONTEXT, null)
+const resolvedLabel = computed(() => resolveCopy('efs.shell.localeLabel', '语言'))
+const resolvedOptions = computed<LocaleOption[]>(() => [
+ { label: resolveCopy('efs.localeOptions.zh-CN', '中'), value: 'zh-CN' },
+ { label: resolveCopy('efs.localeOptions.en-US', 'EN'), value: 'en-US' },
+])
+
 const currentLabel = computed(() => {
- const matched = props.options.find((option) => option.value === props.modelValue)
+ const matched = resolvedOptions.value.find((option) => option.value === props.modelValue)
  return matched?.label || matched?.title || props.modelValue
 })
 
 function cycleLocale() {
- if (props.options.length === 0) return
- const currentIndex = props.options.findIndex((option) => option.value === props.modelValue)
- const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % props.options.length : 0
- const nextValue = props.options[nextIndex]?.value ?? props.modelValue
+ if (resolvedOptions.value.length === 0) return
+ const currentIndex = resolvedOptions.value.findIndex((option) => option.value === props.modelValue)
+ const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % resolvedOptions.value.length : 0
+ const nextValue = resolvedOptions.value[nextIndex]?.value ?? props.modelValue
  emit('update:modelValue', nextValue)
+}
+
+function resolveCopy(key: string, fallback: string) {
+ return i18nContext?.translate(key) || fallback
 }
 </script>
 

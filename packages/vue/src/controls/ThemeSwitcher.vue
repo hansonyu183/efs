@@ -3,21 +3,22 @@
   type="button"
   class="efs-themeswitcher"
   :class="{ 'efs-themeswitcher--menu': props.mode === 'menu' }"
-  :aria-label="props.label"
-  :title="props.label"
+  :aria-label="resolvedLabel"
+  :title="resolvedLabel"
   @click="cycleTheme"
  >
   <span class="efs-themeswitcher__lead">
-   <SemanticIcon :name="iconName" :label="props.label" aria-hidden="true" />
-   <span v-if="props.mode === 'menu'" class="efs-themeswitcher__label">{{ props.label }}</span>
+   <SemanticIcon :name="iconName" :label="resolvedLabel" aria-hidden="true" />
+   <span v-if="props.mode === 'menu'" class="efs-themeswitcher__label">{{ resolvedLabel }}</span>
   </span>
   <span v-if="props.mode !== 'icon'" class="efs-themeswitcher__value">{{ currentLabel }}</span>
  </button>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
 import SemanticIcon from './SemanticIcon.vue'
+import { EFS_I18N_CONTEXT } from '../shared/efs-i18n'
 
 defineOptions({ name: 'ThemeSwitcher' })
 
@@ -29,18 +30,11 @@ type ThemeOption = {
 
 interface ThemeSwitcherProps {
  modelValue?: string
- label?: string
- options?: ThemeOption[]
  mode?: 'pill' | 'menu' | 'icon'
 }
 
 const props = withDefaults(defineProps<ThemeSwitcherProps>(), {
  modelValue: 'light',
- label: '主题',
- options: () => [
-  { label: '明', value: 'light' },
-  { label: '暗', value: 'dark' },
- ],
  mode: 'pill',
 })
 
@@ -48,19 +42,30 @@ const emit = defineEmits<{
  (e: 'update:modelValue', value: string): void
 }>()
 
+const i18nContext = inject(EFS_I18N_CONTEXT, null)
+const resolvedLabel = computed(() => resolveCopy('efs.shell.themeLabel', '主题'))
+const resolvedOptions = computed<ThemeOption[]>(() => [
+ { label: resolveCopy('efs.themeOptions.light', '明'), value: 'light' },
+ { label: resolveCopy('efs.themeOptions.dark', '暗'), value: 'dark' },
+])
+
 const currentLabel = computed(() => {
- const matched = props.options.find((option) => option.value === props.modelValue)
+ const matched = resolvedOptions.value.find((option) => option.value === props.modelValue)
  return matched?.label || matched?.title || props.modelValue
 })
 
 const iconName = computed(() => (props.modelValue === 'dark' ? 'dark' : 'light'))
 
 function cycleTheme() {
- if (props.options.length === 0) return
- const currentIndex = props.options.findIndex((option) => option.value === props.modelValue)
- const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % props.options.length : 0
- const nextValue = props.options[nextIndex]?.value ?? props.modelValue
+ if (resolvedOptions.value.length === 0) return
+ const currentIndex = resolvedOptions.value.findIndex((option) => option.value === props.modelValue)
+ const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % resolvedOptions.value.length : 0
+ const nextValue = resolvedOptions.value[nextIndex]?.value ?? props.modelValue
  emit('update:modelValue', nextValue)
+}
+
+function resolveCopy(key: string, fallback: string) {
+ return i18nContext?.translate(key) || fallback
 }
 </script>
 

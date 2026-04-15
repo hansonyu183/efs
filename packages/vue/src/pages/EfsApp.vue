@@ -4,15 +4,19 @@
  :app-name="props.appName || resolvedBrandTitle"
  :logo-src="props.brandIcon || ''"
  :logo-alt="props.appName || resolvedBrandTitle"
-  :title="resolvedLoginTitle"
-  :subtitle="resolvedLoginSubtitle"
- :hero-title="resolvedLoginHeroTitle"
- :hero-subtitle="resolvedLoginHeroSubtitle"
  :locale="locale"
  :theme="theme"
  @update:locale="handleLocaleUpdate"
  @update:theme="handleThemeUpdate"
  >
+  <template #header>
+   <div class="efs-auth-layout__title">{{ resolvedLoginTitle }}</div>
+   <div v-if="resolvedLoginSubtitle" class="efs-auth-layout__subtitle">{{ resolvedLoginSubtitle }}</div>
+  </template>
+  <template #hero>
+   <div v-if="resolvedLoginHeroTitle" class="efs-auth-layout__hero-title">{{ resolvedLoginHeroTitle }}</div>
+   <div v-if="resolvedLoginHeroSubtitle" class="efs-auth-layout__hero-subtitle">{{ resolvedLoginHeroSubtitle }}</div>
+  </template>
   <form class="efs-app__login-form" @submit.prevent="handleLogin">
    <AppField :label="resolvedLoginNameLabel">
     <AppInput
@@ -142,14 +146,6 @@ const resolvedLoginOrgPlaceholder = computed(() => resolveCopy('efs.auth.orgPlac
 const resolvedLoginSubmitLabel = computed(() => resolveCopy('efs.auth.submitLabel', '登录'))
 const resolvedLoginSubmittingLabel = computed(() => resolveCopy('efs.auth.submittingLabel', '登录中…'))
 const resolvedMainTitle = computed(() => runtime.value?.title || resolvedEmptyTitle.value)
-const resolvedLocaleOptions = computed(() => [
- { title: resolveCopy('efs.localeOptions.zh-CN', '简体中文'), value: 'zh-CN' },
- { title: resolveCopy('efs.localeOptions.en-US', 'English'), value: 'en-US' },
-])
-const resolvedThemeOptions = computed(() => [
- { title: resolveCopy('efs.themeOptions.light', 'Light'), value: 'light' },
- { title: resolveCopy('efs.themeOptions.dark', 'Dark'), value: 'dark' },
-])
 const isAuthenticated = computed(() => props.app.auth.authenticated?.value ?? true)
 const firstRuntimePath = computed(() => sidebarMenus.value.find((item) => item.type === 'item')?.path ?? '')
 const nav = useEfsNavigation({

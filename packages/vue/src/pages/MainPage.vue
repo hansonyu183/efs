@@ -53,15 +53,11 @@
     <div class="efs-main-layout__header-actions">
      <LocaleSwitcher
       :model-value="props.locale"
-      :label="resolvedLocaleLabel"
-      :options="resolvedLocaleOptions"
       mode="icon"
       @update:model-value="(value) => emit('update:locale', value)"
      />
      <ThemeSwitcher
       :model-value="props.theme"
-      :label="resolvedThemeLabel"
-      :options="resolvedThemeOptions"
       mode="icon"
       @update:model-value="(value) => emit('update:theme', value)"
      />
@@ -318,8 +314,6 @@ const resolvedBrandTitle = computed(() => props.brandTitle || props.appName || '
 const resolvedBrandSubtitle = computed(() => props.brandSubtitle || props.userSubtitle || props.subtitle || props.currentOrgCode)
 const resolvedMobileMenuLabel = computed(() => resolveCopy('efs.shell.mobileMenuLabel', '切换导航'))
 const resolvedOrgLabel = computed(() => resolveCopy('efs.shell.orgLabel', '组织'))
-const resolvedLocaleLabel = computed(() => resolveCopy('efs.shell.localeLabel', '语言'))
-const resolvedThemeLabel = computed(() => resolveCopy('efs.shell.themeLabel', '主题'))
 const resolvedLogoutLabel = computed(() => resolveCopy('efs.shell.logoutLabel', '退出登录'))
 const resolvedMoreLabel = computed(() => resolveCopy('efs.shell.moreLabel', '更多'))
 const resolvedAgentTitle = computed(() => resolveCopy('efs.shell.agentTitle', 'Agent'))
@@ -328,14 +322,6 @@ const resolvedAgentSubmitLabel = computed(() => resolveCopy('efs.shell.agentSubm
 const resolvedAgentSessionsLabel = computed(() => resolveCopy('efs.shell.agentSessionsLabel', '会话管理'))
 const resolvedAgentSessionsEmptyText = computed(() => resolveCopy('efs.shell.agentSessionsEmptyText', '暂无会话'))
 const resolvedCloseLabel = computed(() => resolveCopy('efs.shell.closeLabel', '关闭'))
-const resolvedLocaleOptions = computed<PageOption[]>(() => [
- { title: resolveCopy('efs.localeOptions.zh-CN', '简体中文'), value: 'zh-CN' },
- { title: resolveCopy('efs.localeOptions.en-US', 'English'), value: 'en-US' },
-])
-const resolvedThemeOptions = computed<PageOption[]>(() => [
- { title: resolveCopy('efs.themeOptions.light', 'Light'), value: 'light' },
- { title: resolveCopy('efs.themeOptions.dark', 'Dark'), value: 'dark' },
-])
 const resolvedProfileDialog = computed(() => ({
  enabled: true,
  label: resolveCopy('efs.shell.profileDialog.label', '个人资料'),

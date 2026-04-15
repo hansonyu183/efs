@@ -10,10 +10,8 @@
       </slot>
      </div>
 
-     <div v-if="$slots.hero || props.heroTitle || props.heroSubtitle" class="efs-auth-layout__hero-copy">
+     <div v-if="$slots.hero" class="efs-auth-layout__hero-copy">
       <slot name="hero">
-       <div v-if="props.heroTitle" class="efs-auth-layout__hero-title">{{ props.heroTitle }}</div>
-       <div v-if="props.heroSubtitle" class="efs-auth-layout__hero-subtitle">{{ props.heroSubtitle }}</div>
       </slot>
      </div>
     </div>
@@ -22,31 +20,19 @@
    <section class="efs-auth-layout__panel-shell">
     <header v-if="showActionsBar" class="efs-auth-layout__actions">
      <slot name="locale-action">
-     <LocaleSwitcher
-      :model-value="props.locale"
-      :label="resolvedLocaleLabel"
-      :options="resolvedLocaleOptions"
-       @update:model-value="(value) => emit('update:locale', value)"
-      />
+     <LocaleSwitcher :model-value="props.locale" @update:model-value="(value) => emit('update:locale', value)" />
      </slot>
 
      <slot name="theme-action">
-     <ThemeSwitcher
-      :model-value="props.theme"
-      :label="resolvedThemeLabel"
-      :options="resolvedThemeOptions"
-       @update:model-value="(value) => emit('update:theme', value)"
-      />
+     <ThemeSwitcher :model-value="props.theme" @update:model-value="(value) => emit('update:theme', value)" />
      </slot>
 
      <slot name="actions" />
     </header>
 
     <div class="efs-auth-layout__panel">
-     <header v-if="props.title || props.subtitle || $slots.header" class="efs-auth-layout__header">
+     <header v-if="$slots.header" class="efs-auth-layout__header">
       <slot name="header">
-       <div class="efs-auth-layout__title">{{ props.title }}</div>
-       <div v-if="props.subtitle" class="efs-auth-layout__subtitle">{{ props.subtitle }}</div>
       </slot>
      </header>
 
@@ -70,41 +56,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, useSlots } from 'vue'
+import { computed, useSlots } from 'vue'
 import LocaleSwitcher from '../controls/LocaleSwitcher.vue'
 import ThemeSwitcher from '../controls/ThemeSwitcher.vue'
 import GlobalAlertsHost from '../interaction/GlobalAlertsHost.vue'
 import { useAppAlerts } from '../shared/app-alerts'
-import { EFS_I18N_CONTEXT } from '../shared/efs-i18n'
+
 
 defineOptions({ name: 'AuthPage' })
 
-type PageOption = {
- label?: string
- title?: string
- value: string
-}
-
 interface AuthPageProps {
- title?: string
- subtitle?: string
  appName?: string
  logoSrc?: string
  logoAlt?: string
- heroTitle?: string
- heroSubtitle?: string
  locale?: string
  theme?: string
 }
 
 const props = withDefaults(defineProps<AuthPageProps>(), {
- title: '',
- subtitle: '',
  appName: '',
  logoSrc: '',
  logoAlt: '',
- heroTitle: '',
- heroSubtitle: '',
  locale: 'zh-CN',
  theme: 'light',
 })
@@ -116,29 +88,14 @@ const emit = defineEmits<{
 
 const slots = useSlots()
 const globalAlerts = useAppAlerts()
-const i18nContext = inject(EFS_I18N_CONTEXT, null)
-const showHeroArea = computed(() => Boolean(slots.hero) || Boolean(slots.brand) || Boolean(props.logoSrc) || Boolean(props.appName) || Boolean(props.heroTitle) || Boolean(props.heroSubtitle))
+const showHeroArea = computed(() => Boolean(slots.hero) || Boolean(slots.brand) || Boolean(props.logoSrc) || Boolean(props.appName))
 const showActionsBar = computed(() => Boolean(slots.actions) || Boolean(slots['locale-action']) || Boolean(slots['theme-action']) || true)
 const showAlertsRegion = computed(() => Boolean(slots.alerts) || globalAlerts.hasItems.value)
-const resolvedLocaleLabel = computed(() => resolveCopy('efs.shell.localeLabel', '语言'))
-const resolvedThemeLabel = computed(() => resolveCopy('efs.shell.themeLabel', '主题'))
-const resolvedLocaleOptions = computed<PageOption[]>(() => [
- { label: resolveCopy('efs.localeOptions.zh-CN', '中'), value: 'zh-CN' },
- { label: resolveCopy('efs.localeOptions.en-US', 'EN'), value: 'en-US' },
-])
-const resolvedThemeOptions = computed<PageOption[]>(() => [
- { label: resolveCopy('efs.themeOptions.light', '明'), value: 'light' },
- { label: resolveCopy('efs.themeOptions.dark', '暗'), value: 'dark' },
-])
 const contentStyle = computed(() => ({ maxWidth: '1120px', '--efs-auth-panel-width': '460px' }))
 const layoutClasses = computed(() => ({
  'efs-auth-layout--split': true,
  'efs-auth-layout--centered': false,
 }))
-
-function resolveCopy(key: string, fallback: string) {
- return i18nContext?.translate(key) || fallback
-}
 </script>
 
 <style scoped>
