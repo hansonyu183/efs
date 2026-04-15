@@ -471,6 +471,7 @@ function toggleMobileAgentBar() {
 <style scoped>
 .efs-main-layout {
  min-height: 100vh;
+ min-height: 100dvh;
  display: grid;
  grid-template-columns: 280px minmax(0, 1fr);
  background: var(--efs-surface-soft, #f4f7fb);
@@ -490,6 +491,7 @@ function toggleMobileAgentBar() {
  position: sticky;
  top: 0;
  height: 100vh;
+ height: 100dvh;
  padding: 16px 14px;
  border-right: 1px solid var(--efs-border, #dbe3ef);
  background: var(--efs-surface, #fff);
@@ -622,6 +624,7 @@ function toggleMobileAgentBar() {
  display: flex;
  flex-direction: column;
  min-height: 100vh;
+ min-height: 100dvh;
 }
 
 .efs-main-layout__header {
@@ -878,6 +881,7 @@ function toggleMobileAgentBar() {
  right: 0;
  width: min(360px, 90vw);
  height: 100vh;
+ height: 100dvh;
  border-left: 1px solid var(--efs-border, #dbe3ef);
  background: var(--efs-surface, #fff);
  box-shadow: -18px 0 40px rgba(15, 23, 42, 0.12);

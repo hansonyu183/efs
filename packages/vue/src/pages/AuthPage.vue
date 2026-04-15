@@ -93,6 +93,7 @@ const layoutClasses = computed(() => ({
 <style scoped>
 .efs-auth-layout {
  min-height: 100vh;
+ min-height: 100dvh;
  display: block;
  padding: 20px 16px 24px;
  background:

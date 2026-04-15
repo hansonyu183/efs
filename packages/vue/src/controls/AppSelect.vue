@@ -99,5 +99,7 @@ function onChange(event: Event) {
  outline: 0;
  background: transparent;
  color: inherit;
+ font-size: 16px;
+ line-height: 1.5;
 }
 </style>

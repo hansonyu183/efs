@@ -359,6 +359,7 @@ function describeError(error: unknown) {
  color: var(--efs-text);
  background: var(--efs-surface-soft);
  min-height: 100vh;
+ min-height: 100dvh;
 }
 
 .efs-app-shell[data-theme='dark'] {
