@@ -9,11 +9,16 @@ function read(relativePath) {
  return fs.readFileSync(path.join(repoRoot, relativePath), 'utf8')
 }
 
-test('standard demo consumes only documented root and controller entrypoints', () => {
- const source = read('apps/standard-demo/src/demo-app.ts')
- assert.match(source, /import type \{ AppController \} from '@efs\/vue'/)
- assert.match(source, /import type \{ DomainController, ResController, ResRow, ResQueryParams \} from '@efs\/vue\/controller'/)
- assert.doesNotMatch(source, /import type \{ AppController, .*\} from '@efs\/vue'/)
+test('standard demo keeps controller demo isolated and adds schema-first authoring entry', () => {
+ const controllerSource = read('apps/standard-demo/src/demo-app.ts')
+ const schemaSource = read('apps/standard-demo/app.schema.ts')
+
+ assert.match(controllerSource, /import type \{ AppController \} from '@efs\/vue'/)
+ assert.match(controllerSource, /import type \{ DomainController, ResController, ResRow, ResQueryParams \} from '@efs\/vue\/controller'/)
+ assert.doesNotMatch(controllerSource, /import type \{ AppController, .*\} from '@efs\/vue'/)
+
+ assert.match(schemaSource, /from '@efs\/schema'/)
+ assert.match(schemaSource, /defineAppSchema\(/)
 })
 
 test('docs avoid raw component package imports and use lowercase navigation-menu helper path', () => {

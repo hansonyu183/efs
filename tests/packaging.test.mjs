@@ -6,6 +6,7 @@ import path from 'node:path'
 const repoRoot = path.resolve(new URL('..', import.meta.url).pathname)
 
 const packageFiles = [
+ path.join(repoRoot, 'packages/schema/package.json'),
  path.join(repoRoot, 'packages/presets/package.json'),
  path.join(repoRoot, 'packages/vue/package.json'),
  path.join(repoRoot, 'packages/cli/package.json')
@@ -24,6 +25,11 @@ test('publishable package manifests expose name and exports/bin', () => {
 })
 
 test('publishable package manifests export built dist entries instead of src entries', () => {
+ const schemaPkg = readPackage('packages/schema/package.json')
+ assert.equal(schemaPkg.exports['.'].default, './dist/index.js')
+ assert.equal(schemaPkg.exports['.'].types, './dist/index.d.ts')
+ assert.deepEqual(schemaPkg.files, ['dist'])
+
  const presetsPkg = readPackage('packages/presets/package.json')
  assert.equal(presetsPkg.exports['.'].default, './dist/index.js')
  assert.equal(presetsPkg.exports['.'].types, './dist/index.d.ts')
