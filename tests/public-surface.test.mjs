@@ -9,16 +9,20 @@ function read(relativePath) {
  return fs.readFileSync(path.join(repoRoot, relativePath), 'utf8')
 }
 
-test('standard demo keeps controller demo isolated and adds schema-first authoring entry', () => {
- const controllerSource = read('apps/standard-demo/src/demo-app.ts')
+test('standard demo is schema-first while legacy controller fixture remains isolated', () => {
+ const legacySource = read('apps/standard-demo/src/legacy-controller-app.ts')
  const schemaSource = read('apps/standard-demo/app.schema.ts')
+ const schemaRuntimeSource = read('apps/standard-demo/src/app-from-schema.ts')
+ const demoRootSource = read('apps/standard-demo/src/DemoRoot.vue')
 
- assert.match(controllerSource, /import type \{ AppController \} from '@efs\/vue'/)
- assert.match(controllerSource, /import type \{ DomainController, ResController, ResRow, ResQueryParams \} from '@efs\/vue\/controller'/)
- assert.doesNotMatch(controllerSource, /import type \{ AppController, .*\} from '@efs\/vue'/)
+ assert.match(legacySource, /import type \{ AppController \} from '@efs\/vue'/)
+ assert.match(legacySource, /import type \{ DomainController, ResController, ResRow, ResQueryParams \} from '@efs\/vue\/controller'/)
+ assert.doesNotMatch(legacySource, /import type \{ AppController, .*\} from '@efs\/vue'/)
 
  assert.match(schemaSource, /from '@efs\/schema'/)
  assert.match(schemaSource, /defineAppSchema\(/)
+ assert.match(schemaRuntimeSource, /adaptAppSchemaToVueController/)
+ assert.match(demoRootSource, /\.\/app-from-schema/)
 })
 
 test('docs avoid raw component package imports and use lowercase navigation-menu helper path', () => {

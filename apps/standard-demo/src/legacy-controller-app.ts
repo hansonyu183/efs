@@ -1,3 +1,5 @@
+// Legacy controller-first fixture kept only as a migration/reference sample.
+// The runnable standard demo now uses app.schema.ts -> adaptAppSchemaToVueController.
 import type { AppController } from '@efs/vue'
 import type { DomainController, ResController, ResRow, ResQueryParams } from '@efs/vue/controller'
 
