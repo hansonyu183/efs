@@ -582,8 +582,8 @@ const app = useApp()
 - `packages/vue/src/controller/app-controller.ts`
 - `packages/vue/src/controller/path-helpers.ts`
 - `packages/vue/src/controller/runtime.ts`
-- `packages/vue/src/components/pages/ResolvedResPage.vue`（内部）
-- `packages/vue/src/components/pages/EfsApp.vue`（公共入口）
+- `packages/vue/src/pages/ResolvedResPage.vue`（内部）
+- `packages/vue/src/pages/EfsApp.vue`（公共入口）
 
 说明：`@efs/vue` 根入口当前只保留 `AppController` 与 `EfsApp`；`buildResPath()`、`splitResPath()`、`flattenAppMenuNodes()`、`findResByPath()`、`resolveResRuntime()` 等 helper 应从对应 controller 子路径导入。
 

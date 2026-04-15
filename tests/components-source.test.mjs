@@ -10,7 +10,7 @@ function read(path) {
 }
 
 test('EntityListTable exposes simplified typed props contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/panels/EntityListTable.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/panels/EntityListTable.vue'))
  assert.match(source, /interface EntityListTableProps/)
  assert.match(source, /rowKey: string/)
  assert.match(source, /columns\?: InputColumn\[\]/)
@@ -21,13 +21,13 @@ test('EntityListTable exposes simplified typed props contract', () => {
 })
 
 test('PermissionGuard exposes granted prop', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/controls/PermissionGuard.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/controls/PermissionGuard.vue'))
  assert.match(source, /granted\?: boolean/)
  assert.match(source, /slot name="fallback"/)
 })
 
 test('MainPage exposes concrete shell and global agent contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/pages/MainPage.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/pages/MainPage.vue'))
  assert.match(source, /interface MainPageProps/)
  assert.match(source, /moreLabel\?: string/)
  assert.match(source, /agentPlaceholder\?: string/)
@@ -70,7 +70,7 @@ test('MainPage exposes concrete shell and global agent contract', () => {
 })
 
 test('SemanticIcon exposes unified semantic token contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/controls/SemanticIcon.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/controls/SemanticIcon.vue'))
  assert.match(source, /interface SemanticIconProps/)
  assert.match(source, /name\?: string/)
  assert.match(source, /fallback\?: string/)
@@ -80,7 +80,7 @@ test('SemanticIcon exposes unified semantic token contract', () => {
 })
 
 test('EfsApp exposes single-component app-shell contract around AppController', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/pages/EfsApp.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/pages/EfsApp.vue'))
  const indexSource = read(path.join(repoRoot, 'packages/vue/src/index.ts'))
  assert.match(source, /defineOptions\(\{ name: 'EfsApp' \}\)/)
  assert.match(source, /interface EfsAppProps/)
@@ -108,13 +108,13 @@ test('EfsApp exposes single-component app-shell contract around AppController', 
  assert.match(source, /watch\(\(\) => route\.path/)
  assert.match(source, /props\.app\.main\.currentPath\.value = \(normalized\.includes\('\/'\) \? normalized : ''\) as never/)
  assert.doesNotMatch(indexSource, /export type \* from '\.\/components\/pages\/efs-app-types'/)
- assert.match(indexSource, /export \{ default as EfsApp \} from '\.\/components\/pages\/EfsApp\.vue'/)
- assert.doesNotMatch(indexSource, /export \{ default as EfsSidebarNav \} from '\.\/components\/pages\/EfsSidebarNav\.vue'/)
- assert.doesNotMatch(indexSource, /export \{ default as ResolvedResPage \} from '\.\/components\/pages\/ResolvedResPage\.vue'/)
+ assert.match(indexSource, /export \{ default as EfsApp \} from '\.\/pages\/EfsApp\.vue'/)
+ assert.doesNotMatch(indexSource, /export \{ default as EfsSidebarNav \} from '\.\/pages\/EfsSidebarNav\.vue'/)
+ assert.doesNotMatch(indexSource, /export \{ default as ResolvedResPage \} from '\.\/pages\/ResolvedResPage\.vue'/)
 })
 
 test('ResolvedResPage exposes shared runtime-kind shell contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/pages/ResolvedResPage.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/pages/ResolvedResPage.vue'))
  const indexSource = read(path.join(repoRoot, 'packages/vue/src/index.ts'))
  assert.match(source, /defineOptions\(\{ name: 'ResolvedResPage' \}\)/)
  assert.match(source, /interface ResolvedResPageProps/)
@@ -140,7 +140,7 @@ test('ResolvedResPage exposes shared runtime-kind shell contract', () => {
 })
 
 test('AuthPage exposes stronger auth-shell props and slots contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/pages/AuthPage.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/pages/AuthPage.vue'))
  assert.match(source, /interface AuthPageProps/)
  assert.match(source, /subtitle\?: string/)
  assert.match(source, /maxWidth\?: string/)
@@ -176,8 +176,8 @@ test('AuthPage exposes stronger auth-shell props and slots contract', () => {
 })
 
 test('LocaleSwitcher and ThemeSwitcher expose standard switch contracts', () => {
- const localeSource = read(path.join(repoRoot, 'packages/vue/src/components/controls/LocaleSwitcher.vue'))
- const themeSource = read(path.join(repoRoot, 'packages/vue/src/components/controls/ThemeSwitcher.vue'))
+ const localeSource = read(path.join(repoRoot, 'packages/vue/src/controls/LocaleSwitcher.vue'))
+ const themeSource = read(path.join(repoRoot, 'packages/vue/src/controls/ThemeSwitcher.vue'))
  assert.match(localeSource, /interface LocaleSwitcherProps/)
  assert.match(localeSource, /modelValue\?: string/)
  assert.match(localeSource, /options\?: LocaleOption\[\]/)
@@ -193,8 +193,8 @@ test('LocaleSwitcher and ThemeSwitcher expose standard switch contracts', () => 
 })
 
 test('AppAlerts and global alerts host expose reusable global alert contracts', () => {
- const alertsSource = read(path.join(repoRoot, 'packages/vue/src/components/interaction/AppAlerts.vue'))
- const hostSource = read(path.join(repoRoot, 'packages/vue/src/components/interaction/GlobalAlertsHost.vue'))
+ const alertsSource = read(path.join(repoRoot, 'packages/vue/src/interaction/AppAlerts.vue'))
+ const hostSource = read(path.join(repoRoot, 'packages/vue/src/interaction/GlobalAlertsHost.vue'))
  const storeSource = read(path.join(repoRoot, 'packages/vue/src/shared/app-alerts.ts'))
  assert.match(alertsSource, /interface AppAlertsProps/)
  assert.match(alertsSource, /items\?: AppAlertItem\[\]/)
@@ -348,7 +348,7 @@ test('AppController types expose app/main/domain/res contract and typed domain-r
 })
 
 test('AppButton exposes foundational action props and slots contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/controls/AppButton.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/controls/AppButton.vue'))
  assert.match(source, /interface AppButtonProps/)
  assert.match(source, /size\?: 'sm' \| 'md' \| 'lg'/)
  assert.match(source, /loading\?: boolean/)
@@ -358,7 +358,7 @@ test('AppButton exposes foundational action props and slots contract', () => {
 })
 
 test('AppInput exposes foundational form-control props and slots contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/controls/AppInput.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/controls/AppInput.vue'))
  assert.match(source, /interface AppInputProps/)
  assert.match(source, /disabled\?: boolean/)
  assert.match(source, /readonly\?: boolean/)
@@ -368,7 +368,7 @@ test('AppInput exposes foundational form-control props and slots contract', () =
 })
 
 test('AppSelect exposes foundational select props contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/controls/AppSelect.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/controls/AppSelect.vue'))
  assert.match(source, /interface AppSelectProps/)
  assert.match(source, /modelValue\?: string/)
  assert.match(source, /placeholder\?: string/)
@@ -381,7 +381,7 @@ test('AppSelect exposes foundational select props contract', () => {
 })
 
 test('AppField exposes foundational label-help-error contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/controls/AppField.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/controls/AppField.vue'))
  assert.match(source, /interface AppFieldProps/)
  assert.match(source, /hint\?: string/)
  assert.match(source, /error\?: string/)
@@ -389,7 +389,7 @@ test('AppField exposes foundational label-help-error contract', () => {
 })
 
 test('AppPanel exposes foundational panel header actions contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/controls/AppPanel.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/controls/AppPanel.vue'))
  assert.match(source, /interface AppPanelProps/)
  assert.match(source, /padded\?: boolean/)
  assert.match(source, /borderless\?: boolean/)
@@ -397,14 +397,14 @@ test('AppPanel exposes foundational panel header actions contract', () => {
 })
 
 test('PagePanel exposes header actions slot contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/panels/PagePanel.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/panels/PagePanel.vue'))
  assert.match(source, /interface PagePanelProps/)
  assert.match(source, /subtitle\?: string/)
  assert.match(source, /slot name="actions"/)
 })
 
 test('EntityListTable exposes simplified column settings and pagination contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/panels/EntityListTable.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/panels/EntityListTable.vue'))
  assert.match(source, /subtitle\?: string/)
  assert.match(source, /labels\?: EntityListTableLabels/)
  assert.match(source, /showPagination\?: boolean/)
@@ -434,7 +434,7 @@ test('EntityListTable exposes simplified column settings and pagination contract
 })
 
 test('EntityListView exposes controller-first CRUD page shell contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/views/EntityListView.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/views/EntityListView.vue'))
  assert.match(source, /interface EntityListViewProps/)
  assert.match(source, /rowKey: string/)
  assert.match(source, /title\?: string/)
@@ -518,7 +518,7 @@ test('EntityListView exposes controller-first CRUD page shell contract', () => {
 })
 
 test('ReportView exposes controller-first report workbench contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/views/ReportView.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/views/ReportView.vue'))
  assert.match(source, /defineOptions\(\{ name: 'ReportView' \}\)/)
  assert.match(source, /interface ReportViewProps/)
  assert.match(source, /title\?: string/)
@@ -592,14 +592,14 @@ test('resource-crud metadata types rely on key-only lookup instead of inline lab
 })
 
 test('SimpleTablePanel exposes subtitle rowsLabel and actions slot contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/panels/SimpleTablePanel.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/panels/SimpleTablePanel.vue'))
  assert.match(source, /subtitle\?: string/)
  assert.match(source, /rowsLabel\?: string/)
  assert.match(source, /slot name="actions"/)
 })
 
 test('FormPanel exposes sectioned form, summary, and footer action contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/panels/FormPanel.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/panels/FormPanel.vue'))
  assert.match(source, /interface FormPanelProps/)
  assert.match(source, /sections\?: FormSection\[\]/)
  assert.match(source, /summary\?: string/)
@@ -618,13 +618,13 @@ test('FormPanel exposes sectioned form, summary, and footer action contract', ()
 })
 
 test('DashboardCardPanel exposes eyebrow contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/panels/DashboardCardPanel.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/panels/DashboardCardPanel.vue'))
  assert.match(source, /eyebrow\?: string/)
  assert.match(source, /dashboardcardpanel__value/)
 })
 
 test('DetailPanel exposes richer detail grid contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/panels/DetailPanel.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/panels/DetailPanel.vue'))
  assert.match(source, /subtitle\?: string/)
  assert.match(source, /description\?: string/)
  assert.match(source, /fieldsLabel\?: string/)
@@ -635,7 +635,7 @@ test('DetailPanel exposes richer detail grid contract', () => {
 })
 
 test('MasterDetailPanel exposes split panel, header action, and detail empty-state contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/panels/MasterDetailPanel.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/panels/MasterDetailPanel.vue'))
  assert.match(source, /interface MasterDetailPanelProps/)
  assert.match(source, /splitRatio\?: string/)
  assert.match(source, /masterTitle\?: string/)
@@ -648,7 +648,7 @@ test('MasterDetailPanel exposes split panel, header action, and detail empty-sta
 })
 
 test('CrudDialog exposes dialog mode, footer action, dirty-close guard, and close contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/panels/CrudDialog.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/panels/CrudDialog.vue'))
  assert.match(source, /interface CrudDialogProps/)
  assert.match(source, /subtitle\?: string/)
  assert.match(source, /summary\?: string/)
@@ -673,7 +673,7 @@ test('CrudDialog exposes dialog mode, footer action, dirty-close guard, and clos
 })
 
 test('ReportPanel exposes query/result/export contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/panels/ReportPanel.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/panels/ReportPanel.vue'))
  assert.match(source, /interface ReportPanelProps/)
  assert.match(source, /subtitle\?: string/)
  assert.match(source, /description\?: string/)
@@ -697,7 +697,7 @@ test('ReportPanel exposes query/result/export contract', () => {
 })
 
 test('ColumnSettings exposes visibleKeys show-all and reset contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/interaction/ColumnSettings.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/interaction/ColumnSettings.vue'))
  assert.match(source, /visibleKeys\?: string\[\]/)
  assert.match(source, /showAllLabel\?: string/)
  assert.match(source, /'update:visibleKeys'/)
@@ -706,7 +706,7 @@ test('ColumnSettings exposes visibleKeys show-all and reset contract', () => {
 })
 
 test('ActionBar exposes schema-driven action layout contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/interaction/ActionBar.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/interaction/ActionBar.vue'))
  assert.match(source, /type ActionBarItem/)
  assert.match(source, /actions\?: ActionBarItem\[\]/)
  assert.match(source, /align\?: 'start' \| 'between' \| 'end'/)
@@ -715,11 +715,11 @@ test('ActionBar exposes schema-driven action layout contract', () => {
 })
 
 test('Form and dialog shell defaults use consistent Chinese copy', () => {
- const formSource = read(path.join(repoRoot, 'packages/vue/src/components/panels/FormPanel.vue'))
- const dialogSource = read(path.join(repoRoot, 'packages/vue/src/components/panels/CrudDialog.vue'))
- const detailSource = read(path.join(repoRoot, 'packages/vue/src/components/panels/DetailPanel.vue'))
- const columnSource = read(path.join(repoRoot, 'packages/vue/src/components/interaction/ColumnSettings.vue'))
- const simpleTableSource = read(path.join(repoRoot, 'packages/vue/src/components/panels/SimpleTablePanel.vue'))
+ const formSource = read(path.join(repoRoot, 'packages/vue/src/panels/FormPanel.vue'))
+ const dialogSource = read(path.join(repoRoot, 'packages/vue/src/panels/CrudDialog.vue'))
+ const detailSource = read(path.join(repoRoot, 'packages/vue/src/panels/DetailPanel.vue'))
+ const columnSource = read(path.join(repoRoot, 'packages/vue/src/interaction/ColumnSettings.vue'))
+ const simpleTableSource = read(path.join(repoRoot, 'packages/vue/src/panels/SimpleTablePanel.vue'))
  assert.match(formSource, /emptyText: '未配置表单分组。'/)
  assert.match(formSource, /dirtyLabel: '存在未保存修改'/)
  assert.match(formSource, /submitLabel: '保存'/)
@@ -737,9 +737,9 @@ test('Form and dialog shell defaults use consistent Chinese copy', () => {
 })
 
 test('LoadingState EmptyState and ErrorState expose richer state contracts', () => {
- const loadingSource = read(path.join(repoRoot, 'packages/vue/src/components/interaction/LoadingState.vue'))
- const emptySource = read(path.join(repoRoot, 'packages/vue/src/components/interaction/EmptyState.vue'))
- const errorSource = read(path.join(repoRoot, 'packages/vue/src/components/interaction/ErrorState.vue'))
+ const loadingSource = read(path.join(repoRoot, 'packages/vue/src/interaction/LoadingState.vue'))
+ const emptySource = read(path.join(repoRoot, 'packages/vue/src/interaction/EmptyState.vue'))
+ const errorSource = read(path.join(repoRoot, 'packages/vue/src/interaction/ErrorState.vue'))
  assert.match(loadingSource, /interface LoadingStateProps/)
  assert.match(loadingSource, /message\?: string/)
  assert.match(emptySource, /icon\?: string/)
@@ -749,7 +749,7 @@ test('LoadingState EmptyState and ErrorState expose richer state contracts', () 
 })
 
 test('Pagination exposes pageCount pageSizeOptions and update emits contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/interaction/Pagination.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/interaction/Pagination.vue'))
  assert.match(source, /pageCount\?: number/)
  assert.match(source, /pageSizeOptions\?: number\[\]/)
  assert.match(source, /pageSizeLabel: '每页条数'/)
@@ -761,12 +761,12 @@ test('Pagination exposes pageCount pageSizeOptions and update emits contract', (
 })
 
 test('StatusChip constrains tone variants', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/interaction/StatusChip.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/interaction/StatusChip.vue'))
  assert.match(source, /new Set\(\['neutral', 'success', 'warning', 'danger', 'info'\]\)/)
 })
 
 test('DataTable exposes simplified renderers visible columns row actions and row selection contract', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/interaction/DataTable.vue'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/interaction/DataTable.vue'))
  assert.match(source, /type CellRenderer = 'text' \| 'status' \| 'tags'/)
  assert.match(source, /formatter\?: \(value: unknown, row: Record<string, unknown>\) => unknown/)
  assert.match(source, /rowKey: string/)

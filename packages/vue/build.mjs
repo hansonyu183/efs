@@ -26,7 +26,7 @@ function copyVueFiles(fromDir, toDir) {
 
 fs.rmSync(distDir, { recursive: true, force: true })
 fs.mkdirSync(distDir, { recursive: true })
-copyVueFiles(path.join(srcDir, 'components'), path.join(distDir, 'components'))
+copyVueFiles(srcDir, distDir)
 
 const tsc = spawnSync(
  process.execPath,

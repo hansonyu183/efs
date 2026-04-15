@@ -46,7 +46,7 @@ import type { AppController, ResController } from '@efs/vue/controller'
 import { buildSidebarMenuTree } from '@efs/vue/shared/navigation-menu'
 ```
 
-业务侧应优先消费稳定入口：根入口只用于 `EfsApp` / `AppController`，其他公开 helper 仅从文档约定的 `controller`、`shared` 子路径导入；不要直接依赖 `components/pages/*`、`components/panels/*` 这类原始组件路径。
+业务侧应优先消费稳定入口：根入口只用于 `EfsApp` / `AppController`，其他公开 helper 仅从文档约定的 `controller`、`shared` 子路径导入；不要直接依赖 `pages/*`、`panels/*`、`controls/*` 这类原始源码路径。
 
 ## 为什么当前采用这种接法
 
