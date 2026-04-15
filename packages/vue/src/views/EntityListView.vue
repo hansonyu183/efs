@@ -221,8 +221,7 @@
      :summary="''"
      :dirty="resolvedDirty"
      :busy="resolvedBusy"
-     required-hint="* 必填字段"
-     :footer="{ showActions: false, dirtyLabel: '存在未保存修改' }"
+     :footer="{ showActions: false }"
     >
      <div v-if="normalizedFormSections.length > 0" class="efs-resourcecrudpage__form-sections">
       <section v-for="section in normalizedFormSections" :key="section.key" class="efs-resourcecrudpage__form-section">

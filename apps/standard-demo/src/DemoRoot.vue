@@ -1,5 +1,5 @@
 <template>
-  <EfsApp :app="app" title="EFS 标准演示" />
+  <EfsApp :app="app" />
 </template>
 
 <script setup lang="ts">

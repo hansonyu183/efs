@@ -13,7 +13,7 @@
   <div v-if="$slots.summary || props.summary || normalizedSections.length > 0" class="efs-formshell__summary">
    <slot name="summary">
     <span v-if="props.summary">{{ props.summary }}</span>
-    <span v-else>{{ props.sectionsLabel }} {{ normalizedSections.length }}</span>
+    <span v-else>{{ resolvedSectionsLabel }} {{ normalizedSections.length }}</span>
    </slot>
   </div>
 
@@ -37,13 +37,13 @@
      </div>
     </article>
    </div>
-   <div v-else class="efs-formshell__empty">{{ props.emptyText }}</div>
+   <div v-else class="efs-formshell__empty">{{ resolvedEmptyText }}</div>
   </div>
 
   <footer v-if="$slots.footer || resolvedFooter.showActions" class="efs-formshell__footer">
    <slot name="footer">
     <div class="efs-formshell__footer-meta">
-     <span v-if="props.requiredHint">{{ props.requiredHint }}</span>
+     <span v-if="resolvedRequiredHint">{{ resolvedRequiredHint }}</span>
      <span v-if="props.dirty" class="efs-formshell__dirty">{{ resolvedFooter.dirtyLabel }}</span>
     </div>
     <div class="efs-formshell__footer-actions">
@@ -89,20 +89,13 @@ type FormSection = {
 
 type FormPanelFooter = {
  showActions?: boolean
- dirtyLabel?: string
- submitLabel?: string
- savingLabel?: string
- cancelLabel?: string
 }
 
 interface FormPanelProps {
  title?: string
  subtitle?: string
  sections?: FormSection[]
- sectionsLabel?: string
  summary?: string
- emptyText?: string
- requiredHint?: string
  dirty?: boolean
  busy?: boolean
  footer?: FormPanelFooter
@@ -112,18 +105,11 @@ const props = withDefaults(defineProps<FormPanelProps>(), {
  title: '',
  subtitle: '',
  sections: () => [],
- sectionsLabel: '分组数：',
  summary: '',
- emptyText: '未配置表单分组。',
- requiredHint: '* 必填字段',
  dirty: false,
  busy: false,
  footer: () => ({
   showActions: true,
-  dirtyLabel: '存在未保存修改',
-  submitLabel: '保存',
-  savingLabel: '保存中...',
-  cancelLabel: '取消',
  }),
 })
 
@@ -133,12 +119,15 @@ const emit = defineEmits<{
 }>()
 
 const instance = getCurrentInstance()
+const resolvedSectionsLabel = computed(() => resolveOptionalLabel({ key: 'sectionsLabel', instance, namespaces: ['efs.formPanel'] }) || '分组数：')
+const resolvedEmptyText = computed(() => resolveOptionalLabel({ key: 'emptyText', instance, namespaces: ['efs.formPanel'] }) || '未配置表单分组。')
+const resolvedRequiredHint = computed(() => resolveOptionalLabel({ key: 'requiredHint', instance, namespaces: ['efs.formPanel'] }) || '* 必填字段')
 const resolvedFooter = computed(() => ({
  showActions: props.footer?.showActions ?? true,
- dirtyLabel: props.footer?.dirtyLabel ?? '存在未保存修改',
- submitLabel: props.footer?.submitLabel ?? '保存',
- savingLabel: props.footer?.savingLabel ?? '保存中...',
- cancelLabel: props.footer?.cancelLabel ?? '取消',
+ dirtyLabel: resolveOptionalLabel({ key: 'footer.dirtyLabel', instance, namespaces: ['efs.formPanel'] }) || '存在未保存修改',
+ submitLabel: resolveOptionalLabel({ key: 'footer.submitLabel', instance, namespaces: ['efs.formPanel'] }) || '保存',
+ savingLabel: resolveOptionalLabel({ key: 'footer.savingLabel', instance, namespaces: ['efs.formPanel'] }) || '保存中...',
+ cancelLabel: resolveOptionalLabel({ key: 'footer.cancelLabel', instance, namespaces: ['efs.formPanel'] }) || '取消',
 }))
 
 const normalizedSections = computed(() => props.sections.map((section) => ({

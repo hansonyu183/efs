@@ -86,7 +86,7 @@
 
 <script setup lang="ts">
 import { computed, provide, ref, watch } from 'vue'
-import type { AppController, ResCrudRuntimeOptions, ResReportRuntimeOptions } from '../controller/index'
+import type { AppController } from '../controller/index'
 import { flattenAppMenuNodes } from '../controller/path-helpers'
 import { resolveResRuntime } from '../controller/runtime'
 import type { EfsI18nConfig } from '../shared/efs-i18n'
@@ -107,29 +107,17 @@ defineOptions({ name: 'EfsApp' })
 
 interface EfsAppProps {
  app: AppController
- title?: string
- locale?: string
- theme?: 'light' | 'dark'
  i18n?: EfsI18nConfig
- runtimeOptions?: ResCrudRuntimeOptions & ResReportRuntimeOptions
 }
 
-const props = withDefaults(defineProps<EfsAppProps>(), {
- title: '',
-  runtimeOptions: () => ({}),
-})
-
-const emit = defineEmits<{
- (e: 'update:locale', value: string): void
- (e: 'update:theme', value: 'light' | 'dark'): void
-}>()
+const props = defineProps<EfsAppProps>()
 
 const shell = computed(() => props.app.shell ?? {})
 const shellBrand = computed(() => shell.value.brand ?? {})
 const shellAuthPage = computed(() => shell.value.authPage ?? {})
 const shellRuntime = computed(() => shell.value.runtime ?? {})
-const locale = ref(props.locale || shell.value.locale || 'zh-CN')
-const theme = ref<'light' | 'dark'>(props.theme || shell.value.theme || 'dark')
+const locale = ref(shell.value.locale || 'zh-CN')
+const theme = ref<'light' | 'dark'>(shell.value.theme || 'dark')
 const mergedI18n = computed(() => mergeEfsI18nConfigs(props.i18n, { locale: locale.value }))
 
 provide(EFS_I18N_CONTEXT, {
@@ -138,7 +126,7 @@ provide(EFS_I18N_CONTEXT, {
 })
 
 const sidebarMenus = computed<FlatMenuNode[]>(() => flattenAppMenuNodes(props.app))
-const runtime = computed(() => resolveResRuntime(props.app, currentPath.value, props.runtimeOptions))
+const runtime = computed(() => resolveResRuntime(props.app, currentPath.value, {}))
 const resolvedBrandTitle = computed(() => resolveCopy('efs.brand.title', shellBrand.value.title || props.app.appName || ''))
 const resolvedBrandSubtitle = computed(() => resolveCopy('efs.brand.subtitle', shellBrand.value.subtitle || ''))
 const currentOrgCode = computed(() => props.app.auth.orgCode?.value || '')
@@ -156,7 +144,7 @@ const resolvedLoginOrgLabel = computed(() => resolveCopy('efs.auth.orgLabel', sh
 const resolvedLoginOrgPlaceholder = computed(() => resolveCopy('efs.auth.orgPlaceholder', shellAuthPage.value.orgPlaceholder || '请输入组织编码'))
 const resolvedLoginSubmitLabel = computed(() => resolveCopy('efs.auth.submitLabel', shellAuthPage.value.submitLabel || '登录'))
 const resolvedLoginSubmittingLabel = computed(() => resolveCopy('efs.auth.submittingLabel', shellAuthPage.value.submittingLabel || '登录中…'))
-const resolvedMainTitle = computed(() => runtime.value?.title || props.title || resolvedEmptyTitle.value)
+const resolvedMainTitle = computed(() => runtime.value?.title || resolvedEmptyTitle.value)
 const resolvedLocaleOptions = computed(() => [
  { title: resolveCopy('efs.localeOptions.zh-CN', '简体中文'), value: 'zh-CN' },
  { title: resolveCopy('efs.localeOptions.en-US', 'English'), value: 'en-US' },
@@ -204,12 +192,10 @@ watch([isAuthenticated, isLoginRoute, firstRuntimePath, currentPath], ([authenti
 
 function handleLocaleUpdate(value: string) {
  locale.value = value
- emit('update:locale', value)
 }
 
 function handleThemeUpdate(value: string) {
  theme.value = value === 'light' ? 'light' : 'dark'
- emit('update:theme', theme.value)
 }
 
 function handleOrgCodeUpdate(value: string) {
