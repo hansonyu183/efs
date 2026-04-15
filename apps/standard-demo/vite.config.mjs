@@ -8,6 +8,11 @@ const rootDir = dirname(fileURLToPath(import.meta.url))
 export default defineConfig({
   root: rootDir,
   plugins: [vue()],
+  resolve: {
+    alias: {
+      '@efs/schema': resolve(rootDir, '../../packages/schema/src/index.ts'),
+    },
+  },
   build: {
     outDir: resolve(rootDir, 'dist'),
     emptyOutDir: true,

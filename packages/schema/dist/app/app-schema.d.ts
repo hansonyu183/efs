@@ -1,7 +1,7 @@
-import type { EfsAuthSchema } from './auth-schema';
-import type { EfsServiceSchema } from './service-schema';
-import type { EfsDomainSchema } from '../resource/resource-schema';
-import type { EfsAppUiSchema } from '../resource/ui-schema';
+import type { EfsAuthSchema } from './auth-schema.js';
+import type { EfsServiceSchema } from './service-schema.js';
+import type { EfsDomainSchema } from '../resource/resource-schema.js';
+import type { EfsAppUiSchema } from '../resource/ui-schema.js';
 export interface EfsAppSchema {
     schemaVersion: 'v1';
     app: EfsAppInfoSchema;

@@ -7,5 +7,5 @@
 
 <script setup lang="ts">
 import { EfsApp } from '@efs/vue'
-import { app } from './demo-app'
+import { app } from './app-from-schema'
 </script>

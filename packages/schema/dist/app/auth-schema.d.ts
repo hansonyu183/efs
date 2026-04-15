@@ -1,4 +1,4 @@
-import type { EfsEndpointSchema } from '../resource/resource-schema';
+import type { EfsEndpointSchema } from '../resource/resource-schema.js';
 export interface EfsAuthSchema {
     mode: 'token';
     login: EfsEndpointSchema;

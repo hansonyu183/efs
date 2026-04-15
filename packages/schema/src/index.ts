@@ -1,11 +1,12 @@
-export { defineAppSchema } from './authoring/define-app-schema'
-export { inferResourceRuntime } from './inference/resource-runtime'
+export { defineAppSchema } from './authoring/define-app-schema.js'
+export { adaptAppSchemaToVueController } from './adapter/vue-controller.js'
+export { inferResourceRuntime } from './inference/resource-runtime.js'
 
-export type { EfsAppSchema, EfsAppInfoSchema } from './app/app-schema'
-export type { EfsAuthSchema, EfsTokenSchema, EfsOrgSchema } from './app/auth-schema'
-export type { EfsServiceSchema } from './app/service-schema'
-export type { EfsDomainSchema, EfsResourceSchema, EfsResourceOperationsSchema, EfsEndpointSchema } from './resource/resource-schema'
-export type { EfsFieldSchema, EfsFieldOption } from './resource/field-schema'
+export type { EfsAppSchema, EfsAppInfoSchema } from './app/app-schema.js'
+export type { EfsAuthSchema, EfsTokenSchema, EfsOrgSchema } from './app/auth-schema.js'
+export type { EfsServiceSchema } from './app/service-schema.js'
+export type { EfsDomainSchema, EfsResourceSchema, EfsResourceOperationsSchema, EfsEndpointSchema } from './resource/resource-schema.js'
+export type { EfsFieldSchema, EfsFieldOption } from './resource/field-schema.js'
 export type {
   EfsAppUiSchema,
   EfsDomainUiSchema,
@@ -14,4 +15,4 @@ export type {
   EfsFieldUiSchema,
   EfsActionUiSchema,
   EfsRuntimeActionKey,
-} from './resource/ui-schema'
+} from './resource/ui-schema.js'
