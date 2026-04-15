@@ -1,6 +1,6 @@
 <template>
  <section class="efs-resolvedrespage">
-  <PagePanel v-if="crudRuntime" :title="crudRuntime.title" :subtitle="props.crudSubtitle">
+  <PagePanel v-if="crudRuntime" :title="crudRuntime.title" :subtitle="resolvedCrudSubtitle">
    <EntityListView
     :row-key="crudRuntime.rowKey"
     :title="crudRuntime.title"
@@ -14,7 +14,7 @@
    />
   </PagePanel>
 
-  <PagePanel v-else-if="reportRuntime" :title="reportRuntime.title" :subtitle="props.reportSubtitle">
+  <PagePanel v-else-if="reportRuntime" :title="reportRuntime.title" :subtitle="resolvedReportSubtitle">
    <ReportView
     :title="reportRuntime.title"
     :query-fields="reportRuntime.queryFields"
@@ -24,43 +24,43 @@
    />
   </PagePanel>
 
-  <PagePanel v-else :title="props.emptyTitle" :subtitle="props.emptySubtitle">
+  <PagePanel v-else :title="resolvedEmptyTitle" :subtitle="resolvedEmptySubtitle">
    <p v-if="props.path">当前路径：{{ props.path }}</p>
   </PagePanel>
  </section>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
 import type { ResRuntime } from '../controller/index'
 import PagePanel from '../panels/PagePanel.vue'
 import EntityListView from '../views/EntityListView.vue'
 import ReportView from '../views/ReportView.vue'
+import { EFS_I18N_CONTEXT } from '../shared/efs-i18n'
 
 defineOptions({ name: 'ResolvedResPage' })
 
 interface ResolvedResPageProps {
  runtime?: ResRuntime | null
  path?: string
- crudSubtitle?: string
- reportSubtitle?: string
- unsupportedSubtitle?: string
- emptyTitle?: string
- emptySubtitle?: string
 }
 
 const props = withDefaults(defineProps<ResolvedResPageProps>(), {
  runtime: null,
  path: '',
- crudSubtitle: '基于 const app = useApp() 的最小运行时资源页',
- reportSubtitle: '基于 const app = useApp() 的最小运行时报表页',
- unsupportedSubtitle: '当前 runtime.kind 已解析，但页面壳尚未接入对应渲染分支。',
- emptyTitle: '资源不存在',
- emptySubtitle: '当前 path 未在 app.main.domains 中注册对应 res controller。',
 })
 
+const i18nContext = inject(EFS_I18N_CONTEXT, null)
 const crudRuntime = computed(() => props.runtime?.kind === 'crud' ? props.runtime : null)
 const reportRuntime = computed(() => props.runtime?.kind === 'report' ? props.runtime : null)
+const resolvedCrudSubtitle = computed(() => resolveCopy('efs.runtime.crudSubtitle', '基于 const app = useApp() 的最小运行时资源页'))
+const resolvedReportSubtitle = computed(() => resolveCopy('efs.runtime.reportSubtitle', '基于 const app = useApp() 的最小运行时报表页'))
+const resolvedEmptyTitle = computed(() => resolveCopy('efs.runtime.emptyTitle', '资源不存在'))
+const resolvedEmptySubtitle = computed(() => resolveCopy('efs.runtime.emptySubtitle', '当前 path 未在 app.main.domains 中注册对应 res controller。'))
+
+function resolveCopy(key: string, fallback: string) {
+ return i18nContext?.translate(key) || fallback
+}
 </script>
 
 <style scoped>

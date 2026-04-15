@@ -6,10 +6,6 @@
   :subtitle="resolvedLoginSubtitle"
   :hero-title="resolvedLoginHeroTitle"
   :hero-subtitle="resolvedLoginHeroSubtitle"
-  :locale-label="resolvedLocaleLabel"
-  :theme-label="resolvedThemeLabel"
-  :locale-options="resolvedLocaleOptions"
-  :theme-options="resolvedThemeOptions"
   :locale="locale"
   :theme="theme"
   layout="split"
@@ -63,19 +59,6 @@
   :app-name="props.app.appName || ''"
   :brand-title="resolvedBrandTitle"
   :brand-subtitle="resolvedBrandSubtitle"
-  :mobile-menu-label="resolvedMobileMenuLabel"
-  :org-label="resolvedOrgLabel"
-  :locale-label="resolvedLocaleLabel"
-  :theme-label="resolvedThemeLabel"
-  :logout-label="resolvedLogoutLabel"
-  :locale-options="resolvedLocaleOptions"
-  :theme-options="resolvedThemeOptions"
-  :more-label="resolvedMoreLabel"
-  :agent-title="resolvedAgentTitle"
-  :agent-placeholder="resolvedAgentPlaceholder"
-  :agent-submit-label="resolvedAgentSubmitLabel"
-  :agent-sessions-label="resolvedAgentSessionsLabel"
-  :agent-sessions-empty-text="resolvedAgentSessionsEmptyText"
   :org-code="currentOrgCode"
   :current-org-code="currentOrgCode"
   :org-options="authOrgOptions"
@@ -96,11 +79,6 @@
    v-else-if="runtime"
    :runtime="runtime"
    :path="currentPath"
-   :crud-subtitle="resolvedCrudSubtitle"
-   :report-subtitle="resolvedReportSubtitle"
-   :unsupported-subtitle="resolvedUnsupportedSubtitle"
-   :empty-title="resolvedEmptyTitle"
-   :empty-subtitle="resolvedEmptySubtitle"
   />
   <ErrorState v-else :title="resolvedEmptyTitle" :message="resolvedEmptySubtitle" icon="∅" />
  </MainPage>
@@ -164,9 +142,6 @@ const runtime = computed(() => resolveResRuntime(props.app, currentPath.value, p
 const resolvedBrandTitle = computed(() => resolveCopy('efs.brand.title', shellBrand.value.title || props.app.appName || ''))
 const resolvedBrandSubtitle = computed(() => resolveCopy('efs.brand.subtitle', shellBrand.value.subtitle || ''))
 const currentOrgCode = computed(() => props.app.auth.orgCode?.value || '')
-const resolvedCrudSubtitle = computed(() => resolveCopy('efs.runtime.crudSubtitle', shellRuntime.value.crudSubtitle || '基于 const app = useApp() 的最小运行时资源页'))
-const resolvedReportSubtitle = computed(() => resolveCopy('efs.runtime.reportSubtitle', shellRuntime.value.reportSubtitle || '基于 const app = useApp() 的最小运行时报表页'))
-const resolvedUnsupportedSubtitle = computed(() => resolveCopy('efs.runtime.unsupportedSubtitle', shellRuntime.value.unsupportedSubtitle || '当前 runtime.kind 已解析，但页面壳尚未接入对应渲染分支。'))
 const resolvedEmptyTitle = computed(() => resolveCopy('efs.runtime.emptyTitle', shellRuntime.value.emptyTitle || '资源不存在'))
 const resolvedEmptySubtitle = computed(() => resolveCopy('efs.runtime.emptySubtitle', shellRuntime.value.emptySubtitle || '当前 path 未在 app.main.domains 中注册对应 res controller。'))
 const resolvedLoginTitle = computed(() => resolveCopy('efs.auth.title', shellAuthPage.value.title || '登录到工作台'))
@@ -182,17 +157,6 @@ const resolvedLoginOrgPlaceholder = computed(() => resolveCopy('efs.auth.orgPlac
 const resolvedLoginSubmitLabel = computed(() => resolveCopy('efs.auth.submitLabel', shellAuthPage.value.submitLabel || '登录'))
 const resolvedLoginSubmittingLabel = computed(() => resolveCopy('efs.auth.submittingLabel', shellAuthPage.value.submittingLabel || '登录中…'))
 const resolvedMainTitle = computed(() => runtime.value?.title || props.title || resolvedEmptyTitle.value)
-const resolvedMobileMenuLabel = computed(() => resolveCopy('efs.shell.mobileMenuLabel', '切换导航'))
-const resolvedOrgLabel = computed(() => resolveCopy('efs.shell.orgLabel', '组织'))
-const resolvedLocaleLabel = computed(() => resolveCopy('efs.shell.localeLabel', '语言'))
-const resolvedThemeLabel = computed(() => resolveCopy('efs.shell.themeLabel', '主题'))
-const resolvedLogoutLabel = computed(() => resolveCopy('efs.shell.logoutLabel', '退出登录'))
-const resolvedMoreLabel = computed(() => resolveCopy('efs.shell.moreLabel', '更多'))
-const resolvedAgentTitle = computed(() => resolveCopy('efs.shell.agentTitle', 'Agent'))
-const resolvedAgentPlaceholder = computed(() => resolveCopy('efs.shell.agentPlaceholder', '请输入你的问题或操作指令'))
-const resolvedAgentSubmitLabel = computed(() => resolveCopy('efs.shell.agentSubmitLabel', '发送'))
-const resolvedAgentSessionsLabel = computed(() => resolveCopy('efs.shell.agentSessionsLabel', '会话管理'))
-const resolvedAgentSessionsEmptyText = computed(() => resolveCopy('efs.shell.agentSessionsEmptyText', '暂无会话'))
 const resolvedLocaleOptions = computed(() => [
  { title: resolveCopy('efs.localeOptions.zh-CN', '简体中文'), value: 'zh-CN' },
  { title: resolveCopy('efs.localeOptions.en-US', 'English'), value: 'en-US' },

@@ -24,7 +24,7 @@
    v-if="shouldRenderSidebar && sidebarOpen && isMobile"
    class="efs-main-layout__scrim"
    type="button"
-   :aria-label="props.mobileMenuLabel"
+   :aria-label="resolvedMobileMenuLabel"
    @click="closeSidebar"
   />
 
@@ -35,10 +35,10 @@
       v-if="shouldRenderSidebar"
       class="efs-main-layout__iconbutton"
       type="button"
-      :aria-label="props.mobileMenuLabel"
+      :aria-label="resolvedMobileMenuLabel"
       @click="toggleSidebar"
      >
-      <SemanticIcon name="menu" :label="props.mobileMenuLabel" aria-hidden="true" />
+      <SemanticIcon name="menu" :label="resolvedMobileMenuLabel" aria-hidden="true" />
      </button>
 
      <div class="efs-main-layout__header-meta">
@@ -52,28 +52,28 @@
     <div class="efs-main-layout__header-actions">
      <LocaleSwitcher
       :model-value="props.locale"
-      :label="props.localeLabel"
-      :options="props.localeOptions"
+      :label="resolvedLocaleLabel"
+      :options="resolvedLocaleOptions"
       mode="icon"
       @update:model-value="(value) => emit('update:locale', value)"
      />
      <ThemeSwitcher
       :model-value="props.theme"
-      :label="props.themeLabel"
-      :options="props.themeOptions"
+      :label="resolvedThemeLabel"
+      :options="resolvedThemeOptions"
       mode="icon"
       @update:model-value="(value) => emit('update:theme', value)"
      />
      <details ref="moreMenuRef" class="efs-main-layout__moremenu">
-      <summary class="efs-main-layout__iconbutton" :aria-label="props.moreLabel" :title="props.moreLabel">
-       <SemanticIcon name="more" :label="props.moreLabel" aria-hidden="true" />
+      <summary class="efs-main-layout__iconbutton" :aria-label="resolvedMoreLabel" :title="resolvedMoreLabel">
+       <SemanticIcon name="more" :label="resolvedMoreLabel" aria-hidden="true" />
       </summary>
       <div class="efs-main-layout__moremenu-panel">
-       <label v-if="props.orgOptions.length > 0" class="efs-main-layout__menu-field" :aria-label="props.orgLabel">
+       <label v-if="props.orgOptions.length > 0" class="efs-main-layout__menu-field" :aria-label="resolvedOrgLabel">
        <span class="efs-main-layout__menuicon" aria-hidden="true">
-        <SemanticIcon name="org" :label="props.orgLabel" size="sm" />
+        <SemanticIcon name="org" :label="resolvedOrgLabel" size="sm" />
        </span>
-       <span class="efs-main-layout__visually-hidden">{{ props.orgLabel }}</span>
+       <span class="efs-main-layout__visually-hidden">{{ resolvedOrgLabel }}</span>
        <AppSelect
         :model-value="props.currentOrgCode || props.orgCode"
         :options="props.orgOptions"
@@ -97,11 +97,11 @@
        </span>
        <span class="efs-main-layout__menulabel">{{ resolvedPasswordDialog.label }}</span>
       </button>
-      <button type="button" class="efs-main-layout__logout-action" :title="props.logoutLabel" :aria-label="props.logoutLabel" @click="emitLogout">
+      <button type="button" class="efs-main-layout__logout-action" :title="resolvedLogoutLabel" :aria-label="resolvedLogoutLabel" @click="emitLogout">
        <span class="efs-main-layout__menuicon" aria-hidden="true">
-        <SemanticIcon name="logout" :label="props.logoutLabel" size="sm" />
+        <SemanticIcon name="logout" :label="resolvedLogoutLabel" size="sm" />
        </span>
-       <span class="efs-main-layout__menulabel">{{ props.logoutLabel }}</span>
+       <span class="efs-main-layout__menulabel">{{ resolvedLogoutLabel }}</span>
       </button>
      </div>
     </details>
@@ -120,30 +120,30 @@
    <section v-if="props.showAgentBar" class="efs-main-layout__agentbar">
     <div class="efs-main-layout__agentbar-main">
      <div class="efs-main-layout__agentbar-header">
-      <strong>{{ props.agentTitle }}</strong>
+      <strong>{{ resolvedAgentTitle }}</strong>
       <button
        type="button"
        class="efs-main-layout__agentlink"
-       :title="props.agentSessionsLabel"
-       :aria-label="props.agentSessionsLabel"
+       :title="resolvedAgentSessionsLabel"
+       :aria-label="resolvedAgentSessionsLabel"
        @click="handleAgentSessionsToggle"
       >
-       <SemanticIcon name="sessions" :label="props.agentSessionsLabel" aria-hidden="true" />
+       <SemanticIcon name="sessions" :label="resolvedAgentSessionsLabel" aria-hidden="true" />
       </button>
      </div>
      <div v-if="$slots['agent-output']" class="efs-main-layout__agent-output">
       <slot name="agent-output" />
      </div>
      <div class="efs-main-layout__agentbar-form">
-      <AppInput :model-value="agentDraft" :placeholder="props.agentPlaceholder" @update:model-value="handleAgentInput" @keyup.enter="submitAgent" />
+      <AppInput :model-value="agentDraft" :placeholder="resolvedAgentPlaceholder" @update:model-value="handleAgentInput" @keyup.enter="submitAgent" />
       <AppButton
        variant="primary"
        :disabled="props.agentBusy || !agentDraft.trim()"
-       :title="props.agentSubmitLabel"
-       :aria-label="props.agentSubmitLabel"
+       :title="resolvedAgentSubmitLabel"
+       :aria-label="resolvedAgentSubmitLabel"
        @click="submitAgent"
       >
-       <SemanticIcon name="send" :label="props.agentSubmitLabel" aria-hidden="true" />
+       <SemanticIcon name="send" :label="resolvedAgentSubmitLabel" aria-hidden="true" />
       </AppButton>
      </div>
     </div>
@@ -152,20 +152,20 @@
 
   <aside v-if="agentSessionsPanelOpen" class="efs-main-layout__agent-sessions">
    <header class="efs-main-layout__agent-sessions-header">
-    <strong>{{ props.agentSessionsLabel }}</strong>
+    <strong>{{ resolvedAgentSessionsLabel }}</strong>
     <button
      type="button"
      class="efs-main-layout__iconbutton"
-     aria-label="关闭"
-     title="关闭"
+      :aria-label="resolvedCloseLabel"
+      :title="resolvedCloseLabel"
      @click="handleAgentSessionsToggle"
     >
-     <SemanticIcon name="close" label="关闭" aria-hidden="true" />
+     <SemanticIcon name="close"  :label="resolvedCloseLabel" aria-hidden="true" />
     </button>
    </header>
    <div class="efs-main-layout__agent-sessions-body">
     <slot name="agent-sessions">
-     <div class="efs-main-layout__agent-sessions-empty">{{ props.agentSessionsEmptyText }}</div>
+     <div class="efs-main-layout__agent-sessions-empty">{{ resolvedAgentSessionsEmptyText }}</div>
     </slot>
    </div>
   </aside>
@@ -211,7 +211,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch, useSlots } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, reactive, ref, watch, useSlots } from 'vue'
 import AppButton from '../controls/AppButton.vue'
 import AppField from '../controls/AppField.vue'
 import AppInput from '../controls/AppInput.vue'
@@ -222,6 +222,7 @@ import ThemeSwitcher from '../controls/ThemeSwitcher.vue'
 import SemanticIcon from '../controls/SemanticIcon.vue'
 import GlobalAlertsHost from '../interaction/GlobalAlertsHost.vue'
 import { useAppAlerts } from '../shared/app-alerts'
+import { EFS_I18N_CONTEXT } from '../shared/efs-i18n'
 
 defineOptions({ name: 'MainPage' })
 
@@ -229,28 +230,6 @@ type PageOption = {
  title?: string
  label?: string
  value: string
-}
-
-type MainPageProfileDialog = {
- enabled?: boolean
- label?: string
- subtitle?: string
- displayNameLabel?: string
- usernameLabel?: string
- submitLabel?: string
- cancelLabel?: string
-}
-
-type MainPagePasswordDialog = {
- enabled?: boolean
- label?: string
- subtitle?: string
- currentPasswordLabel?: string
- newPasswordLabel?: string
- confirmPasswordLabel?: string
- mismatchMessage?: string
- submitLabel?: string
- cancelLabel?: string
 }
 
 interface MainPageProps {
@@ -263,11 +242,6 @@ interface MainPageProps {
  appName?: string
  brandSubtitle?: string
  topbarSubtitle?: string
- mobileMenuLabel?: string
- orgLabel?: string
- localeLabel?: string
- themeLabel?: string
- logoutLabel?: string
  currentOrgCode?: string
  locale?: string
  theme?: string
@@ -275,17 +249,7 @@ interface MainPageProps {
  username?: string
  userSubtitle?: string
  orgOptions?: PageOption[]
- localeOptions?: PageOption[]
- themeOptions?: PageOption[]
- profileDialog?: MainPageProfileDialog
- passwordDialog?: MainPagePasswordDialog
- moreLabel?: string
  showAgentBar?: boolean
- agentTitle?: string
- agentPlaceholder?: string
- agentSubmitLabel?: string
- agentSessionsLabel?: string
- agentSessionsEmptyText?: string
  agentBusy?: boolean
  agentInput?: string
  agentSessionsOpen?: boolean
@@ -302,11 +266,6 @@ const props = withDefaults(defineProps<MainPageProps>(), {
  appName: '',
  brandSubtitle: '',
  topbarSubtitle: '',
- mobileMenuLabel: '切换导航',
- orgLabel: '组织',
- localeLabel: '语言',
- themeLabel: '主题',
- logoutLabel: '退出登录',
  currentOrgCode: '',
  locale: 'zh-CN',
  theme: 'light',
@@ -314,41 +273,7 @@ const props = withDefaults(defineProps<MainPageProps>(), {
  username: '',
  userSubtitle: '',
  orgOptions: () => [],
- localeOptions: () => [
-  { title: '简体中文', value: 'zh-CN' },
-  { title: 'English', value: 'en-US' },
- ],
- themeOptions: () => [
-  { title: 'Light', value: 'light' },
-  { title: 'Dark', value: 'dark' },
- ],
- profileDialog: () => ({
-  enabled: true,
-  label: '个人资料',
-  subtitle: '更新工作台中显示的个人资料信息。',
-  displayNameLabel: '显示名称',
-  usernameLabel: '用户名',
-  submitLabel: '保存',
-  cancelLabel: '取消',
- }),
- passwordDialog: () => ({
-  enabled: true,
-  label: '修改密码',
-  subtitle: '修改当前工作台账号使用的密码。',
-  currentPasswordLabel: '当前密码',
-  newPasswordLabel: '新密码',
-  confirmPasswordLabel: '确认密码',
-  mismatchMessage: '两次输入的新密码不一致。',
-  submitLabel: '保存',
-  cancelLabel: '取消',
- }),
- moreLabel: '更多',
  showAgentBar: true,
- agentTitle: 'Agent',
- agentPlaceholder: '请输入你的问题或操作指令',
- agentSubmitLabel: '发送',
- agentSessionsLabel: '会话管理',
- agentSessionsEmptyText: '暂无会话',
  agentBusy: false,
  agentInput: '',
  agentSessionsOpen: false,
@@ -369,6 +294,7 @@ const emit = defineEmits<{
 
 const slots = useSlots()
 const globalAlerts = useAppAlerts()
+const i18nContext = inject(EFS_I18N_CONTEXT, null)
 const moreMenuRef = ref<HTMLDetailsElement | null>(null)
 const profileDialogOpen = ref(false)
 const passwordDialogOpen = ref(false)
@@ -395,26 +321,46 @@ const resolvedTitle = computed(() => props.title || props.appName || 'Workbench'
 const resolvedSubtitle = computed(() => props.subtitle || props.topbarSubtitle || props.userSubtitle || props.orgCode)
 const resolvedBrandTitle = computed(() => props.brandTitle || props.appName || 'Workbench')
 const resolvedBrandSubtitle = computed(() => props.brandSubtitle || props.userSubtitle || props.subtitle || props.orgCode)
+const resolvedMobileMenuLabel = computed(() => resolveCopy('efs.shell.mobileMenuLabel', '切换导航'))
+const resolvedOrgLabel = computed(() => resolveCopy('efs.shell.orgLabel', '组织'))
+const resolvedLocaleLabel = computed(() => resolveCopy('efs.shell.localeLabel', '语言'))
+const resolvedThemeLabel = computed(() => resolveCopy('efs.shell.themeLabel', '主题'))
+const resolvedLogoutLabel = computed(() => resolveCopy('efs.shell.logoutLabel', '退出登录'))
+const resolvedMoreLabel = computed(() => resolveCopy('efs.shell.moreLabel', '更多'))
+const resolvedAgentTitle = computed(() => resolveCopy('efs.shell.agentTitle', 'Agent'))
+const resolvedAgentPlaceholder = computed(() => resolveCopy('efs.shell.agentPlaceholder', '请输入你的问题或操作指令'))
+const resolvedAgentSubmitLabel = computed(() => resolveCopy('efs.shell.agentSubmitLabel', '发送'))
+const resolvedAgentSessionsLabel = computed(() => resolveCopy('efs.shell.agentSessionsLabel', '会话管理'))
+const resolvedAgentSessionsEmptyText = computed(() => resolveCopy('efs.shell.agentSessionsEmptyText', '暂无会话'))
+const resolvedCloseLabel = computed(() => resolveCopy('efs.shell.closeLabel', '关闭'))
+const resolvedLocaleOptions = computed<PageOption[]>(() => [
+ { title: resolveCopy('efs.localeOptions.zh-CN', '简体中文'), value: 'zh-CN' },
+ { title: resolveCopy('efs.localeOptions.en-US', 'English'), value: 'en-US' },
+])
+const resolvedThemeOptions = computed<PageOption[]>(() => [
+ { title: resolveCopy('efs.themeOptions.light', 'Light'), value: 'light' },
+ { title: resolveCopy('efs.themeOptions.dark', 'Dark'), value: 'dark' },
+])
 const resolvedProfileDialog = computed(() => ({
- enabled: props.profileDialog?.enabled ?? true,
- label: props.profileDialog?.label ?? '个人资料',
- subtitle: props.profileDialog?.subtitle ?? '更新工作台中显示的个人资料信息。',
- displayNameLabel: props.profileDialog?.displayNameLabel ?? '显示名称',
- usernameLabel: props.profileDialog?.usernameLabel ?? '用户名',
- submitLabel: props.profileDialog?.submitLabel ?? '保存',
- cancelLabel: props.profileDialog?.cancelLabel ?? '取消',
+ enabled: true,
+ label: resolveCopy('efs.shell.profileDialog.label', '个人资料'),
+ subtitle: resolveCopy('efs.shell.profileDialog.subtitle', '更新工作台中显示的个人资料信息。'),
+ displayNameLabel: resolveCopy('efs.shell.profileDialog.displayNameLabel', '显示名称'),
+ usernameLabel: resolveCopy('efs.shell.profileDialog.usernameLabel', '用户名'),
+ submitLabel: resolveCopy('efs.shell.profileDialog.submitLabel', '保存'),
+ cancelLabel: resolveCopy('efs.shell.profileDialog.cancelLabel', '取消'),
 }))
 const showAlertsRegion = computed(() => Boolean(slots.alerts) || globalAlerts.hasItems.value)
 const resolvedPasswordDialog = computed(() => ({
- enabled: props.passwordDialog?.enabled ?? true,
- label: props.passwordDialog?.label ?? '修改密码',
- subtitle: props.passwordDialog?.subtitle ?? '修改当前工作台账号使用的密码。',
- currentPasswordLabel: props.passwordDialog?.currentPasswordLabel ?? '当前密码',
- newPasswordLabel: props.passwordDialog?.newPasswordLabel ?? '新密码',
- confirmPasswordLabel: props.passwordDialog?.confirmPasswordLabel ?? '确认密码',
- mismatchMessage: props.passwordDialog?.mismatchMessage ?? '两次输入的新密码不一致。',
- submitLabel: props.passwordDialog?.submitLabel ?? '保存',
- cancelLabel: props.passwordDialog?.cancelLabel ?? '取消',
+ enabled: true,
+ label: resolveCopy('efs.shell.passwordDialog.label', '修改密码'),
+ subtitle: resolveCopy('efs.shell.passwordDialog.subtitle', '修改当前工作台账号使用的密码。'),
+ currentPasswordLabel: resolveCopy('efs.shell.passwordDialog.currentPasswordLabel', '当前密码'),
+ newPasswordLabel: resolveCopy('efs.shell.passwordDialog.newPasswordLabel', '新密码'),
+ confirmPasswordLabel: resolveCopy('efs.shell.passwordDialog.confirmPasswordLabel', '确认密码'),
+ mismatchMessage: resolveCopy('efs.shell.passwordDialog.mismatchMessage', '两次输入的新密码不一致。'),
+ submitLabel: resolveCopy('efs.shell.passwordDialog.submitLabel', '保存'),
+ cancelLabel: resolveCopy('efs.shell.passwordDialog.cancelLabel', '取消'),
 }))
 const layoutClasses = computed(() => ({
  'efs-main-layout--sidebar-compact': sidebarCompact.value,
@@ -487,6 +433,10 @@ function openPasswordDialog() {
  passwordForm.confirmPassword = ''
  closeMoreMenu()
  passwordDialogOpen.value = true
+}
+
+function resolveCopy(key: string, fallback: string) {
+ return i18nContext?.translate(key) || fallback
 }
 
 function submitProfile() {

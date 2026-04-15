@@ -25,8 +25,8 @@
       <LocaleSwitcher
        v-if="props.showLocaleSwitcher"
        :model-value="props.locale"
-       :label="props.localeLabel"
-       :options="props.localeOptions"
+       :label="resolvedLocaleLabel"
+       :options="resolvedLocaleOptions"
        @update:model-value="(value) => emit('update:locale', value)"
       />
      </slot>
@@ -35,8 +35,8 @@
       <ThemeSwitcher
        v-if="props.showThemeSwitcher"
        :model-value="props.theme"
-       :label="props.themeLabel"
-       :options="props.themeOptions"
+       :label="resolvedThemeLabel"
+       :options="resolvedThemeOptions"
        @update:model-value="(value) => emit('update:theme', value)"
       />
      </slot>
@@ -61,11 +61,9 @@
       <slot />
      </section>
 
-     <footer v-if="$slots.footer || props.footerText || props.supportText" class="efs-auth-layout__footer">
+     <footer v-if="$slots.footer" class="efs-auth-layout__footer">
       <slot name="footer">
-       <div v-if="props.footerText" class="efs-auth-layout__footer-text">{{ props.footerText }}</div>
-       <div v-if="props.supportText" class="efs-auth-layout__support-text">{{ props.supportText }}</div>
-      </slot>
+             </slot>
      </footer>
     </div>
    </section>
@@ -74,11 +72,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useSlots } from 'vue'
+import { computed, inject, useSlots } from 'vue'
 import LocaleSwitcher from '../controls/LocaleSwitcher.vue'
 import ThemeSwitcher from '../controls/ThemeSwitcher.vue'
 import GlobalAlertsHost from '../interaction/GlobalAlertsHost.vue'
 import { useAppAlerts } from '../shared/app-alerts'
+import { EFS_I18N_CONTEXT } from '../shared/efs-i18n'
 
 defineOptions({ name: 'AuthPage' })
 
@@ -102,15 +101,8 @@ interface AuthPageProps {
  showHero?: boolean
  showLocaleSwitcher?: boolean
  showThemeSwitcher?: boolean
- localeLabel?: string
- themeLabel?: string
  locale?: string
  theme?: string
- localeOptions?: PageOption[]
- themeOptions?: PageOption[]
- footerText?: string
- supportText?: string
- backgroundVariant?: 'soft' | 'strong' | 'plain'
 }
 
 const props = withDefaults(defineProps<AuthPageProps>(), {
@@ -127,21 +119,8 @@ const props = withDefaults(defineProps<AuthPageProps>(), {
  showHero: true,
  showLocaleSwitcher: false,
  showThemeSwitcher: false,
- localeLabel: '语言',
- themeLabel: '主题',
  locale: 'zh-CN',
  theme: 'light',
- localeOptions: () => [
-  { label: '中', value: 'zh-CN' },
-  { label: 'EN', value: 'en-US' },
- ],
- themeOptions: () => [
-  { label: '明', value: 'light' },
-  { label: '暗', value: 'dark' },
- ],
- footerText: '',
- supportText: '',
- backgroundVariant: 'soft',
 })
 
 const emit = defineEmits<{
@@ -151,16 +130,29 @@ const emit = defineEmits<{
 
 const slots = useSlots()
 const globalAlerts = useAppAlerts()
+const i18nContext = inject(EFS_I18N_CONTEXT, null)
 const showHeroArea = computed(() => props.showHero && (Boolean(slots.hero) || Boolean(slots.brand) || Boolean(props.logoSrc) || Boolean(props.appName) || Boolean(props.heroTitle) || Boolean(props.heroSubtitle) || props.layout === 'split'))
 const showActionsBar = computed(() => props.showLocaleSwitcher || props.showThemeSwitcher || Boolean(slots.actions) || Boolean(slots['locale-action']) || Boolean(slots['theme-action']))
 const showAlertsRegion = computed(() => Boolean(slots.alerts) || globalAlerts.hasItems.value)
+const resolvedLocaleLabel = computed(() => resolveCopy('efs.shell.localeLabel', '语言'))
+const resolvedThemeLabel = computed(() => resolveCopy('efs.shell.themeLabel', '主题'))
+const resolvedLocaleOptions = computed<PageOption[]>(() => [
+ { label: resolveCopy('efs.localeOptions.zh-CN', '中'), value: 'zh-CN' },
+ { label: resolveCopy('efs.localeOptions.en-US', 'EN'), value: 'en-US' },
+])
+const resolvedThemeOptions = computed<PageOption[]>(() => [
+ { label: resolveCopy('efs.themeOptions.light', '明'), value: 'light' },
+ { label: resolveCopy('efs.themeOptions.dark', '暗'), value: 'dark' },
+])
 const panelStyle = computed(() => ({ '--efs-auth-panel-width': props.panelWidth }))
 const layoutClasses = computed(() => ({
  'efs-auth-layout--split': props.layout === 'split',
  'efs-auth-layout--centered': props.layout === 'centered',
- 'efs-auth-layout--bg-strong': props.backgroundVariant === 'strong',
- 'efs-auth-layout--bg-plain': props.backgroundVariant === 'plain',
 }))
+
+function resolveCopy(key: string, fallback: string) {
+ return i18nContext?.translate(key) || fallback
+}
 </script>
 
 <style scoped>

@@ -15,7 +15,7 @@
      :disabled="props.busy"
      @click="emit('export')"
     >
-     {{ props.exportLabel }}
+     {{ resolvedExportLabel }}
     </button>
    </div>
   </header>
@@ -54,7 +54,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, getCurrentInstance } from 'vue'
+import { resolveOptionalLabel } from '../shared/label-resolver'
 
 defineOptions({ name: 'ReportPanel' })
 
@@ -63,17 +64,12 @@ interface ReportPanelProps {
  subtitle?: string
  description?: string
  exportable?: boolean
- exportLabel?: string
  busy?: boolean
  query?: {
-  title?: string
   summary?: string
-  emptyText?: string
  }
  result?: {
-  title?: string
   countText?: string
-  emptyText?: string
  }
 }
 
@@ -82,17 +78,12 @@ const props = withDefaults(defineProps<ReportPanelProps>(), {
  subtitle: '',
  description: '',
  exportable: false,
- exportLabel: '导出',
  busy: false,
- query: () => ({
-  title: '查询条件',
+  query: () => ({
   summary: '',
-  emptyText: '未配置报表查询条件。',
  }),
  result: () => ({
-  title: '结果列表',
   countText: '',
-  emptyText: '暂无报表结果。',
  }),
 })
 
@@ -100,16 +91,18 @@ const emit = defineEmits<{
  (e: 'export'): void
 }>()
 
+const instance = getCurrentInstance()
+const resolvedExportLabel = computed(() => resolveOptionalLabel({ key: 'exportLabel', instance, namespaces: ['efs.reportPanel'] }) || '导出')
 const resolvedQuery = computed(() => ({
- title: props.query?.title ?? '查询条件',
+ title: resolveOptionalLabel({ key: 'queryTitle', instance, namespaces: ['efs.reportPanel'] }) || '查询条件',
  summary: props.query?.summary ?? '',
- emptyText: props.query?.emptyText ?? '未配置报表查询条件。',
+ emptyText: resolveOptionalLabel({ key: 'queryEmptyText', instance, namespaces: ['efs.reportPanel'] }) || '未配置报表查询条件。',
 }))
 
 const resolvedResult = computed(() => ({
- title: props.result?.title ?? '结果列表',
+ title: resolveOptionalLabel({ key: 'resultTitle', instance, namespaces: ['efs.reportPanel'] }) || '结果列表',
  countText: props.result?.countText ?? '',
- emptyText: props.result?.emptyText ?? '暂无报表结果。',
+ emptyText: resolveOptionalLabel({ key: 'resultEmptyText', instance, namespaces: ['efs.reportPanel'] }) || '暂无报表结果。',
 }))
 </script>
 

@@ -13,7 +13,7 @@
   <div class="efs-masterdetailshell__body" :style="splitStyle">
    <section class="efs-masterdetailshell__panel">
     <header class="efs-masterdetailshell__panel-header">
-     <strong>{{ props.masterTitle }}</strong>
+     <strong>{{ resolvedMasterTitle }}</strong>
      <span v-if="props.masterCountText" class="efs-masterdetailshell__panel-meta">{{ props.masterCountText }}</span>
     </header>
     <div class="efs-masterdetailshell__panel-body">
@@ -23,14 +23,14 @@
 
    <section class="efs-masterdetailshell__panel">
     <header class="efs-masterdetailshell__panel-header">
-     <strong>{{ props.detailTitle }}</strong>
+     <strong>{{ resolvedDetailTitle }}</strong>
      <span v-if="props.detailStatusText" class="efs-masterdetailshell__panel-meta">{{ props.detailStatusText }}</span>
     </header>
     <div class="efs-masterdetailshell__panel-body">
      <slot v-if="$slots.detail" name="detail" />
      <div v-else class="efs-masterdetailshell__empty-state">
-      <strong>{{ props.detailEmptyTitle }}</strong>
-      <p>{{ props.detailEmptyDescription }}</p>
+      <strong>{{ resolvedDetailEmptyTitle }}</strong>
+      <p>{{ resolvedDetailEmptyDescription }}</p>
      </div>
     </div>
    </section>
@@ -39,7 +39,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, getCurrentInstance } from 'vue'
+import { resolveOptionalLabel } from '../shared/label-resolver'
 
 defineOptions({ name: 'MasterDetailPanel' })
 
@@ -47,25 +48,23 @@ interface MasterDetailPanelProps {
  title?: string
  subtitle?: string
  splitRatio?: string
- masterTitle?: string
- detailTitle?: string
  masterCountText?: string
  detailStatusText?: string
- detailEmptyTitle?: string
- detailEmptyDescription?: string
 }
 
 const props = withDefaults(defineProps<MasterDetailPanelProps>(), {
  title: '',
  subtitle: '',
  splitRatio: '40/60',
- masterTitle: 'Master',
- detailTitle: 'Detail',
  masterCountText: '',
  detailStatusText: '',
- detailEmptyTitle: 'Select a record',
- detailEmptyDescription: 'The detail panel will appear after a row or master item is selected.',
 })
+
+const instance = getCurrentInstance()
+const resolvedMasterTitle = computed(() => resolveOptionalLabel({ key: 'masterTitle', instance, namespaces: ['efs.masterDetail'] }) || '主列表')
+const resolvedDetailTitle = computed(() => resolveOptionalLabel({ key: 'detailTitle', instance, namespaces: ['efs.masterDetail'] }) || '详情')
+const resolvedDetailEmptyTitle = computed(() => resolveOptionalLabel({ key: 'detailEmptyTitle', instance, namespaces: ['efs.masterDetail'] }) || '请选择一条记录')
+const resolvedDetailEmptyDescription = computed(() => resolveOptionalLabel({ key: 'detailEmptyDescription', instance, namespaces: ['efs.masterDetail'] }) || '选中主列表记录后展示详情内容。')
 
 const splitStyle = computed(() => {
  const [leftRaw, rightRaw] = props.splitRatio.split('/')

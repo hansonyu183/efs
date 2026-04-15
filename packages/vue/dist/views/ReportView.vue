@@ -14,10 +14,9 @@
    :subtitle="''"
    :description="''"
    :exportable="Boolean(props.controller?.handlers?.export)"
-   :export-label="resolvedExportLabel"
    :busy="resolvedBusy"
-   :query="{ title: '查询条件', summary: querySummaryText, emptyText: '未配置报表查询条件。' }"
-   :result="{ title: '结果列表', countText: resultCountText, emptyText: '暂无报表结果。' }"
+   :query="{ summary: querySummaryText }"
+   :result="{ countText: resultCountText }"
    @export="handleExport"
   >
    <template #header-actions>
@@ -164,7 +163,6 @@ const resolvedError = computed(() => props.controller?.state?.error ?? localErro
 const resolvedItems = computed(() => props.controller?.state?.items ?? localItems.value)
 const resolvedTotal = computed(() => props.controller?.state?.total ?? localTotal.value)
 const resolvedSummary = computed(() => props.controller?.state?.summary ?? localSummary.value)
-const resolvedExportLabel = computed(() => resolveOptionalLabel({ key: 'export', namespaces: ['report.actions', 'actions'] }) || '导出')
 const resolvedPageCount = computed(() => Math.max(1, Math.ceil(resolvedTotal.value / Math.max(localPageSize.value, 1))))
 const querySummaryText = computed(() => normalizedQueryFields.value.length > 0 ? `筛选字段：${normalizedQueryFields.value.length}` : '')
 const resultCountText = computed(() => `总数：${resolvedTotal.value}`)

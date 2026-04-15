@@ -11,6 +11,23 @@ type LabelResolverOptions = {
 type Translator = ((key: string) => unknown) | undefined
 
 const BUILTIN_ZH_LABELS: Record<string, string> = {
+ 'efs.crudDialog.closeLabel': '关闭',
+ 'efs.crudDialog.footer.dirtyLabel': '存在未保存修改',
+ 'efs.crudDialog.footer.submitLabel': '保存',
+ 'efs.crudDialog.footer.savingLabel': '保存中...',
+ 'efs.crudDialog.footer.cancelLabel': '取消',
+ 'efs.reportPanel.exportLabel': '导出',
+ 'efs.reportPanel.queryTitle': '查询条件',
+ 'efs.reportPanel.queryEmptyText': '未配置报表查询条件。',
+ 'efs.reportPanel.resultTitle': '结果列表',
+ 'efs.reportPanel.resultEmptyText': '暂无报表结果。',
+ 'efs.detailPanel.fieldsLabel': '字段数：',
+ 'efs.detailPanel.emptyText': '暂无详情字段。',
+ 'efs.masterDetail.masterTitle': '主列表',
+ 'efs.masterDetail.detailTitle': '详情',
+ 'efs.masterDetail.detailEmptyTitle': '请选择一条记录',
+ 'efs.masterDetail.detailEmptyDescription': '选中主列表记录后展示详情内容。',
+ 'efs.simpleTable.rowsLabel': '当前行数：',
  'columns.code': '编码',
  'columns.name': '名称',
  'columns.status': '状态',

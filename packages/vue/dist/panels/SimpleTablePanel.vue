@@ -6,7 +6,7 @@
     <p v-if="props.subtitle" class="efs-simpletablepanel__subtitle">{{ props.subtitle }}</p>
    </div>
    <div class="efs-simpletablepanel__meta">
-    <span>{{ props.rowsLabel }} {{ props.items.length }}</span>
+    <span>{{ resolvedRowsLabel }} {{ props.items.length }}</span>
     <slot name="actions" />
    </div>
   </header>
@@ -17,6 +17,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed, getCurrentInstance } from 'vue'
+import { resolveOptionalLabel } from '../shared/label-resolver'
+
 defineOptions({ name: 'SimpleTablePanel' })
 
 const props = withDefaults(defineProps<{
@@ -24,14 +27,15 @@ const props = withDefaults(defineProps<{
  subtitle?: string
  columns?: unknown[]
  items?: unknown[]
- rowsLabel?: string
 }>(), {
  title: '',
  subtitle: '',
  columns: () => [],
  items: () => [],
- rowsLabel: '当前行数：',
 })
+
+const instance = getCurrentInstance()
+const resolvedRowsLabel = computed(() => resolveOptionalLabel({ key: 'rowsLabel', instance, namespaces: ['efs.simpleTable'] }) || '当前行数：')
 </script>
 
 <style scoped>

@@ -175,9 +175,7 @@
     :subtitle="''"
     :description="''"
     :fields="resolvedDetailFields"
-    fields-label="字段数："
     :columns="2"
-    empty-text="请选择一条记录查看详情。"
    />
   </div>
 
@@ -210,8 +208,7 @@
    :close-on-backdrop="true"
    :guard-dirty-close="true"
    :show-close="true"
-   close-label="关闭"
-   :footer="{ showActions: false, dirtyLabel: '存在未保存修改' }"
+   :footer="{ showActions: false }"
    @update:model-value="handleDialogToggle"
    @submit="handleSave"
    @cancel="handleCancel"

@@ -7,7 +7,7 @@
     <p v-if="props.description" class="efs-detailshell__description">{{ props.description }}</p>
    </div>
    <div class="efs-detailshell__meta">
-    <span>{{ props.fieldsLabel }} {{ normalizedFields.length }}</span>
+    <span>{{ resolvedFieldsLabel }} {{ normalizedFields.length }}</span>
     <slot name="actions" />
    </div>
   </header>
@@ -24,7 +24,7 @@
    </article>
   </div>
 
-  <div v-else class="efs-detailshell__empty">{{ props.emptyText }}</div>
+  <div v-else class="efs-detailshell__empty">{{ resolvedEmptyText }}</div>
 
   <footer v-if="$slots.footer" class="efs-detailshell__footer">
    <slot name="footer" />
@@ -48,20 +48,18 @@ const props = withDefaults(defineProps<{
  subtitle?: string
  description?: string
  fields?: DetailField[]
- fieldsLabel?: string
  columns?: 1 | 2 | 3
- emptyText?: string
 }>(), {
  title: '',
  subtitle: '',
  description: '',
  fields: () => [],
- fieldsLabel: '字段数：',
  columns: 2,
- emptyText: '暂无详情字段。',
 })
 
 const instance = getCurrentInstance()
+const resolvedFieldsLabel = computed(() => resolveOptionalLabel({ key: 'fieldsLabel', instance, namespaces: ['efs.detailPanel'] }) || '字段数：')
+const resolvedEmptyText = computed(() => resolveOptionalLabel({ key: 'emptyText', instance, namespaces: ['efs.detailPanel'] }) || '暂无详情字段。')
 
 const normalizedFields = computed(() => props.fields.map((field) => ({
  key: field.key,

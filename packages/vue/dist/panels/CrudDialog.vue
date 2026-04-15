@@ -9,12 +9,12 @@
     <div class="efs-cruddialogshell__header-actions">
      <slot name="header-actions" />
      <button
-      v-if="props.showClose"
-      type="button"
-      class="efs-cruddialogshell__icon-button"
-      :aria-label="props.closeLabel"
-      :title="props.closeLabel"
-      @click="emitClose"
+     v-if="props.showClose"
+     type="button"
+     class="efs-cruddialogshell__icon-button"
+     :aria-label="resolvedCloseLabel"
+     :title="resolvedCloseLabel"
+     @click="emitClose"
      >
       ×
      </button>
@@ -63,7 +63,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, getCurrentInstance } from 'vue'
+import { resolveOptionalLabel } from '../shared/label-resolver'
 
 defineOptions({ name: 'CrudDialog' })
 
@@ -78,13 +79,8 @@ interface CrudDialogProps {
  closeOnBackdrop?: boolean
  guardDirtyClose?: boolean
  showClose?: boolean
- closeLabel?: string
  footer?: {
   showActions?: boolean
-  dirtyLabel?: string
-  submitLabel?: string
-  savingLabel?: string
-  cancelLabel?: string
  }
 }
 
@@ -99,13 +95,8 @@ const props = withDefaults(defineProps<CrudDialogProps>(), {
  closeOnBackdrop: true,
  guardDirtyClose: false,
  showClose: true,
- closeLabel: '关闭',
  footer: () => ({
   showActions: true,
-  dirtyLabel: '存在未保存修改',
-  submitLabel: '保存',
-  savingLabel: '保存中...',
-  cancelLabel: '取消',
  }),
 })
 
@@ -117,13 +108,15 @@ const emit = defineEmits<{
  (e: 'request-close', payload: { source: 'close' | 'cancel' | 'backdrop' }): void
 }>()
 
+const instance = getCurrentInstance()
 const sizeClass = computed(() => `efs-cruddialogshell__dialog--${props.size}`)
+const resolvedCloseLabel = computed(() => resolveOptionalLabel({ key: 'closeLabel', instance, namespaces: ['efs.crudDialog'] }) || '关闭')
 const resolvedFooter = computed(() => ({
  showActions: props.footer?.showActions ?? true,
- dirtyLabel: props.footer?.dirtyLabel ?? '存在未保存修改',
- submitLabel: props.footer?.submitLabel ?? '保存',
- savingLabel: props.footer?.savingLabel ?? '保存中...',
- cancelLabel: props.footer?.cancelLabel ?? '取消',
+ dirtyLabel: resolveOptionalLabel({ key: 'footer.dirtyLabel', instance, namespaces: ['efs.crudDialog'] }) || '存在未保存修改',
+ submitLabel: resolveOptionalLabel({ key: 'footer.submitLabel', instance, namespaces: ['efs.crudDialog'] }) || '保存',
+ savingLabel: resolveOptionalLabel({ key: 'footer.savingLabel', instance, namespaces: ['efs.crudDialog'] }) || '保存中...',
+ cancelLabel: resolveOptionalLabel({ key: 'footer.cancelLabel', instance, namespaces: ['efs.crudDialog'] }) || '取消',
 }))
 const shouldGuardClose = computed(() => props.guardDirtyClose && props.dirty && !props.busy)
 
