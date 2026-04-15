@@ -113,6 +113,12 @@ const biDomain: DomainController<'bi'> = {
 export const app = {
   kind: 'app',
   appName: 'EFS Demo',
+  shell: {
+    brand: {
+      title: 'Enterprise Frontend Standard',
+      subtitle: '最小 EfsApp 运行时演示与构建冒烟校验',
+    },
+  },
   auth: {
     kind: 'auth',
     name: ref('demo'),
