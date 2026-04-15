@@ -68,15 +68,13 @@ export const appSchema = defineAppSchema({
             },
             { key: 'createdAt', title: '创建时间', type: 'datetime', readonly: true },
           ],
-          apis: {
+          operations: {
             query: { path: '/api/crm/customers', method: 'GET' },
             get: { path: '/api/crm/customers/:id', method: 'GET' },
             create: { path: '/api/crm/customers', method: 'POST' },
             update: { path: '/api/crm/customers/:id', method: 'PUT' },
             remove: { path: '/api/crm/customers/:id', method: 'DELETE' },
-            custom: {
-              export: { path: '/api/crm/customers/export', method: 'POST' },
-            },
+            export: { path: '/api/crm/customers/export', method: 'POST' },
           },
         },
       ],
@@ -94,11 +92,9 @@ export const appSchema = defineAppSchema({
             { key: 'count', title: '客户数', type: 'number' },
             { key: 'revenue', title: '营收', type: 'number' },
           ],
-          apis: {
+          operations: {
             query: { path: '/api/bi/customer-report', method: 'GET' },
-            custom: {
-              export: { path: '/api/bi/customer-report/export', method: 'POST' },
-            },
+            export: { path: '/api/bi/customer-report/export', method: 'POST' },
           },
         },
       ],

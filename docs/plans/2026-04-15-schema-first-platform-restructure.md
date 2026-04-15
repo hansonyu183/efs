@@ -127,7 +127,7 @@ The new platform should revolve around a single app schema root.
 
 Schema should be split into two distinct kinds:
 
-- **Business schema** — describes only business data and API contracts: app identity, auth capability, services, domain/resource definitions, business fields, and resource API endpoints.
+- **Business schema** — describes only business data and API contracts: app identity, auth capability, services, domain/resource definitions, business fields, and resource operations.
 - **UI schema** — a separate later layer for rendering/runtime overrides if needed.
 
 Strict boundary for business schema:
@@ -137,7 +137,7 @@ Strict boundary for business schema:
 - do **not** describe query widgets, table columns, form widgets, detail layout, button style, icon, placement, ordering, or other presentation concerns
 - business schema should answer only:
   - what data exists
-  - what APIs exist
+  - what operations exist
   - what services/auth capabilities exist
 
 Design bias:
@@ -232,19 +232,20 @@ interface EfsResourceSchema {
   key: string
   title: string
   fields?: EfsFieldSchema[]
-  apis?: {
-    list?: EndpointSpec
-    get?: EndpointSpec
-    query?: EndpointSpec
-    create?: EndpointSpec
-    update?: EndpointSpec
-    remove?: EndpointSpec
-    custom?: Record<string, EndpointSpec>
-  }
+  operations?: EfsResourceOperationsSchema
+}
+
+interface EfsResourceOperationsSchema {
+  query?: EndpointSpec
+  get?: EndpointSpec
+  create?: EndpointSpec
+  update?: EndpointSpec
+  remove?: EndpointSpec
+  [operation: string]: EndpointSpec | undefined
 }
 ```
 
-The business resource schema should describe only data and APIs. Runtime/view generation is inferred by EFS. Backend-invoking operations are modeled as resource APIs, not as a separate business action schema. Optional UI overrides, if needed, should live in a separate UI schema layer rather than inside the business resource contract.
+The business resource schema should describe only data and operations. Runtime/view generation is inferred by EFS. Standard CRUD and extended backend operations are both modeled inside `EfsResourceOperationsSchema`. Optional UI overrides, if needed, should live in a separate UI schema layer rather than inside the business resource contract.
 
 ### Minimal UI override policy
 

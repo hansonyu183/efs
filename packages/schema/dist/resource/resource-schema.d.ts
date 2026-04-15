@@ -8,17 +8,17 @@ export interface EfsResourceSchema {
     key: string;
     title: string;
     fields?: EfsFieldSchema[];
-    apis?: EfsResourceApisSchema;
+    operations?: EfsResourceOperationsSchema;
     description?: string;
 }
-export interface EfsResourceApisSchema {
+export interface EfsResourceOperationsSchema {
     list?: EfsEndpointSchema;
     get?: EfsEndpointSchema;
     query?: EfsEndpointSchema;
     create?: EfsEndpointSchema;
     update?: EfsEndpointSchema;
     remove?: EfsEndpointSchema;
-    custom?: Record<string, EfsEndpointSchema>;
+    [operation: string]: EfsEndpointSchema | undefined;
 }
 export interface EfsEndpointSchema {
     path: string;
