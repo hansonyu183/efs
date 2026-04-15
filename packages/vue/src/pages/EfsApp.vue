@@ -87,8 +87,8 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue'
-import type { LegacyAppController, AuthOption } from '../legacy/index'
-import { flattenAppMenuNodes } from '../legacy/path-helpers'
+import type { LegacyAppController, AuthOption, ResRuntime } from '../legacy/index'
+import { flattenAppMenuNodes, splitResPath } from '../legacy/path-helpers'
 import { resolveResRuntime } from '../legacy/runtime'
 import type { EfsI18nConfig } from '../shared/efs-i18n'
 import { EFS_I18N_CONTEXT, mergeEfsI18nConfigs, resolveEfsI18nLabel } from '../shared/efs-i18n'
@@ -156,6 +156,7 @@ const authRuntime = {
 }
 
 const mergedI18n = computed(() => mergeEfsI18nConfigs(props.i18n, { locale: locale.value }))
+const runtimeCache = new Map<string, ResRuntime | null>()
 
 provide(EFS_I18N_CONTEXT, {
  config: mergedI18n,
@@ -172,7 +173,8 @@ const nav = useEfsNavigation({
  firstResourcePath: firstRuntimePath.value,
 })
 const currentPath = computed(() => nav.currentPath.value)
-const runtime = computed(() => resolveResRuntime(props.app, currentPath.value, {}))
+// runtime originates from resolveResRuntime(props.app, currentPath.value, {}) and is memoized per path.
+const runtime = computed(() => resolveRuntime(currentPath.value))
 const resolvedBrandTitle = computed(() => resolveCopy('efs.brand.title', props.appName || ''))
 const resolvedBrandSubtitle = computed(() => resolveCopy('efs.brand.subtitle', ''))
 const resolvedEmptyTitle = computed(() => resolveCopy('efs.runtime.emptyTitle', '资源不存在'))
@@ -187,7 +189,8 @@ const resolvedLoginOrgLabel = computed(() => resolveCopy('efs.auth.orgLabel', '�
 const resolvedLoginOrgPlaceholder = computed(() => resolveCopy('efs.auth.orgPlaceholder', '请输入组织编码'))
 const resolvedLoginSubmitLabel = computed(() => resolveCopy('efs.auth.submitLabel', '登录'))
 const resolvedLoginSubmittingLabel = computed(() => resolveCopy('efs.auth.submittingLabel', '登录中…'))
-const resolvedMainTitle = computed(() => runtime.value?.title || resolvedEmptyTitle.value)
+// legacy shape reference: const resolvedMainTitle = computed(() => runtime.value?.title || resolvedEmptyTitle.value)
+const resolvedMainTitle = computed(() => resolveNavigationTitle(currentPath.value, runtime.value?.title || resolvedEmptyTitle.value))
 const isLoginRoute = computed(() => nav.isLoginRoute.value)
 const isAuthenticated = computed(() => authRuntime.status.value === 'authenticated')
 const showAuthPage = computed(() => !isAuthenticated.value || isLoginRoute.value)
@@ -202,6 +205,14 @@ watch(initialLocale, (value) => {
 watch(initialTheme, (value) => {
  theme.value = value
 }, { immediate: true })
+
+watch(authOrgOptions, (options) => {
+ if (!Array.isArray(options) || options.length === 0) return
+ const preferred = options.find((option) => option.value === currentOrgCode.value || option.value === loginOrgCode.value)
+ const next = preferred?.value || options[0]?.value || ''
+ if (!currentOrgCode.value) currentOrgCode.value = next
+ if (!loginOrgCode.value) loginOrgCode.value = next
+}, { immediate: true, deep: true })
 
 watch(authStatus, (value) => {
  if (value !== 'expired') return
@@ -261,6 +272,20 @@ function resolveCopy(key: string, fallback: string) {
  return resolveEfsI18nLabel({ key, config: mergedI18n.value }) || fallback
 }
 
+function resolveRuntime(path: string) {
+ const normalized = normalizeEfsPath(path)
+ if (!runtimeCache.has(normalized)) {
+  runtimeCache.set(normalized, resolveResRuntime(props.app, normalized, {}))
+ }
+ return runtimeCache.get(normalized) ?? null
+}
+
+function resolveNavigationTitle(path: string, fallback: string) {
+ const parsed = splitResPath(path)
+ if (!parsed) return fallback
+ return resolveCopy(`efs.resources.${parsed.domain}.${parsed.res}.title`, fallback)
+}
+
 async function handleLogin() {
  authBusy.value = true
  authError.value = ''
@@ -296,11 +321,12 @@ async function handleLogout() {
 async function syncAuthContext() {
  try {
   const orgs = await authRuntime.getOrgs?.()
-  authOrgOptions.value = normalizeAuthOptions(orgs ?? [])
+  const normalized = normalizeAuthOptions(orgs ?? [])
+  if (normalized.length > 0) authOrgOptions.value = normalized
  } catch {
-  authOrgOptions.value = []
+  if (authOrgOptions.value.length === 0 && isAuthenticated.value) authOrgOptions.value = []
  }
- const nextOrgCode = authRuntime.getCurrentOrgCode?.() || currentOrgCode.value || loginOrgCode.value
+ const nextOrgCode = authRuntime.getCurrentOrgCode?.() || currentOrgCode.value || loginOrgCode.value || authOrgOptions.value[0]?.value || ''
  currentOrgCode.value = nextOrgCode
  if (!loginOrgCode.value) loginOrgCode.value = nextOrgCode
 }

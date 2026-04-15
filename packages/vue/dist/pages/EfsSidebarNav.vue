@@ -5,7 +5,7 @@
     <template v-if="node.type === 'group'">
      <div class="efs-sidebar-nav__group">
       <SemanticIcon :name="node.icon || 'folder'" size="sm" />
-      <span class="efs-sidebar-nav__label">{{ node.title }}</span>
+      <span class="efs-sidebar-nav__label">{{ resolveNodeTitle(node) }}</span>
      </div>
      <EfsSidebarNav :items="node.children" :current-path="currentPath" :tree="true" @navigate="(path) => emit('navigate', path)" />
     </template>
@@ -25,7 +25,7 @@
       <SemanticIcon :name="node.icon || 'folder'" size="sm" />
      </span>
      <span class="efs-sidebar-nav__body">
-      <span class="efs-sidebar-nav__label">{{ node.title }}</span>
+      <span class="efs-sidebar-nav__label">{{ resolveNodeTitle(node) }}</span>
      </span>
     </a>
    </li>
@@ -34,9 +34,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
 import type { FlatMenuNode, SidebarMenuTreeNode } from '../shared/navigation-menu'
 import { buildSidebarMenuTree } from '../shared/navigation-menu'
+import { splitResPath } from '../legacy/path-helpers'
+import { EFS_I18N_CONTEXT } from '../shared/efs-i18n'
 import SemanticIcon from '../controls/SemanticIcon.vue'
 
 defineOptions({ name: 'EfsSidebarNav' })
@@ -59,10 +61,19 @@ const emit = defineEmits<{
  (e: 'navigate', path: string): void
 }>()
 
+const i18nContext = inject(EFS_I18N_CONTEXT, null)
 const menuTree = computed<SidebarMenuTreeNode[]>(() => {
  if (props.tree) return (props.items as SidebarMenuTreeNode[]) || []
  return buildSidebarMenuTree(props.items as FlatMenuNode[])
 })
+
+function resolveNodeTitle(node: MenuInput) {
+ const fallback = node.title || node.key
+ const path = 'path' in node ? node.path : undefined
+ const parsed = path ? splitResPath(path) : null
+ if (parsed) return i18nContext?.translate(`efs.resources.${parsed.domain}.${parsed.res}.title`) || fallback
+ return i18nContext?.translate(`efs.domains.${node.key}.title`) || fallback
+}
 
 function isActive(path?: string) {
  return Boolean(path && path === props.currentPath)

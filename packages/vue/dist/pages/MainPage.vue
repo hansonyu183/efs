@@ -45,7 +45,6 @@
      <div class="efs-main-layout__header-meta">
       <slot name="header-title">
        <div class="efs-main-layout__title">{{ resolvedTitle }}</div>
-       <div v-if="resolvedSubtitle" class="efs-main-layout__subtitle">{{ resolvedSubtitle }}</div>
       </slot>
      </div>
     </div>
@@ -82,6 +81,13 @@
        <slot name="toolbar" />
       </div>
 
+      <button v-if="isMobile" type="button" :title="resolvedAgentToggleLabel" :aria-label="resolvedAgentToggleLabel" @click="toggleMobileAgentBar">
+       <span class="efs-main-layout__menuicon" aria-hidden="true">
+        <SemanticIcon :name="showAgentBar ? 'close' : 'chat'" :label="resolvedAgentToggleLabel" size="sm" />
+       </span>
+       <span class="efs-main-layout__menulabel">{{ resolvedAgentToggleLabel }}</span>
+      </button>
+
       <button v-if="resolvedProfileDialog.enabled" type="button" :title="resolvedProfileDialog.label" :aria-label="resolvedProfileDialog.label" @click="openProfileDialog">
        <span class="efs-main-layout__menuicon" aria-hidden="true">
         <SemanticIcon name="user" :label="resolvedProfileDialog.label" size="sm" />
@@ -114,7 +120,7 @@
     <slot />
    </main>
 
-   <section class="efs-main-layout__agentbar">
+   <section v-if="showAgentBar" class="efs-main-layout__agentbar">
     <div class="efs-main-layout__agentbar-main">
      <div class="efs-main-layout__agentbar-header">
       <strong>{{ resolvedAgentTitle }}</strong>
@@ -279,6 +285,7 @@ const passwordDialogOpen = ref(false)
 const sidebarOpen = ref(false)
 const sidebarCompact = ref(false)
 const isMobile = ref(false)
+const mobileAgentBarOpen = ref(false)
 const profileForm = reactive({ displayName: '' })
 const passwordForm = reactive({ currentPassword: '', newPassword: '', confirmPassword: '' })
 const agentDraft = ref(props.agentInput)
@@ -306,6 +313,9 @@ const resolvedAgentSubmitLabel = computed(() => resolveCopy('efs.shell.agentSubm
 const resolvedAgentSessionsLabel = computed(() => resolveCopy('efs.shell.agentSessionsLabel', '会话管理'))
 const resolvedAgentSessionsEmptyText = computed(() => resolveCopy('efs.shell.agentSessionsEmptyText', '暂无会话'))
 const resolvedCloseLabel = computed(() => resolveCopy('efs.shell.closeLabel', '关闭'))
+const resolvedAgentShowLabel = computed(() => resolveCopy('efs.shell.showAgentLabel', '显示对话框'))
+const resolvedAgentHideLabel = computed(() => resolveCopy('efs.shell.hideAgentLabel', '隐藏对话框'))
+const resolvedAgentToggleLabel = computed(() => showAgentBar.value ? resolvedAgentHideLabel.value : resolvedAgentShowLabel.value)
 const resolvedProfileDialog = computed(() => ({
  enabled: true,
  label: resolveCopy('efs.shell.profileDialog.label', '个人资料'),
@@ -326,6 +336,7 @@ const resolvedPasswordDialog = computed(() => ({
  submitLabel: resolveCopy('efs.shell.passwordDialog.submitLabel', '保存'),
  cancelLabel: resolveCopy('efs.shell.passwordDialog.cancelLabel', '取消'),
 }))
+const showAgentBar = computed(() => !isMobile.value || mobileAgentBarOpen.value)
 const layoutClasses = computed(() => ({
  'efs-main-layout--sidebar-compact': sidebarCompact.value,
  'efs-main-layout--sidebar-hidden': !shouldRenderSidebar.value,
@@ -334,9 +345,16 @@ const layoutClasses = computed(() => ({
 
 function syncViewport() {
  if (typeof window === 'undefined') return
- isMobile.value = window.innerWidth <= 960
+ const nextIsMobile = window.innerWidth <= 960
+ const wasMobile = isMobile.value
+ isMobile.value = nextIsMobile
  sidebarOpen.value = shouldRenderSidebar.value && !isMobile.value
- if (isMobile.value) sidebarCompact.value = false
+ if (isMobile.value) {
+  sidebarCompact.value = false
+  if (!wasMobile) mobileAgentBarOpen.value = false
+ } else {
+  mobileAgentBarOpen.value = true
+ }
 }
 
 onMounted(() => {
@@ -437,6 +455,15 @@ function handleAgentSessionsToggle() {
  const next = !agentSessionsPanelOpen.value
  agentSessionsPanelOpen.value = next
  emit('update:agentSessionsOpen', next)
+ closeMoreMenu()
+}
+
+function toggleMobileAgentBar() {
+ mobileAgentBarOpen.value = !mobileAgentBarOpen.value
+ if (!mobileAgentBarOpen.value) {
+  agentSessionsPanelOpen.value = false
+  emit('update:agentSessionsOpen', false)
+ }
  closeMoreMenu()
 }
 </script>
@@ -602,6 +629,7 @@ function handleAgentSessionsToggle() {
  justify-content: space-between;
  align-items: center;
  gap: 16px;
+ flex-wrap: nowrap;
  padding: 14px 20px;
  border-bottom: 1px solid var(--efs-border, #dbe3ef);
  background: color-mix(in srgb, var(--efs-surface, #fff) 94%, transparent);
@@ -620,17 +648,20 @@ function handleAgentSessionsToggle() {
 
 .efs-main-layout__header-meta {
  min-width: 0;
+ display: flex;
+ align-items: center;
 }
 
 .efs-main-layout__title {
  font-size: 1rem;
  font-weight: 700;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
 }
 
 .efs-main-layout__subtitle {
- margin-top: 2px;
- color: var(--efs-text-muted, #64748b);
- font-size: 0.82rem;
+ display: none;
 }
 
 .efs-main-layout__iconbutton {
@@ -664,6 +695,15 @@ function handleAgentSessionsToggle() {
  justify-content: center;
  font-size: 0.86rem;
  font-weight: 600;
+}
+
+.efs-main-layout__header-actions {
+ display: flex;
+ align-items: center;
+ justify-content: flex-end;
+ gap: 10px;
+ flex-wrap: nowrap;
+ flex-shrink: 0;
 }
 
 .efs-main-layout__moremenu {

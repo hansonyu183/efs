@@ -1,14 +1,5 @@
 <template>
  <section class="efs-reportview">
-  <header class="efs-reportview__header">
-   <div class="efs-reportview__heading">
-    <h2 class="efs-reportview__title">{{ props.title }}</h2>
-   </div>
-   <div class="efs-reportview__header-actions">
-    <ActionBar :actions="visibleActions" align="end" :busy="resolvedBusy" />
-   </div>
-  </header>
-
   <ReportPanel
    :title="props.title"
    :subtitle="''"
@@ -42,8 +33,8 @@
       </AppField>
      </div>
      <div class="efs-reportview__query-actions">
-      <AppButton variant="primary" :disabled="resolvedBusy" @click="handleSearch">查询</AppButton>
-      <AppButton :disabled="resolvedBusy" @click="handleReset">重置</AppButton>
+      <AppButton variant="primary" :disabled="resolvedBusy" @click="handleSearch">{{ resolvedSearchLabel }}</AppButton>
+      <AppButton :disabled="resolvedBusy" @click="handleReset">{{ resolvedResetLabel }}</AppButton>
      </div>
     </div>
    </template>
@@ -88,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, getCurrentInstance, onMounted, ref, watch } from 'vue'
 import AppButton from '../controls/AppButton.vue'
 import AppField from '../controls/AppField.vue'
 import AppInput from '../controls/AppInput.vue'
@@ -119,6 +110,8 @@ interface ReportViewProps {
  controller?: ReportViewController
  pageSizeOptions?: number[]
 }
+
+const instance = getCurrentInstance()
 
 const props = withDefaults(defineProps<ReportViewProps>(), {
  title: '',
@@ -162,8 +155,12 @@ const resolvedItems = computed(() => props.controller?.state?.items ?? localItem
 const resolvedTotal = computed(() => props.controller?.state?.total ?? localTotal.value)
 const resolvedSummary = computed(() => props.controller?.state?.summary ?? localSummary.value)
 const resolvedPageCount = computed(() => Math.max(1, Math.ceil(resolvedTotal.value / Math.max(localPageSize.value, 1))))
-const querySummaryText = computed(() => normalizedQueryFields.value.length > 0 ? `筛选字段：${normalizedQueryFields.value.length}` : '')
-const resultCountText = computed(() => `总数：${resolvedTotal.value}`)
+const resolvedSearchLabel = computed(() => resolveOptionalLabel({ key: 'searchLabel', instance, namespaces: ['efs.reportView'] }) || '查询')
+const resolvedResetLabel = computed(() => resolveOptionalLabel({ key: 'resetLabel', instance, namespaces: ['efs.reportView'] }) || '重置')
+const resolvedFiltersSummaryLabel = computed(() => resolveOptionalLabel({ key: 'filtersSummaryLabel', instance, namespaces: ['efs.reportView'] }) || '筛选字段')
+const resolvedTotalLabel = computed(() => resolveOptionalLabel({ key: 'totalLabel', instance, namespaces: ['efs.reportView'] }) || '总数')
+const querySummaryText = computed(() => normalizedQueryFields.value.length > 0 ? `${resolvedFiltersSummaryLabel.value}：${normalizedQueryFields.value.length}` : '')
+const resultCountText = computed(() => `${resolvedTotalLabel.value}：${resolvedTotal.value}`)
 
 const resultRows = computed(() => resolvedItems.value.map((item, index) => ({
  __reportRowKey: String(index + 1),

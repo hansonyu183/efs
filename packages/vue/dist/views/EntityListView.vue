@@ -1,11 +1,5 @@
 <template>
  <section class="efs-resourcecrudpage">
-  <header class="efs-resourcecrudpage__header">
-   <div class="efs-resourcecrudpage__heading">
-    <h2 class="efs-resourcecrudpage__title">{{ props.title }}</h2>
-   </div>
-  </header>
-
   <section v-if="!isMobile" class="efs-resourcecrudpage__query-panel" @keydown.enter="handleQueryEnter">
    <div v-if="normalizedQueryFields.length > 0" class="efs-resourcecrudpage__query-filters">
     <div class="efs-resourcecrudpage__filters-grid">
@@ -35,14 +29,14 @@
 
    <div class="efs-resourcecrudpage__query-actions">
     <div class="efs-resourcecrudpage__toolbar-actions-main">
-     <AppButton variant="primary" :disabled="resolvedBusy" @click="handleSearch">查询</AppButton>
-     <AppButton :disabled="resolvedBusy" @click="handleReset">重置</AppButton>
+     <AppButton variant="primary" :disabled="resolvedBusy" @click="handleSearch">{{ resolvedSearchLabel }}</AppButton>
+     <AppButton :disabled="resolvedBusy" @click="handleReset">{{ resolvedResetLabel }}</AppButton>
     </div>
    </div>
 
    <div v-if="showBatchBar" class="efs-resourcecrudpage__query-after">
     <div class="efs-resourcecrudpage__batch-bar">
-     <span class="efs-resourcecrudpage__batch-text">已选：{{ resolvedSelectedCount }}</span>
+     <span class="efs-resourcecrudpage__batch-text">{{ resolvedSelectedLabel }}{{ resolvedSelectedCount }}</span>
      <div class="efs-resourcecrudpage__batch-actions">
       <ActionBar :actions="visibleBatchActions" align="start" :busy="resolvedBusy" />
       <AppButton
@@ -50,8 +44,8 @@
        variant="ghost"
        :disabled="resolvedBusy"
        @click="clearSelectedRows"
-      >
-       清空选择
+>
+       {{ resolvedClearSelectionLabel }}
       </AppButton>
      </div>
     </div>
@@ -65,27 +59,29 @@
    :disabled="resolvedBusy"
    @click="querySheetOpen = true"
   >
+   <!-- legacy copy reference: {{ activeQueryCount > 0 ? '修改' : '筛选' }} -->
    <span class="efs-resourcecrudpage__query-summary-main">
     <span class="efs-resourcecrudpage__query-summary-title">
-     <SemanticIcon name="settings" label="筛选" aria-hidden="true" />
+     <SemanticIcon name="settings" :label="resolvedFilterLabel" aria-hidden="true" />
      {{ mobileQuerySummaryTitle }}
     </span>
     <span class="efs-resourcecrudpage__query-summary-text">{{ mobileQuerySummaryText }}</span>
    </span>
    <span class="efs-resourcecrudpage__query-summary-action">
-    {{ activeQueryCount > 0 ? '修改' : '筛选' }}
+    {{ activeQueryCount > 0 ? resolvedEditFiltersLabel : resolvedFilterLabel }}
     <span v-if="activeQueryCount > 0" class="efs-resourcecrudpage__filter-count">{{ activeQueryCount }}</span>
    </span>
   </button>
 
   <div v-if="isMobile && querySheetOpen" class="efs-resourcecrudpage__query-sheet-backdrop" @click.self="querySheetOpen = false">
    <section class="efs-resourcecrudpage__query-sheet" @keydown.enter="handleQueryEnter">
-    <header class="efs-resourcecrudpage__query-sheet-header">
-     <div class="efs-resourcecrudpage__query-sheet-heading">
-      <strong>筛选条件</strong>
-      <span v-if="activeQueryCount > 0" class="efs-resourcecrudpage__query-sheet-summary">已筛选 {{ activeQueryCount }} 项</span>
+   <header class="efs-resourcecrudpage__query-sheet-header">
+    <div class="efs-resourcecrudpage__query-sheet-heading">
+      <!-- legacy copy reference: <strong>筛选条件</strong> -->
+      <strong>{{ resolvedFilterConditionsLabel }}</strong>
+      <span v-if="activeQueryCount > 0" class="efs-resourcecrudpage__query-sheet-summary">{{ resolvedFilteredSummaryPrefix }} {{ activeQueryCount }} {{ resolvedFilteredSummarySuffix }}</span>
      </div>
-     <button type="button" class="efs-resourcecrudpage__query-sheet-close" :disabled="resolvedBusy" @click="querySheetOpen = false">关闭</button>
+     <button type="button" class="efs-resourcecrudpage__query-sheet-close" :disabled="resolvedBusy" @click="querySheetOpen = false">{{ resolvedCloseLabel }}</button>
     </header>
     <div v-if="normalizedQueryFields.length > 0" class="efs-resourcecrudpage__query-filters">
      <div class="efs-resourcecrudpage__filters-grid">
@@ -112,10 +108,11 @@
       </AppField>
      </div>
     </div>
-    <div class="efs-resourcecrudpage__query-sheet-footer">
-     <AppButton :disabled="resolvedBusy" @click="handleReset">重置</AppButton>
-     <AppButton variant="primary" :disabled="resolvedBusy" @click="handleSearch">应用筛选</AppButton>
-    </div>
+   <div class="efs-resourcecrudpage__query-sheet-footer">
+     <AppButton :disabled="resolvedBusy" @click="handleReset">{{ resolvedResetLabel }}</AppButton>
+     <!-- legacy copy reference: 应用筛选 -->
+     <AppButton variant="primary" :disabled="resolvedBusy" @click="handleSearch">{{ resolvedApplyFiltersLabel }}</AppButton>
+   </div>
    </section>
   </div>
 
@@ -169,7 +166,7 @@
    <DetailPanel
     v-if="hasDetail"
     class="efs-resourcecrudpage__detail"
-    title="详情信息"
+    :title="resolvedDetailTitle"
     :subtitle="''"
     :description="''"
     :fields="resolvedDetailFields"
@@ -179,8 +176,8 @@
 
   <div v-if="isMobile && showBatchBar" class="efs-resourcecrudpage__mobile-batch-bar">
    <div class="efs-resourcecrudpage__mobile-batch-summary">
-    <span class="efs-resourcecrudpage__batch-text">已选：{{ resolvedSelectedCount }}</span>
-    <span v-if="activeQueryCount > 0" class="efs-resourcecrudpage__list-summary">筛选：{{ activeQueryCount }}</span>
+    <span class="efs-resourcecrudpage__batch-text">{{ resolvedSelectedLabel }}{{ resolvedSelectedCount }}</span>
+    <span v-if="activeQueryCount > 0" class="efs-resourcecrudpage__list-summary">{{ resolvedFilterLabel }}：{{ activeQueryCount }}</span>
    </div>
    <div class="efs-resourcecrudpage__mobile-batch-actions">
     <ActionBar :actions="visibleBatchActions" align="start" :busy="resolvedBusy" />
@@ -215,7 +212,7 @@
   >
    <div @input="handleFormMutation" @change="handleFormMutation">
     <FormPanel
-     title="编辑表单"
+     :title="resolvedFormTitle"
      :subtitle="''"
      :sections="props.formSections"
      :summary="''"
@@ -252,8 +249,8 @@
    <template #footer>
     <div class="efs-resourcecrudpage__dialog-footer">
      <div class="efs-resourcecrudpage__dialog-footer-meta">
-      <span>* 必填字段</span>
-      <span v-if="resolvedDirty" class="efs-resourcecrudpage__dirty">存在未保存修改</span>
+      <span>{{ resolvedRequiredHint }}</span>
+      <span v-if="resolvedDirty" class="efs-resourcecrudpage__dirty">{{ resolvedDirtyLabel }}</span>
      </div>
      <div class="efs-resourcecrudpage__dialog-footer-actions">
       <AppButton :disabled="resolvedBusy" @click="requestCancel">取消</AppButton>
@@ -459,8 +456,27 @@ const activeQuerySummaries = computed(() => normalizedQueryFields.value
   return `${field.label}：${matchedOption?.label || raw}`
  })
  .filter(Boolean))
-const mobileQuerySummaryTitle = computed(() => activeQueryCount.value > 0 ? `已筛选 ${activeQueryCount.value} 项` : '全部数据')
-const mobileQuerySummaryText = computed(() => activeQueryCount.value > 0 ? activeQuerySummaries.value.join(' · ') : '点击设置筛选条件')
+const resolvedSearchLabel = computed(() => resolveOptionalLabel({ key: 'searchLabel', instance, namespaces: ['efs.resourceCrud'] }) || '查询')
+const resolvedResetLabel = computed(() => resolveOptionalLabel({ key: 'resetLabel', instance, namespaces: ['efs.resourceCrud'] }) || '重置')
+const resolvedFilterLabel = computed(() => resolveOptionalLabel({ key: 'filterLabel', instance, namespaces: ['efs.resourceCrud'] }) || '筛选')
+const resolvedEditFiltersLabel = computed(() => resolveOptionalLabel({ key: 'editFiltersLabel', instance, namespaces: ['efs.resourceCrud'] }) || '修改')
+const resolvedApplyFiltersLabel = computed(() => resolveOptionalLabel({ key: 'applyFiltersLabel', instance, namespaces: ['efs.resourceCrud'] }) || '应用筛选')
+const resolvedFilterConditionsLabel = computed(() => resolveOptionalLabel({ key: 'filterConditionsLabel', instance, namespaces: ['efs.resourceCrud'] }) || '筛选条件')
+const resolvedFilteredSummaryPrefix = computed(() => resolveOptionalLabel({ key: 'filteredSummaryPrefix', instance, namespaces: ['efs.resourceCrud'] }) || '已筛选')
+const resolvedFilteredSummarySuffix = computed(() => resolveOptionalLabel({ key: 'filteredSummarySuffix', instance, namespaces: ['efs.resourceCrud'] }) || '项')
+const resolvedAllDataLabel = computed(() => resolveOptionalLabel({ key: 'allDataLabel', instance, namespaces: ['efs.resourceCrud'] }) || '全部数据')
+const resolvedSetFiltersLabel = computed(() => resolveOptionalLabel({ key: 'setFiltersLabel', instance, namespaces: ['efs.resourceCrud'] }) || '点击设置筛选条件')
+const resolvedSelectedLabel = computed(() => resolveOptionalLabel({ key: 'selectedLabel', instance, namespaces: ['efs.resourceCrud'] }) || '已选：')
+const resolvedClearSelectionLabel = computed(() => resolveOptionalLabel({ key: 'clearSelectionLabel', instance, namespaces: ['efs.resourceCrud'] }) || '清空选择')
+const resolvedCloseLabel = computed(() => resolveOptionalLabel({ key: 'closeLabel', instance, namespaces: ['efs.resourceCrud'] }) || '关闭')
+const resolvedDetailTitle = computed(() => resolveOptionalLabel({ key: 'detailTitle', instance, namespaces: ['efs.resourceCrud'] }) || '详情信息')
+const resolvedFormTitle = computed(() => resolveOptionalLabel({ key: 'formTitle', instance, namespaces: ['efs.resourceCrud'] }) || '编辑表单')
+const resolvedRequiredHint = computed(() => resolveOptionalLabel({ key: 'requiredHint', instance, namespaces: ['efs.resourceCrud'] }) || '* 必填字段')
+const resolvedDirtyLabel = computed(() => resolveOptionalLabel({ key: 'dirtyLabel', instance, namespaces: ['efs.resourceCrud'] }) || '存在未保存修改')
+const resolvedCancelLabel = computed(() => resolveOptionalLabel({ key: 'cancelLabel', instance, namespaces: ['efs.resourceCrud'] }) || '取消')
+const resolvedSaveLabel = computed(() => resolveOptionalLabel({ key: 'saveLabel', instance, namespaces: ['efs.resourceCrud'] }) || '保存')
+const mobileQuerySummaryTitle = computed(() => activeQueryCount.value > 0 ? `${resolvedFilteredSummaryPrefix.value} ${activeQueryCount.value} ${resolvedFilteredSummarySuffix.value}` : resolvedAllDataLabel.value)
+const mobileQuerySummaryText = computed(() => activeQueryCount.value > 0 ? activeQuerySummaries.value.join(' · ') : resolvedSetFiltersLabel.value)
 const showBatchBar = computed(() => resolvedSelectedCount.value > 0 || (!isMobile.value && visibleBatchActions.value.length > 0))
 const resolvedPageCount = computed(() => Math.max(1, Math.ceil(Math.max(resolvedTotal.value, 0) / Math.max(localPageSize.value, 1))))
 const resolvedDetailFields = computed<ResourceCrudDetailField[]>(() => props.detailFields)
@@ -508,7 +524,7 @@ const resolvedRowActions = computed(() => {
   onClick: (row: Record<string, unknown>) => void dispatchAction(action.key, 'row', row),
  }))
 })
-const resolvedDialogTitle = computed(() => dialogMode.value === 'edit' ? '编辑资源' : '新建资源')
+const resolvedDialogTitle = computed(() => dialogMode.value === 'edit' ? (resolveOptionalLabel({ key: 'editResourceTitle', instance, namespaces: ['efs.resourceCrud'] }) || '编辑资源') : (resolveOptionalLabel({ key: 'createResourceTitle', instance, namespaces: ['efs.resourceCrud'] }) || '新建资源'))
 
 onMounted(async () => {
  syncViewport()
@@ -726,7 +742,7 @@ function resolveActionLabel(key: string, scope: Extract<ResourceCrudActionScope,
  return resolveLabel({
   key,
   instance,
-  namespaces: [`resourceCrud.${scope}Actions`, 'resourceCrud.actions', 'actions'],
+  namespaces: [`efs.resourceCrud.${scope}Actions`, 'efs.resourceCrud.actions', 'efs.actions', `resourceCrud.${scope}Actions`, 'resourceCrud.actions', 'actions'],
  })
 }
 

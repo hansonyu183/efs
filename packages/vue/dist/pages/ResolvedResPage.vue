@@ -1,6 +1,6 @@
 <template>
  <section class="efs-resolvedrespage">
-  <PagePanel v-if="crudRuntime" :title="crudRuntime.title" :subtitle="resolvedCrudSubtitle">
+  <PagePanel v-if="crudRuntime">
    <EntityListView
     :row-key="crudRuntime.rowKey"
     :title="crudRuntime.title"
@@ -14,7 +14,7 @@
    />
   </PagePanel>
 
-  <PagePanel v-else-if="reportRuntime" :title="reportRuntime.title" :subtitle="resolvedReportSubtitle">
+  <PagePanel v-else-if="reportRuntime">
    <ReportView
     :title="reportRuntime.title"
     :query-fields="reportRuntime.queryFields"

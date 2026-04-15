@@ -129,6 +129,7 @@ const layoutClasses = computed(() => ({
  align-items: center;
  justify-content: space-between;
  gap: 12px;
+ flex-wrap: nowrap;
  padding: 0;
 }
 
@@ -165,7 +166,8 @@ const layoutClasses = computed(() => ({
  align-items: center;
  justify-content: flex-end;
  gap: 10px;
- flex-wrap: wrap;
+ flex-wrap: nowrap;
+ flex-shrink: 0;
 }
 
 .efs-auth-layout__actions :deep(.efs-localeswitcher),
