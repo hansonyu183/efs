@@ -14,7 +14,7 @@ EFS 当前阶段采用：
 - 而是优先收敛到一条主链路：
 
 ```text
-schemas/<app-name>/app.schema.ts
+apps/<app-name>/schemas/app.schema.ts
   -> business schema
   -> ui overrides
   -> runtime inference / adapter

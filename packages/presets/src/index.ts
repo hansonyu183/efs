@@ -3,7 +3,6 @@ type SchemaPresetType = 'crud' | 'report' | 'workbench'
 export type ScaffoldedPreset = {
   appSchema: string
   mainEntry: string
-  appDirName: string
 }
 
 function toSlug(value: string) {
@@ -191,11 +190,11 @@ export const appSchema = defineAppSchema({
 `
 }
 
-function buildMainEntry(appName: string) {
+function buildMainEntry() {
   return `import { createApp } from 'vue'
 import { createPlatformAppFromSchema } from '@efs/schema'
 import { EfsApp } from '@efs/vue'
-import { appSchema } from '../schemas/${appName}/app.schema'
+import { appSchema } from '../schemas/app.schema'
 
 const app = createPlatformAppFromSchema(appSchema)
 const appNameText = appSchema.app.title || appSchema.app.name
@@ -211,8 +210,7 @@ export function scaffoldPreset(preset: SchemaPresetType, name: string): Scaffold
   const appName = toAppName(name)
   return {
     appSchema: buildAppSchema(preset, appName, name),
-    mainEntry: buildMainEntry(appName),
-    appDirName: appName,
+    mainEntry: buildMainEntry(),
   }
 }
 

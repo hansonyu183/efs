@@ -10,7 +10,9 @@ if (!root) {
 }
 
 const appRoot = path.resolve(root)
-const userAppsDir = path.join(appRoot, 'schemas')
+const schemasDir = path.join(appRoot, 'schemas')
+const schemaFile = path.join(schemasDir, 'app.schema.ts')
+const appDirName = path.basename(appRoot)
 const mainFile = path.join(appRoot, 'src', 'main.ts')
 let failed = 0
 
@@ -26,31 +28,27 @@ function walk(dir, matcher) {
  return found
 }
 
-const schemaFiles = walk(userAppsDir, (f) => f.endsWith(path.join('', 'app.schema.ts')))
-if (schemaFiles.length === 0) {
- console.error('✗ missing schemas/<app-name>/app.schema.ts')
+if (!fs.existsSync(schemaFile)) {
+ console.error('✗ missing schemas/app.schema.ts')
  failed += 1
-}
-
-for (const file of schemaFiles) {
- const source = fs.readFileSync(file, 'utf8')
- const appDirName = path.basename(path.dirname(file))
+} else {
+ const source = fs.readFileSync(schemaFile, 'utf8')
  const appNameMatch = source.match(/name:\s*['"]([^'"]+)['"]/) || source.match(/name:\s*`([^`]+)`/)
- const schemaVersionMatch = source.match(/schemaVersion:\s*['"]v1['"]/) 
+ const schemaVersionMatch = source.match(/schemaVersion:\s*['"]v1['"]/)
  if (!schemaVersionMatch) {
-  console.error(`✗ ${path.relative(process.cwd(), file)} must declare schemaVersion: 'v1'`)
+  console.error(`✗ ${path.relative(process.cwd(), schemaFile)} must declare schemaVersion: 'v1'`)
   failed += 1
  }
  if (!/services:\s*\{/.test(source)) {
-  console.error(`✗ ${path.relative(process.cwd(), file)} must declare services`) 
+  console.error(`✗ ${path.relative(process.cwd(), schemaFile)} must declare services`)
   failed += 1
  }
  if (!/operations:\s*\{/.test(source)) {
-  console.error(`✗ ${path.relative(process.cwd(), file)} must declare resource operations`)
+  console.error(`✗ ${path.relative(process.cwd(), schemaFile)} must declare resource operations`)
   failed += 1
  }
  if (!appNameMatch || appNameMatch[1] !== appDirName) {
-  console.error(`✗ ${path.relative(process.cwd(), file)} must live under schemas/<app-name>/ where dir name matches app.name`)
+  console.error(`✗ ${path.relative(process.cwd(), schemaFile)} must live under apps/<app-name>/schemas/ where app.name matches the app directory name`)
   failed += 1
  }
 }

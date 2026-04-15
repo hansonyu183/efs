@@ -7,10 +7,10 @@ test('presets list includes core schema-first app types', () => {
  assert.deepEqual(presets, ['crud', 'report', 'workbench'])
 })
 
-test('scaffoldPreset returns schema directory and platform bootstrap content', () => {
+test('scaffoldPreset returns schema file and platform bootstrap content', () => {
  const generated = scaffoldPreset('crud', 'Customer App')
- assert.equal(generated.appDirName, 'customer-app')
  assert.match(generated.appSchema, /defineAppSchema\(/)
+ assert.match(generated.appSchema, /name: 'customer-app'/)
  assert.match(generated.mainEntry, /createPlatformAppFromSchema/)
- assert.match(generated.mainEntry, /schemas\/customer-app\/app\.schema/)
+ assert.match(generated.mainEntry, /schemas\/app\.schema/)
 })

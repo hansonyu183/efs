@@ -10,7 +10,8 @@ if (!root) {
 }
 
 const appRoot = path.resolve(root)
-const userAppsDir = path.join(appRoot, 'schemas')
+const schemasDir = path.join(appRoot, 'schemas')
+const schemaFile = path.join(schemasDir, 'app.schema.ts')
 const mainFile = path.join(appRoot, 'src', 'main.ts')
 const vueRoot = path.join(appRoot, 'src')
 const forbiddenTagPatterns = [/<table[\s>]/i, /<input[\s>]/i, /<select[\s>]/i]
@@ -28,23 +29,20 @@ function walk(dir, matcher) {
  return found
 }
 
-const schemaFiles = walk(userAppsDir, (f) => f.endsWith(path.join('', 'app.schema.ts')))
 const vueFiles = walk(vueRoot, (f) => f.endsWith('.vue'))
 let failed = 0
 
-if (schemaFiles.length === 0) {
- console.error('✗ no app.schema.ts found under schemas/<app-name>/')
+if (!fs.existsSync(schemaFile)) {
+ console.error('✗ missing schemas/app.schema.ts')
  failed += 1
-}
-
-for (const file of schemaFiles) {
- const source = fs.readFileSync(file, 'utf8')
+} else {
+ const source = fs.readFileSync(schemaFile, 'utf8')
  if (!/from '@efs\/schema'/.test(source)) {
-  console.error(`✗ ${path.relative(process.cwd(), file)} must import from @efs/schema`)
+  console.error(`✗ ${path.relative(process.cwd(), schemaFile)} must import from @efs/schema`)
   failed += 1
  }
  if (!/defineAppSchema\(/.test(source)) {
-  console.error(`✗ ${path.relative(process.cwd(), file)} must call defineAppSchema(...)`)
+  console.error(`✗ ${path.relative(process.cwd(), schemaFile)} must call defineAppSchema(...)`)
   failed += 1
  }
 }

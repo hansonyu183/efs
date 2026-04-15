@@ -12,9 +12,10 @@ if (!root) {
 }
 
 const appRoot = path.resolve(root)
-const userAppsDir = path.join(appRoot, 'schemas')
+const schemasDir = path.join(appRoot, 'schemas')
+const schemaFile = path.join(schemasDir, 'app.schema.ts')
 const mainFile = path.join(appRoot, 'src', 'main.ts')
-const srcDir = path.join(appRoot, 'src')
+const vueRoot = path.join(appRoot, 'src')
 let failed = 0
 
 function walk(dir, matcher) {
@@ -36,16 +37,13 @@ function walkTemplate(node, callback) {
  if (Array.isArray(node.branches)) node.branches.forEach((branch) => walkTemplate(branch, callback))
 }
 
-const schemaFiles = walk(userAppsDir, (f) => f.endsWith(path.join('', 'app.schema.ts')))
-if (schemaFiles.length === 0) {
- console.error('✗ AST: missing schemas/<app-name>/app.schema.ts')
+if (!fs.existsSync(schemaFile)) {
+ console.error('✗ AST: missing schemas/app.schema.ts')
  failed += 1
-}
-
-for (const file of schemaFiles) {
- const source = fs.readFileSync(file, 'utf8')
+} else {
+ const source = fs.readFileSync(schemaFile, 'utf8')
  if (!/defineAppSchema\(/.test(source)) {
-  console.error(`✗ AST: ${path.relative(process.cwd(), file)} missing defineAppSchema(...)`)
+  console.error(`✗ AST: ${path.relative(process.cwd(), schemaFile)} missing defineAppSchema(...)`)
   failed += 1
  }
 }
@@ -61,7 +59,7 @@ if (!fs.existsSync(mainFile)) {
  }
 }
 
-for (const file of walk(srcDir, (f) => f.endsWith('.vue'))) {
+for (const file of walk(vueRoot, (f) => f.endsWith('.vue'))) {
  const source = fs.readFileSync(file, 'utf8')
  const { descriptor } = parseSfc(source)
  const templateAst = parseTemplate(descriptor.template?.content || '')

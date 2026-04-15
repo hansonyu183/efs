@@ -177,11 +177,11 @@ export const appSchema = defineAppSchema({
 })
 `;
 }
-function buildMainEntry(appName) {
+function buildMainEntry() {
     return `import { createApp } from 'vue'
 import { createPlatformAppFromSchema } from '@efs/schema'
 import { EfsApp } from '@efs/vue'
-import { appSchema } from '../schemas/${appName}/app.schema'
+import { appSchema } from '../schemas/app.schema'
 
 const app = createPlatformAppFromSchema(appSchema)
 const appNameText = appSchema.app.title || appSchema.app.name
@@ -196,8 +196,7 @@ export function scaffoldPreset(preset, name) {
     const appName = toAppName(name);
     return {
         appSchema: buildAppSchema(preset, appName, name),
-        mainEntry: buildMainEntry(appName),
-        appDirName: appName,
+        mainEntry: buildMainEntry(),
     };
 }
 export function listPresets() {

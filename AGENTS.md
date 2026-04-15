@@ -4,7 +4,7 @@
 These instructions apply to this repository.
 
 ## Runtime and naming conventions
-- The primary runtime integration target is schema-first `schemas/<app-name>/app.schema.ts` -> `createPlatformAppFromSchema(...)` -> `EfsApp`; `useApp()`/controller tree remains a legacy compatibility shape.
+- The primary runtime integration target is schema-first `apps/<app-name>/schemas/app.schema.ts` -> `createPlatformAppFromSchema(...)` -> `EfsApp`; `useApp()`/controller tree remains a legacy compatibility shape.
 - Resource structure uses two levels: `domain/res`.
 - Do not add a `Resource` suffix to resource names.
 
