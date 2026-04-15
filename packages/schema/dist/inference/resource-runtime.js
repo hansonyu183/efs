@@ -24,7 +24,7 @@ export function inferResourceRuntime(resource, ui) {
         });
     }
     for (const runtimeKey of DEFAULT_RUNTIME_ACTIONS) {
-        if (runtimeKey === 'filter' && !resource.operations?.query) {
+        if (runtimeKey === 'filter' && !supportsTableRuntime(resource, mode)) {
             continue;
         }
         actionIndex.set(runtimeKey, actions.length);
@@ -63,13 +63,19 @@ function inferResourceViewMode(resource, ui) {
     if (ui?.view?.mode) {
         return ui.view.mode;
     }
-    if (resource.operations?.create || resource.operations?.update || resource.operations?.remove) {
+    if (resource.operations?.create || resource.operations?.update || resource.operations?.remove || resource.operations?.list) {
         return 'crud';
     }
     if (resource.operations?.query) {
         return 'report';
     }
     return 'custom';
+}
+function supportsTableRuntime(resource, mode) {
+    if (mode === 'crud' || mode === 'report') {
+        return true;
+    }
+    return Boolean(resource.operations?.list || resource.operations?.query);
 }
 function createActionFromOverride(key, override) {
     if (override.api) {

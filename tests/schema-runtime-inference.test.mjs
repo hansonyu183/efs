@@ -8,7 +8,7 @@ test('inferResourceRuntime infers crud mode and default operation actions from r
   key: 'customer',
   title: '客户管理',
   operations: {
-   query: { path: '/api/customers', method: 'GET' },
+   list: { path: '/api/customers', method: 'GET' },
    create: { path: '/api/customers', method: 'POST' },
    update: { path: '/api/customers/:id', method: 'PUT' },
    remove: { path: '/api/customers/:id', method: 'DELETE' },
@@ -27,7 +27,7 @@ test('inferResourceRuntime infers crud mode and default operation actions from r
  ])
 })
 
-test('inferResourceRuntime respects ui action overrides and report mode hints', () => {
+test('inferResourceRuntime reserves query for report semantics and respects ui overrides', () => {
  const runtime = inferResourceRuntime(
   {
    key: 'customer-report',
@@ -38,7 +38,6 @@ test('inferResourceRuntime respects ui action overrides and report mode hints', 
    },
   },
   {
-   view: { mode: 'report' },
    actions: {
     export: { placement: 'page', label: '导出报表', api: 'export' },
     filter: { hidden: true, runtime: 'filter' },
@@ -54,4 +53,17 @@ test('inferResourceRuntime respects ui action overrides and report mode hints', 
   { key: 'refresh', kind: 'runtime', placement: 'page', hidden: false, label: undefined },
   { key: 'toggleColumns', kind: 'runtime', placement: 'page', hidden: false, label: undefined },
  ])
+})
+
+test('inferResourceRuntime keeps filter for list-driven table resources even without query', () => {
+ const runtime = inferResourceRuntime({
+  key: 'orders',
+  title: '订单',
+  operations: {
+   list: { path: '/api/orders', method: 'GET' },
+  },
+ })
+
+ assert.equal(runtime.mode, 'crud')
+ assert.deepEqual(runtime.actions.map((item) => item.key), ['filter', 'refresh'])
 })

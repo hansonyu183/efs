@@ -236,6 +236,7 @@ interface EfsResourceSchema {
 }
 
 interface EfsResourceOperationsSchema {
+  list?: EndpointSpec
   query?: EndpointSpec
   get?: EndpointSpec
   create?: EndpointSpec
@@ -245,7 +246,7 @@ interface EfsResourceOperationsSchema {
 }
 ```
 
-The business resource schema should describe only data and operations. Runtime/view generation is inferred by EFS. Standard CRUD and extended backend operations are both modeled inside `EfsResourceOperationsSchema`. Optional UI overrides, if needed, should live in a separate UI schema layer rather than inside the business resource contract.
+The business resource schema should describe only data and operations. Runtime/view generation is inferred by EFS. `list` is the standard table/list retrieval operation for CRUD resources, while `query` is reserved for report/search-style resources. Standard CRUD and extended backend operations are modeled inside `EfsResourceOperationsSchema`. Optional UI overrides, if needed, should live in a separate UI schema layer rather than inside the business resource contract.
 
 ### Minimal UI override policy
 

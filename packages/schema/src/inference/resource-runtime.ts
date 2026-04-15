@@ -48,7 +48,7 @@ export function inferResourceRuntime(resource: EfsResourceSchema, ui?: EfsResour
   }
 
   for (const runtimeKey of DEFAULT_RUNTIME_ACTIONS) {
-    if (runtimeKey === 'filter' && !resource.operations?.query) {
+    if (runtimeKey === 'filter' && !supportsTableRuntime(resource, mode)) {
       continue
     }
     actionIndex.set(runtimeKey, actions.length)
@@ -92,7 +92,7 @@ function inferResourceViewMode(resource: EfsResourceSchema, ui?: EfsResourceUiSc
     return ui.view.mode
   }
 
-  if (resource.operations?.create || resource.operations?.update || resource.operations?.remove) {
+  if (resource.operations?.create || resource.operations?.update || resource.operations?.remove || resource.operations?.list) {
     return 'crud'
   }
 
@@ -101,6 +101,14 @@ function inferResourceViewMode(resource: EfsResourceSchema, ui?: EfsResourceUiSc
   }
 
   return 'custom'
+}
+
+function supportsTableRuntime(resource: EfsResourceSchema, mode: InferredResourceViewMode): boolean {
+  if (mode === 'crud' || mode === 'report') {
+    return true
+  }
+
+  return Boolean(resource.operations?.list || resource.operations?.query)
 }
 
 function createActionFromOverride(
