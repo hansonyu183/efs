@@ -332,7 +332,11 @@ test('AppController types expose app/main/domain/res contract and typed domain-r
  assert.match(runtimeSource, /selectableRows: options\.selectableRows \?\? true/)
  assert.match(runtimeSource, /defaultDetailValueFormatter/)
 
- assert.match(indexSource, /export \* from '\.\/controller\/AppController'/)
+ assert.match(indexSource, /export type \{ AppController \} from '\.\/controller\/AppController'/)
+ assert.doesNotMatch(indexSource, /AuthController/)
+ assert.doesNotMatch(indexSource, /DomainController/)
+ assert.doesNotMatch(indexSource, /MainController/)
+ assert.doesNotMatch(indexSource, /ResController/)
 })
 
 test('AppButton exposes foundational action props and slots contract', () => {

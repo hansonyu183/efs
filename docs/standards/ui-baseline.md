@@ -7,7 +7,7 @@
 
 ## 统一口径
 
-以后所有标准组件、标准页面、runtime 页面、demo app，都必须以 **Material Design 3（MD3）** 作为默认视觉与交互规范。
+以后所有标准组件、标准页面、runtime 页面、标准演示应用，都必须以 **Material Design 3（MD3）** 作为默认视觉与交互规范。
 
 当前工程实现统一按 **Vuetify 风格的 MD3 企业后台实现** 收敛。
 

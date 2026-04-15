@@ -118,7 +118,10 @@ EFS 约定把可静态约束的部分尽量落到 TypeScript 类型中。
 
 当前参考类型文件：
 
-- `packages/vue/src/shared/AppController.ts`
+- `packages/vue/src/controller/AppController.ts`
+- `packages/vue/src/controller/path-helpers.ts`
+- `packages/vue/src/controller/field-inference.ts`
+- `packages/vue/src/controller/runtime.ts`
 
 其中定义了：
 
@@ -576,10 +579,13 @@ const app = useApp()
 
 参考文件：
 
-- `packages/vue/src/shared/AppController.ts`
+- `packages/vue/src/controller/AppController.ts`
+- `packages/vue/src/controller/path-helpers.ts`
+- `packages/vue/src/controller/runtime.ts`
 - `packages/vue/src/components/pages/ResolvedResPage.vue`（内部）
 - `packages/vue/src/components/pages/EfsApp.vue`（公共入口）
-- `packages/vue/src/components/pages/efs-app-types.ts`（内部/保留）
+
+说明：`@efs/vue` 根入口当前只保留 `AppController` 与 `EfsApp`；`buildResPath()`、`splitResPath()`、`flattenAppMenuNodes()`、`findResByPath()`、`resolveResRuntime()` 等 helper 应从对应 controller 子路径导入。
 
 ## 9. 当前不提前定型的部分
 
@@ -668,14 +674,16 @@ export function useMain(): MainController {
   }
 }
 
-export function useApp(): AppController {
+export function useApp() {
   return {
     kind: 'app',
     auth: useAuth(),
     main: useMain(),
-  }
+  } satisfies AppController
 }
 ```
+
+如果业务侧是声明式 app tree，优先推荐 `const app = { ... } satisfies AppController`：既保留对象字面量推断，又能在定义处校验 `auth/main/domains/items` 整棵树是否满足 `AppController` 约束。
 
 ---
 

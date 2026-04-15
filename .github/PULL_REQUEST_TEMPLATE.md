@@ -3,7 +3,7 @@
 - [ ] 标准页面 preset
 - [ ] runtime renderer
 - [ ] 治理规则 / lint / contract
-- [ ] demo app
+- [ ] 标准演示应用
 
 ## 页面归属
 - pageType:
@@ -19,9 +19,8 @@
 
 ## 必做检查
 - [ ] npm run test
-- [ ] npm run check:sample
-- [ ] npm run lint:sample
-- [ ] npm run lint:sample:ast
-- [ ] npm run govern:sample
+- [ ] npm run lint:standard
+- [ ] npm run lint:standard:ast
+- [ ] npm run govern:standard
 - [ ] npm run demo:build
 - [ ] npm run pack:check

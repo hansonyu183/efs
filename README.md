@@ -10,6 +10,7 @@
 - `packages/vue`：Vue 组件与共享辅助能力
 - `packages/cli`：lint / scaffold / governance 命令
 - `standard-app`：唯一标准接法落地工程
+- `apps/standard-demo`：可运行的 EfsApp 标准演示应用（用于 build smoke test）
 - `tests/`：组件、脚手架、AST lint、治理与打包测试
 
 ## 正式接入文档
@@ -28,6 +29,7 @@ npm run test
 npm run lint:standard
 npm run lint:standard:ast
 npm run govern:standard
+npm run demo:build
 npm run pack:check
 npm run ci
 ```
