@@ -3,7 +3,7 @@
  "version": "0.4.0",
  "type": "module",
  "private": false,
- "description": "CLI tooling for enterprise frontend standards.",
+ "description": "CLI tooling for the EFS enterprise management frontend platform.",
  "bin": {
   "efs-lint": "./bin/efs-lint.mjs",
   "efs-lint-ast": "./bin/efs-lint-ast.mjs",

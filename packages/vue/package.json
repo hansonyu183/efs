@@ -3,7 +3,7 @@
  "version": "0.4.0",
  "type": "module",
  "private": false,
- "description": "Vue Page/View/Panel components and helpers for enterprise frontend standards.",
+ "description": "Vue application shell and resource runtimes for the EFS enterprise management frontend platform.",
  "scripts": {
   "build": "node ./build.mjs"
  },
