@@ -1,4 +1,5 @@
 import type { ComponentInternalInstance } from 'vue'
+import { EFS_I18N_CONTEXT, resolveEfsI18nLabel } from './efs-i18n'
 
 type LabelResolverOptions = {
  key: string
@@ -114,6 +115,19 @@ function fallbackKey(value: string) {
 }
 
 function getTranslator(instance?: ComponentInternalInstance | null): Translator {
+ const provides = (instance as { provides?: Record<PropertyKey, unknown> } | null | undefined)?.provides
+ const efsI18n = provides?.[EFS_I18N_CONTEXT as symbol] as { translate?: (key: string) => string; config?: { value?: unknown } } | undefined
+ if (efsI18n?.translate) {
+  return (key: string) => efsI18n.translate(key)
+ }
+
  const maybeTranslator = instance?.appContext.config.globalProperties?.$t
- return typeof maybeTranslator === 'function' ? maybeTranslator : undefined
+ if (typeof maybeTranslator === 'function') return maybeTranslator
+
+ const config = efsI18n?.config?.value
+ if (config) {
+  return (key: string) => resolveEfsI18nLabel({ key, config: config as never })
+ }
+
+ return undefined
 }

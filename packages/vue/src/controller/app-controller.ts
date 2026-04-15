@@ -1,6 +1,5 @@
 import type { AuthController } from './auth-controller'
 import type { MainController } from './main-controller'
-
 export interface AppShellBrand {
   title?: string
   subtitle?: string

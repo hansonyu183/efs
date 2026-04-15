@@ -4,6 +4,7 @@ import type { ReportViewAction, ReportViewController, ReportViewResultColumn, Re
 export type DomainKey = string;
 export type ResKey = string;
 export type DomainResPath<D extends string = string, R extends string = string> = `${D}/${R}`;
+export type EfsI18nConfig = import('../shared/efs-i18n').EfsI18nConfig;
 export type MenuOrder = number;
 export type FieldUse = 'query' | 'list' | 'form' | 'detail';
 export type ResFieldKind = 'text' | 'number' | 'bool' | 'date' | 'datetime' | 'enum' | 'ref' | 'tags' | 'json';

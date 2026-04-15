@@ -10,6 +10,7 @@ export type {
   AuthOption,
   DomainKey,
   DomainResPath,
+  EfsI18nConfig,
   FieldUse,
   MenuOrder,
   ResAction,
@@ -42,6 +43,8 @@ export type {
   ResSelectField,
   ResValueField,
 } from './shared-types'
+
+export type { EfsI18nMessages } from '../shared/efs-i18n'
 
 export type {
   ReportViewAction,

@@ -1,3 +1,4 @@
+import { EFS_I18N_CONTEXT, resolveEfsI18nLabel } from './efs-i18n';
 const BUILTIN_ZH_LABELS = {
     'columns.code': '编码',
     'columns.name': '名称',
@@ -95,6 +96,17 @@ function fallbackKey(value) {
     return value.includes('.') ? value.split('.').filter(Boolean).pop() ?? value : value;
 }
 function getTranslator(instance) {
+    const provides = instance?.provides;
+    const efsI18n = provides?.[EFS_I18N_CONTEXT];
+    if (efsI18n?.translate) {
+        return (key) => efsI18n.translate(key);
+    }
     const maybeTranslator = instance?.appContext.config.globalProperties?.$t;
-    return typeof maybeTranslator === 'function' ? maybeTranslator : undefined;
+    if (typeof maybeTranslator === 'function')
+        return maybeTranslator;
+    const config = efsI18n?.config?.value;
+    if (config) {
+        return (key) => resolveEfsI18nLabel({ key, config: config });
+    }
+    return undefined;
 }

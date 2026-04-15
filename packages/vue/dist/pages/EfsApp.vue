@@ -6,6 +6,10 @@
   :subtitle="resolvedLoginSubtitle"
   :hero-title="resolvedLoginHeroTitle"
   :hero-subtitle="resolvedLoginHeroSubtitle"
+  :locale-label="resolvedLocaleLabel"
+  :theme-label="resolvedThemeLabel"
+  :locale-options="resolvedLocaleOptions"
+  :theme-options="resolvedThemeOptions"
   :locale="locale"
   :theme="theme"
   layout="split"
@@ -59,6 +63,19 @@
   :app-name="props.app.appName || ''"
   :brand-title="resolvedBrandTitle"
   :brand-subtitle="resolvedBrandSubtitle"
+  :mobile-menu-label="resolvedMobileMenuLabel"
+  :org-label="resolvedOrgLabel"
+  :locale-label="resolvedLocaleLabel"
+  :theme-label="resolvedThemeLabel"
+  :logout-label="resolvedLogoutLabel"
+  :locale-options="resolvedLocaleOptions"
+  :theme-options="resolvedThemeOptions"
+  :more-label="resolvedMoreLabel"
+  :agent-title="resolvedAgentTitle"
+  :agent-placeholder="resolvedAgentPlaceholder"
+  :agent-submit-label="resolvedAgentSubmitLabel"
+  :agent-sessions-label="resolvedAgentSessionsLabel"
+  :agent-sessions-empty-text="resolvedAgentSessionsEmptyText"
   :org-code="currentOrgCode"
   :current-org-code="currentOrgCode"
   :org-options="authOrgOptions"
@@ -69,6 +86,7 @@
   @update:theme="handleThemeUpdate"
   @logout="handleLogout"
  >
+
   <template #sidebar>
    <EfsSidebarNav :items="sidebarMenus" :current-path="route.path" />
   </template>
@@ -89,11 +107,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, provide, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { AppController, ResCrudRuntimeOptions, ResReportRuntimeOptions } from '../controller/index'
 import { flattenAppMenuNodes } from '../controller/path-helpers'
 import { resolveResRuntime } from '../controller/runtime'
+import type { EfsI18nConfig } from '../shared/efs-i18n'
+import { EFS_I18N_CONTEXT, mergeEfsI18nConfigs, resolveEfsI18nLabel } from '../shared/efs-i18n'
 import type { FlatMenuNode } from '../shared/navigation-menu'
 import AppButton from '../controls/AppButton.vue'
 import AppField from '../controls/AppField.vue'
@@ -112,6 +132,7 @@ interface EfsAppProps {
  title?: string
  locale?: string
  theme?: 'light' | 'dark'
+ i18n?: EfsI18nConfig
  runtimeOptions?: ResCrudRuntimeOptions & ResReportRuntimeOptions
 }
 
@@ -133,30 +154,55 @@ const shellAuthPage = computed(() => shell.value.authPage ?? {})
 const shellRuntime = computed(() => shell.value.runtime ?? {})
 const locale = ref(props.locale || shell.value.locale || 'zh-CN')
 const theme = ref<'light' | 'dark'>(props.theme || shell.value.theme || 'dark')
+const mergedI18n = computed(() => mergeEfsI18nConfigs(props.i18n, { locale: locale.value }))
+
+provide(EFS_I18N_CONTEXT, {
+ config: mergedI18n,
+ translate: (key: string) => resolveEfsI18nLabel({ key, config: mergedI18n.value }),
+})
 
 const sidebarMenus = computed<FlatMenuNode[]>(() => flattenAppMenuNodes(props.app))
 const runtime = computed(() => resolveResRuntime(props.app, route.path, props.runtimeOptions))
-const resolvedBrandTitle = computed(() => shellBrand.value.title || props.app.appName || '')
-const resolvedBrandSubtitle = computed(() => shellBrand.value.subtitle || '')
+const resolvedBrandTitle = computed(() => resolveCopy('efs.brand.title', shellBrand.value.title || props.app.appName || ''))
+const resolvedBrandSubtitle = computed(() => resolveCopy('efs.brand.subtitle', shellBrand.value.subtitle || ''))
 const currentOrgCode = computed(() => props.app.auth.orgCode?.value || '')
-const resolvedCrudSubtitle = computed(() => shellRuntime.value.crudSubtitle || '基于 const app = useApp() 的最小运行时资源页')
-const resolvedReportSubtitle = computed(() => shellRuntime.value.reportSubtitle || '基于 const app = useApp() 的最小运行时报表页')
-const resolvedUnsupportedSubtitle = computed(() => shellRuntime.value.unsupportedSubtitle || '当前 runtime.kind 已解析，但页面壳尚未接入对应渲染分支。')
-const resolvedEmptyTitle = computed(() => shellRuntime.value.emptyTitle || '资源不存在')
-const resolvedEmptySubtitle = computed(() => shellRuntime.value.emptySubtitle || '当前 path 未在 app.main.domains 中注册对应 res controller。')
-const resolvedLoginTitle = computed(() => shellAuthPage.value.title || '登录到工作台')
-const resolvedLoginSubtitle = computed(() => shellAuthPage.value.subtitle || '请输入账号凭证继续访问当前系统。')
-const resolvedLoginHeroTitle = computed(() => shellAuthPage.value.heroTitle || resolvedBrandTitle.value || props.app.appName || 'Enterprise Frontend Shell')
-const resolvedLoginHeroSubtitle = computed(() => shellAuthPage.value.heroSubtitle || resolvedBrandSubtitle.value || '通过单一 EfsApp 入口承载认证与业务运行时。')
-const resolvedLoginNameLabel = computed(() => shellAuthPage.value.nameLabel || '用户名')
-const resolvedLoginNamePlaceholder = computed(() => shellAuthPage.value.namePlaceholder || '请输入用户名')
-const resolvedLoginPasswordLabel = computed(() => shellAuthPage.value.passwordLabel || '密码')
-const resolvedLoginPasswordPlaceholder = computed(() => shellAuthPage.value.passwordPlaceholder || '请输入密码')
-const resolvedLoginOrgLabel = computed(() => shellAuthPage.value.orgLabel || '组织')
-const resolvedLoginOrgPlaceholder = computed(() => shellAuthPage.value.orgPlaceholder || '请输入组织编码')
-const resolvedLoginSubmitLabel = computed(() => shellAuthPage.value.submitLabel || '登录')
-const resolvedLoginSubmittingLabel = computed(() => shellAuthPage.value.submittingLabel || '登录中…')
+const resolvedCrudSubtitle = computed(() => resolveCopy('efs.runtime.crudSubtitle', shellRuntime.value.crudSubtitle || '基于 const app = useApp() 的最小运行时资源页'))
+const resolvedReportSubtitle = computed(() => resolveCopy('efs.runtime.reportSubtitle', shellRuntime.value.reportSubtitle || '基于 const app = useApp() 的最小运行时报表页'))
+const resolvedUnsupportedSubtitle = computed(() => resolveCopy('efs.runtime.unsupportedSubtitle', shellRuntime.value.unsupportedSubtitle || '当前 runtime.kind 已解析，但页面壳尚未接入对应渲染分支。'))
+const resolvedEmptyTitle = computed(() => resolveCopy('efs.runtime.emptyTitle', shellRuntime.value.emptyTitle || '资源不存在'))
+const resolvedEmptySubtitle = computed(() => resolveCopy('efs.runtime.emptySubtitle', shellRuntime.value.emptySubtitle || '当前 path 未在 app.main.domains 中注册对应 res controller。'))
+const resolvedLoginTitle = computed(() => resolveCopy('efs.auth.title', shellAuthPage.value.title || '登录到工作台'))
+const resolvedLoginSubtitle = computed(() => resolveCopy('efs.auth.subtitle', shellAuthPage.value.subtitle || '请输入账号凭证继续访问当前系统。'))
+const resolvedLoginHeroTitle = computed(() => resolveCopy('efs.auth.heroTitle', shellAuthPage.value.heroTitle || resolvedBrandTitle.value || props.app.appName || 'Enterprise Frontend Shell'))
+const resolvedLoginHeroSubtitle = computed(() => resolveCopy('efs.auth.heroSubtitle', shellAuthPage.value.heroSubtitle || resolvedBrandSubtitle.value || '通过单一 EfsApp 入口承载认证与业务运行时。'))
+const resolvedLoginNameLabel = computed(() => resolveCopy('efs.auth.nameLabel', shellAuthPage.value.nameLabel || '用户名'))
+const resolvedLoginNamePlaceholder = computed(() => resolveCopy('efs.auth.namePlaceholder', shellAuthPage.value.namePlaceholder || '请输入用户名'))
+const resolvedLoginPasswordLabel = computed(() => resolveCopy('efs.auth.passwordLabel', shellAuthPage.value.passwordLabel || '密码'))
+const resolvedLoginPasswordPlaceholder = computed(() => resolveCopy('efs.auth.passwordPlaceholder', shellAuthPage.value.passwordPlaceholder || '请输入密码'))
+const resolvedLoginOrgLabel = computed(() => resolveCopy('efs.auth.orgLabel', shellAuthPage.value.orgLabel || '组织'))
+const resolvedLoginOrgPlaceholder = computed(() => resolveCopy('efs.auth.orgPlaceholder', shellAuthPage.value.orgPlaceholder || '请输入组织编码'))
+const resolvedLoginSubmitLabel = computed(() => resolveCopy('efs.auth.submitLabel', shellAuthPage.value.submitLabel || '登录'))
+const resolvedLoginSubmittingLabel = computed(() => resolveCopy('efs.auth.submittingLabel', shellAuthPage.value.submittingLabel || '登录中…'))
 const resolvedMainTitle = computed(() => runtime.value?.title || props.title || resolvedEmptyTitle.value)
+const resolvedMobileMenuLabel = computed(() => resolveCopy('efs.shell.mobileMenuLabel', '切换导航'))
+const resolvedOrgLabel = computed(() => resolveCopy('efs.shell.orgLabel', '组织'))
+const resolvedLocaleLabel = computed(() => resolveCopy('efs.shell.localeLabel', '语言'))
+const resolvedThemeLabel = computed(() => resolveCopy('efs.shell.themeLabel', '主题'))
+const resolvedLogoutLabel = computed(() => resolveCopy('efs.shell.logoutLabel', '退出登录'))
+const resolvedMoreLabel = computed(() => resolveCopy('efs.shell.moreLabel', '更多'))
+const resolvedAgentTitle = computed(() => resolveCopy('efs.shell.agentTitle', 'Agent'))
+const resolvedAgentPlaceholder = computed(() => resolveCopy('efs.shell.agentPlaceholder', '请输入你的问题或操作指令'))
+const resolvedAgentSubmitLabel = computed(() => resolveCopy('efs.shell.agentSubmitLabel', '发送'))
+const resolvedAgentSessionsLabel = computed(() => resolveCopy('efs.shell.agentSessionsLabel', '会话管理'))
+const resolvedAgentSessionsEmptyText = computed(() => resolveCopy('efs.shell.agentSessionsEmptyText', '暂无会话'))
+const resolvedLocaleOptions = computed(() => [
+ { title: resolveCopy('efs.localeOptions.zh-CN', '简体中文'), value: 'zh-CN' },
+ { title: resolveCopy('efs.localeOptions.en-US', 'English'), value: 'en-US' },
+])
+const resolvedThemeOptions = computed(() => [
+ { title: resolveCopy('efs.themeOptions.light', 'Light'), value: 'light' },
+ { title: resolveCopy('efs.themeOptions.dark', 'Dark'), value: 'dark' },
+])
 const normalizedPath = computed(() => route.path.replace(/^\/+|\/+$/g, ''))
 const isLoginRoute = computed(() => normalizedPath.value === 'login')
 const isAuthenticated = computed(() => props.app.auth.authenticated?.value ?? true)
@@ -197,6 +243,10 @@ function handleThemeUpdate(value: string) {
 function handleOrgCodeUpdate(value: string) {
  if (!props.app.auth.orgCode) return
  props.app.auth.orgCode.value = value
+}
+
+function resolveCopy(key: string, fallback: string) {
+ return resolveEfsI18nLabel({ key, config: mergedI18n.value }) || fallback
 }
 
 async function handleLogin() {
