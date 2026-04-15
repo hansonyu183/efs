@@ -114,7 +114,7 @@
     <slot />
    </main>
 
-   <section v-if="props.showAgentBar" class="efs-main-layout__agentbar">
+   <section class="efs-main-layout__agentbar">
     <div class="efs-main-layout__agentbar-main">
      <div class="efs-main-layout__agentbar-header">
       <strong>{{ resolvedAgentTitle }}</strong>
@@ -236,15 +236,12 @@ interface MainPageProps {
  brandTitle?: string
  appName?: string
  brandSubtitle?: string
- topbarSubtitle?: string
  currentOrgCode?: string
  locale?: string
  theme?: string
  userDisplayName?: string
  username?: string
- userSubtitle?: string
  orgOptions?: PageOption[]
- showAgentBar?: boolean
  agentBusy?: boolean
  agentInput?: string
  agentSessionsOpen?: boolean
@@ -257,15 +254,12 @@ const props = withDefaults(defineProps<MainPageProps>(), {
  brandTitle: '',
  appName: '',
  brandSubtitle: '',
- topbarSubtitle: '',
  currentOrgCode: '',
  locale: 'zh-CN',
  theme: 'light',
  userDisplayName: '',
  username: '',
- userSubtitle: '',
  orgOptions: () => [],
- showAgentBar: true,
  agentBusy: false,
  agentInput: '',
  agentSessionsOpen: false,
@@ -309,9 +303,9 @@ watch(() => props.agentSessionsOpen, (value) => {
 
 const shouldRenderSidebar = computed(() => Boolean(slots.sidebar))
 const resolvedTitle = computed(() => props.title || props.appName || 'Workbench')
-const resolvedSubtitle = computed(() => props.subtitle || props.topbarSubtitle || props.userSubtitle || props.currentOrgCode)
+const resolvedSubtitle = computed(() => props.subtitle || props.currentOrgCode)
 const resolvedBrandTitle = computed(() => props.brandTitle || props.appName || 'Workbench')
-const resolvedBrandSubtitle = computed(() => props.brandSubtitle || props.userSubtitle || props.subtitle || props.currentOrgCode)
+const resolvedBrandSubtitle = computed(() => props.brandSubtitle || props.subtitle || props.currentOrgCode)
 const resolvedMobileMenuLabel = computed(() => resolveCopy('efs.shell.mobileMenuLabel', '切换导航'))
 const resolvedOrgLabel = computed(() => resolveCopy('efs.shell.orgLabel', '组织'))
 const resolvedLogoutLabel = computed(() => resolveCopy('efs.shell.logoutLabel', '退出登录'))

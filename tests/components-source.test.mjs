@@ -26,6 +26,14 @@ test('PermissionGuard exposes granted prop', () => {
  assert.match(source, /slot name="fallback"/)
 })
 
+test('PermissionAwareAction exposes granted-only contract with slot content', () => {
+ const source = read(path.join(repoRoot, 'packages/vue/src/interaction/PermissionAwareAction.vue'))
+ assert.match(source, /interface PermissionAwareActionProps/)
+ assert.match(source, /granted\?: boolean/)
+ assert.doesNotMatch(source, /label\?: string/)
+ assert.match(source, /<slot \/>/)
+})
+
 test('MainPage exposes concrete shell and global agent contract', () => {
  const source = read(path.join(repoRoot, 'packages/vue/src/pages/MainPage.vue'))
  assert.match(source, /interface MainPageProps/)
@@ -34,6 +42,9 @@ test('MainPage exposes concrete shell and global agent contract', () => {
  assert.doesNotMatch(source, /dense\?: boolean/)
  assert.doesNotMatch(source, /iconOnly\?: boolean/)
  assert.doesNotMatch(source, /orgCode\?: string/)
+ assert.doesNotMatch(source, /topbarSubtitle\?: string/)
+ assert.doesNotMatch(source, /userSubtitle\?: string/)
+ assert.doesNotMatch(source, /showAgentBar\?: boolean/)
  assert.match(source, /slot name="sidebar"/)
  assert.match(source, /resolveCopy\('efs\.shell\.mobileMenuLabel'/)
  assert.match(source, /resolveCopy\('efs\.shell\.profileDialog\.label'/)

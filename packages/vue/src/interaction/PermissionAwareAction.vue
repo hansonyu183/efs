@@ -1,6 +1,8 @@
 <template>
   <div class="efs-permissionawareaction">
-   <button data-efs-allow-raw-button type="button" :disabled="!props.granted">{{ props.label }}</button>
+   <button data-efs-allow-raw-button type="button" :disabled="!props.granted">
+    <slot />
+   </button>
   </div>
  </template>
 
@@ -8,12 +10,10 @@
  defineOptions({ name: 'PermissionAwareAction' })
 
  interface PermissionAwareActionProps {
-  label?: string
 granted?: boolean
  }
 
  const props = withDefaults(defineProps<PermissionAwareActionProps>(), {
-  label: '',
 granted: false
  })
  </script>
