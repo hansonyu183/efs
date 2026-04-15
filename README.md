@@ -9,15 +9,14 @@
 - `packages/presets`：标准页面 preset 定义与脚手架模板
 - `packages/vue`：Vue 组件与共享辅助能力
 - `packages/cli`：lint / scaffold / governance 命令
-- `apps/demo-app`：可运行的 Vite + Vue 标准示例应用
-- `examples/sample-app`：标准手写页面示例
+- `standard-app`：唯一标准接法落地工程
 - `tests/`：组件、脚手架、AST lint、治理与打包测试
 
 ## 正式接入文档
 
 - `docs/standards/layout-foundation.md`：布局级标准能力
 - `docs/standards/foundation-controls.md`：基础控件层标准能力
-- `docs/standards/navigation-menu-contract.md`：动态菜单 contract、Sidebar 运行时示例、icon-first 规则
+- `docs/standards/navigation-menu-contract.md`：动态菜单 contract、Sidebar 标准接法、icon-first 规则
 - `docs/integration/agentos-adoption.md`：AgentOS 当前正式接法
 - `docs/migration/adopting-efs-in-existing-projects.md`：既有项目迁移规范
 
@@ -26,10 +25,9 @@
 ```bash
 npm install
 npm run test
-npm run lint:sample
-npm run lint:sample:ast
-npm run govern:sample
-npm run demo:build
+npm run lint:standard
+npm run lint:standard:ast
+npm run govern:standard
 npm run pack:check
 npm run ci
 ```
@@ -48,6 +46,5 @@ npm run ci
 - 页面 scaffold 生成器
 - regex lint + AST lint
 - governance 检查（manifest/page 对应、例外白名单、到期检查）
-- 可运行 demo app
 - 可发布 package manifests / exports / dry-run pack 检查
 - GitHub CI

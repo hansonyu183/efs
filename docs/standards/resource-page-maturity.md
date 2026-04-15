@@ -31,7 +31,7 @@
 
 | 组件 | 当前成熟度 | 现状判断 | 是否适合作为标准资产 | 下一步重点 |
 |---|---|---|---|---|
-| 查询区 | P0 | 已具备标准查询头部和扩展位 | 是 | 继续补查询字段组合示例 |
+| 查询区 | P0 | 已具备标准查询头部和扩展位 | 是 | 继续补查询字段组合标准写法 |
 | EntityListTable | P0 | 已具备列设置、分页、移动端卡片 fallback、tableKey 等能力 | 是 | 继续补真实资源列表用例 |
 | EntityListView | P0 | 已把 EntityListTable / DetailPanel / CrudDialog 收敛成标准 CRUD View，支持过滤、分页、详情侧栏、create/edit 弹窗、默认表单，并结合 `ActionBar + LoadingState + EmptyState + ErrorState` 提供 `pageActions / toolbarActions / batchActions` 等动作标准定义；列表默认支持对象数组零配置输入，显式 `columns` 退为增强项 | 是 | 继续补移动端批量交互与更细的操作权限语义 |
 | SimpleTablePanel | P0 | 适合作为轻量标准表格壳 | 是 | 继续补 empty/error/loading 约束 |
@@ -57,13 +57,13 @@
 ## 近期优先级建议
 
 ### P0
-1. 用真实示例页继续 dogfood `FormPanel / DetailPanel / MasterDetailPanel`
-2. 用真实示例页持续 dogfood `EntityListView`
+1. 用真实标准页继续 dogfood `FormPanel / DetailPanel / MasterDetailPanel`
+2. 用真实标准页持续 dogfood `EntityListView`
 3. 明确这些组件的 规范 测试与文档口径
 4. 让业务项目优先从这些资源 View / Panel 里选型
 
 ### P1
-1. 为 CrudDialog / ReportPanel 增加真实页面示例
+1. 为 CrudDialog / ReportPanel 增加真实标准页落地
 2. 继续补图表、confirm、loading、异步状态语义
 
 ### P2

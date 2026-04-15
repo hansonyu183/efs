@@ -468,7 +468,7 @@ app.main.domains -> domain.items
 
 ### 8.4 共享运行时桥接 helper
 
-当前这条 bridge 已不再只停留在 demo-app 私有 glue，而是已经提升成共享 helper：
+当前这条 bridge 已经提升成共享 helper：
 
 - `resolveResRuntime(app, path, options)`
 - `buildResCrudRuntime(app, path, options)`
@@ -553,9 +553,9 @@ app.main.domains -> domain.items
 
 如果要补品牌/组织等额外壳配置，再按需传额外 props；资源定义本身只需要 `useApp()`。
 
-### 8.5 demo 运行时最小接线
+### 8.5 `EfsApp` 运行时最小接线
 
-EFS demo app 现在通过 `EfsApp` 证明：
+当前共享层已经通过 `EfsApp` 证明：
 
 - 业务方资源入口最小可以只传 `useApp()`
 - 共享 app 壳统一处理 sidebar / route / runtime / view 分发
@@ -580,10 +580,6 @@ const app = useApp()
 - `packages/vue/src/components/pages/ResolvedResPage.vue`（内部）
 - `packages/vue/src/components/pages/EfsApp.vue`（公共入口）
 - `packages/vue/src/components/pages/efs-app-types.ts`（内部/保留）
-- `apps/demo-app/src/runtime/demo-app.ts`
-- `apps/demo-app/src/pages/RuntimeResPage.vue`
-- `apps/demo-app/src/pages/WorkbenchPage.vue`
-- `apps/demo-app/src/router.ts`
 
 ## 9. 当前不提前定型的部分
 
@@ -606,7 +602,7 @@ const app = useApp()
 
 ---
 
-## 10. 推荐示例
+## 10. 标准接法参考
 
 ```ts
 import { ref } from 'vue'

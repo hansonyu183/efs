@@ -18,7 +18,7 @@ test('efs-scaffold generates vue and manifest files', () => {
  assert.ok(fs.existsSync(path.join(tmp, 'WorkbenchPage.page.json')))
 })
 
-test('efs-lint passes for sample app', () => {
- const output = runNode(['packages/cli/bin/efs-lint.mjs', 'examples/sample-app'])
+test('efs-lint passes for standard app', () => {
+ const output = runNode(['packages/cli/bin/efs-lint.mjs', 'standard-app'])
  assert.match(output, /Lint passed/)
 })

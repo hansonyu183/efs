@@ -2,7 +2,7 @@
 
 本文定义 AgentOS 当前采用 EFS 的正式接入方式，后续项目默认参考同一模式。
 
-## 当前推荐接法
+## 当前正式接法
 
 ### 1. 以 git submodule 引入 EFS
 
@@ -24,7 +24,7 @@ third_party/efs
 
 ### 2. 通过 Vite alias 指向 EFS 源码入口
 
-示例：
+标准写法：
 
 ```ts
 alias: {
@@ -36,7 +36,7 @@ alias: {
 
 ### 3. 业务模块通过统一别名直接 import
 
-示例：
+标准写法：
 
 ```ts
 import MainPage from '@efs/vue/components/pages/MainPage.vue'

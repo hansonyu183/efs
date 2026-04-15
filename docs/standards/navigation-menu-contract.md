@@ -144,9 +144,9 @@ icon: 'report'
 - `resolveSemanticIcon()`
 - `SemanticIcon`
 
-## 示例实现
+## 标准接法
 
-EFS demo app 已直接把 Sidebar 渲染接到运行时菜单组装层：
+业务接入方可以直接把 Sidebar 渲染接到运行时菜单组装层：
 
 ```ts
 import { buildSidebarMenuTree } from '@efs/vue'
@@ -155,12 +155,8 @@ const tree = buildSidebarMenuTree(flatMenus)
 ```
 
 ```vue
-<DemoSidebarNav :items="demoSidebarMenus" :current-path="route.path" />
+<CustomSidebarNav :items="sidebarMenus" :current-path="route.path" />
 ```
-
-示例组件：
-- `apps/demo-app/src/components/DemoSidebarNav.vue`
-- `apps/demo-app/src/navigation.ts`
 
 `MainPage` Page 内的全局操作图标已统一改为语义 icon component，而不是在模板里散落 emoji/文本字符。
 

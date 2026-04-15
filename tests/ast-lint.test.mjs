@@ -9,8 +9,8 @@ function runNode(args, cwd = repoRoot) {
  return execFileSync(process.execPath, args, { cwd, encoding: 'utf8' })
 }
 
-test('AST lint passes for sample app', () => {
- const output = runNode(['packages/cli/bin/efs-lint-ast.mjs', 'examples/sample-app'])
+test('AST lint passes for standard app', () => {
+ const output = runNode(['packages/cli/bin/efs-lint-ast.mjs', 'standard-app'])
  assert.match(output, /AST lint passed/)
 })
 
