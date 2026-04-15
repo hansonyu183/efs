@@ -13,4 +13,3 @@ test('governance passes for schema-first standard demo fixture', () => {
  const output = runNode(['packages/cli/bin/efs-governance.mjs', 'apps/standard-demo'])
  assert.match(output, /Governance check passed/)
 })
-

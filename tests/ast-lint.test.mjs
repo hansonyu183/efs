@@ -13,4 +13,3 @@ test('AST lint passes for schema-first standard demo fixture', () => {
  const output = runNode(['packages/cli/bin/efs-lint-ast.mjs', 'apps/standard-demo'])
  assert.match(output, /AST lint passed/)
 })
-

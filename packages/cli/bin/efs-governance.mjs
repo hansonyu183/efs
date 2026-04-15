@@ -10,60 +10,62 @@ if (!root) {
 }
 
 const appRoot = path.resolve(root)
-const schemaFile = path.join(appRoot, 'app.schema.ts')
-const runtimeFile = path.join(appRoot, 'src', 'app-from-schema.ts')
-const demoRootFile = path.join(appRoot, 'src', 'DemoRoot.vue')
+const userAppsDir = path.join(appRoot, 'user-apps')
+const mainFile = path.join(appRoot, 'src', 'main.ts')
 let failed = 0
 
-if (!fs.existsSync(schemaFile)) {
- console.error('✗ missing app.schema.ts')
- failed += 1
+function walk(dir, matcher) {
+ if (!fs.existsSync(dir)) return []
+ const entries = fs.readdirSync(dir, { withFileTypes: true })
+ const found = []
+ for (const entry of entries) {
+  const abs = path.join(dir, entry.name)
+  if (entry.isDirectory()) found.push(...walk(abs, matcher))
+  else if (matcher(abs)) found.push(abs)
+ }
+ return found
 }
-if (!fs.existsSync(runtimeFile)) {
- console.error('✗ missing src/app-from-schema.ts')
- failed += 1
-}
-if (!fs.existsSync(demoRootFile)) {
- console.error('✗ missing src/DemoRoot.vue')
+
+const schemaFiles = walk(userAppsDir, (f) => f.endsWith(path.join('', 'app.schema.ts')))
+if (schemaFiles.length === 0) {
+ console.error('✗ missing user-apps/<app-name>/app.schema.ts')
  failed += 1
 }
 
-if (fs.existsSync(schemaFile)) {
- const source = fs.readFileSync(schemaFile, 'utf8')
- if (!/schemaVersion:\s*['"]v1['"]/.test(source)) {
-  console.error('✗ app.schema.ts must declare schemaVersion: "v1"')
+for (const file of schemaFiles) {
+ const source = fs.readFileSync(file, 'utf8')
+ const appDirName = path.basename(path.dirname(file))
+ const appNameMatch = source.match(/name:\s*['"]([^'"]+)['"]/) || source.match(/name:\s*`([^`]+)`/)
+ const schemaVersionMatch = source.match(/schemaVersion:\s*['"]v1['"]/) 
+ if (!schemaVersionMatch) {
+  console.error(`✗ ${path.relative(process.cwd(), file)} must declare schemaVersion: 'v1'`)
   failed += 1
  }
- if (!/domains:\s*\[/.test(source)) {
-  console.error('✗ app.schema.ts must declare domains')
-  failed += 1
- }
- if (!/resources:\s*\[/.test(source)) {
-  console.error('✗ app.schema.ts must declare resources')
+ if (!/services:\s*\{/.test(source)) {
+  console.error(`✗ ${path.relative(process.cwd(), file)} must declare services`) 
   failed += 1
  }
  if (!/operations:\s*\{/.test(source)) {
-  console.error('✗ app.schema.ts must declare resource operations')
+  console.error(`✗ ${path.relative(process.cwd(), file)} must declare resource operations`)
+  failed += 1
+ }
+ if (!appNameMatch || appNameMatch[1] !== appDirName) {
+  console.error(`✗ ${path.relative(process.cwd(), file)} must live under user-apps/<app-name>/ where dir name matches app.name`)
   failed += 1
  }
 }
 
-if (fs.existsSync(runtimeFile)) {
- const source = fs.readFileSync(runtimeFile, 'utf8')
- if (!/adaptAppSchemaToVueController/.test(source)) {
-  console.error('✗ src/app-from-schema.ts must adapt schema into runtime input')
+if (!fs.existsSync(mainFile)) {
+ console.error('✗ missing src/main.ts')
+ failed += 1
+} else {
+ const source = fs.readFileSync(mainFile, 'utf8')
+ if (!/createPlatformAppFromSchema/.test(source)) {
+  console.error('✗ src/main.ts must build the platform app from schema')
   failed += 1
  }
- if (/from '@efs\/vue\/controller'/.test(source)) {
-  console.error('✗ src/app-from-schema.ts must not import from @efs/vue/controller')
-  failed += 1
- }
-}
-
-if (fs.existsSync(demoRootFile)) {
- const source = fs.readFileSync(demoRootFile, 'utf8')
- if (!/\.\/app-from-schema/.test(source)) {
-  console.error('✗ src/DemoRoot.vue must load ./app-from-schema')
+ if (!/createApp\(EfsApp/.test(source)) {
+  console.error('✗ src/main.ts must mount EfsApp directly without a user-authored root component')
   failed += 1
  }
 }
@@ -73,4 +75,4 @@ if (failed > 0) {
  process.exit(1)
 }
 
-console.log('Governance check passed for schema-first app fixture.')
+console.log('Governance check passed for schema-first service-platform app fixture.')

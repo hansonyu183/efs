@@ -4,7 +4,7 @@
 
 结论先说：
 
-- 业务侧优先维护 `app.schema.ts`
+- 业务侧优先维护 `user-apps/<app-name>/app.schema.ts`
 - business schema 只描述应用、认证、服务、资源 fields 与 operations
 - 页面 mode、默认 actions、基础字段展示规则优先由 EFS runtime 推导
 - 如需少量前端覆盖，只在 `ui` 层写最小 override
@@ -18,7 +18,7 @@
 
 - `@efs/schema`
   - `defineAppSchema(...)`
-  - `adaptAppSchemaToVueController(...)`
+  - `createPlatformAppFromSchema(...)`
   - `inferResourceRuntime(...)`
 - `@efs/vue`
   - `EfsApp`
@@ -32,16 +32,16 @@
 标准 demo 已切到下面这条主路径：
 
 ```text
-app.schema.ts
+user-apps/<app-name>/app.schema.ts
   -> defineAppSchema(...)
-  -> adaptAppSchemaToVueController(...)
+  -> createPlatformAppFromSchema(...)
   -> EfsApp
 ```
 
 参考文件：
 
-- `apps/standard-demo/app.schema.ts`
-- `apps/standard-demo/src/app-from-schema.ts`
+- `apps/standard-demo/user-apps/standard-demo/app.schema.ts`
+- `apps/standard-demo/src/main.ts`
 
 ---
 
@@ -147,42 +147,26 @@ ui: {
 
 ---
 
-## 6. 如何接到 Vue runtime
+## 6. 如何接到平台 runtime
 
-当前做法不是让业务手写 controller tree，而是：
+当前做法不是让业务手写 controller tree，也不再要求业务自己写根组件，而是由平台固定入口直接加载 schema：
 
 ```ts
-import { adaptAppSchemaToVueController } from '@efs/schema'
-import { appSchema } from './app.schema'
+import { createApp } from 'vue'
+import { createPlatformAppFromSchema } from '@efs/schema'
+import { EfsApp } from '@efs/vue'
+import { appSchema } from '../user-apps/demo-app/app.schema'
 
-export const app = adaptAppSchemaToVueController({
-  schema: appSchema,
-  auth: {
-    async login(input) {
-      return { accessToken: 'token' }
-    },
-  },
-  resources: {
-    'crm/customer': {
-      async list({ queryValues, page, pageSize }) {
-        return { items: [], total: 0 }
-      },
-      async create({ item }) {
-        return { refresh: true, close: true }
-      },
-      async update({ item }) {
-        return { refresh: true, close: true }
-      },
-      async remove({ item }) {
-        return { refresh: true, activeItem: null }
-      },
-      async export() {},
-    },
-  },
-})
+const app = createPlatformAppFromSchema(appSchema)
+const appName = appSchema.app.title || appSchema.app.name
+
+createApp(EfsApp, {
+  app,
+  appName,
+}).mount('#app')
 ```
 
-这里的 `resources['domain/res']` 只是在把 schema 中声明过的 operation 接到真实 handler；业务不再直接把 page/view/controller 结构当成主要 authoring 面。
+平台会根据 schema 中声明的 `services + operations` 自动生成默认 HTTP 接线；业务主 authoring 面就是 schema 目录本身。
 
 ---
 
@@ -207,9 +191,9 @@ export const app = adaptAppSchemaToVueController({
 
 一个新项目至少要有：
 
-1. `app.schema.ts`
+1. `user-apps/<app-name>/app.schema.ts`
 2. schema -> runtime adapter 文件（如 `app-from-schema.ts`）
-3. `EfsApp` 根挂载
+3. 平台直接挂载 `EfsApp`
 4. 对应 API/service 配置
 5. 少量必要的 `ui` override（如确实推导不够）
 

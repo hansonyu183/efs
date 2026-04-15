@@ -14,7 +14,7 @@ EFS 当前阶段采用：
 - 而是优先收敛到一条主链路：
 
 ```text
-app.schema.ts
+user-apps/<app-name>/app.schema.ts
   -> business schema
   -> ui overrides
   -> runtime inference / adapter
@@ -53,7 +53,7 @@ app.schema.ts
 
 例如：
 - `inferResourceRuntime(...)`
-- `adaptAppSchemaToVueController(...)`
+- `createPlatformAppFromSchema(...)`
 - `EfsApp`
 - 各类内部 CRUD / Report runtime
 
@@ -93,7 +93,7 @@ app.schema.ts
 - `operations` 是资源后端能力定义
 - `ui.actions` 是动作入口 UI override
 - `inferResourceRuntime(...)` 负责 runtime 推导
-- `adaptAppSchemaToVueController(...)` 负责接到当前 Vue runtime
+- `createPlatformAppFromSchema(...)` 负责接到当前 Vue runtime
 
 ### 不推荐说法
 - 先写一套 business schema，再默认还要手写一套完整 controller tree

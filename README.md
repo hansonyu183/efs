@@ -1,14 +1,14 @@
 # efs
 
-标准化企业管理平台前端仓库。EFS 不再只是组件库，而是一个面向企业内部管理系统的前端应用平台：企业优先提供 `app.schema.ts`、资源 operations 与最小 UI override，EFS 负责统一应用壳、认证壳、导航、资源页、报表页与默认交互运行时。
+标准化企业管理平台前端仓库。EFS 不再只是组件库，而是一个面向企业内部管理系统的前端应用平台：企业优先提供放在 `user-apps/<app-name>/app.schema.ts` 下的应用 schema；EFS 负责统一应用壳、认证壳、导航、资源页、报表页、服务接线与默认交互运行时。
 
 目标：以后所有企业项目都必须优先接入 EFS 平台运行时，不允许随意手写列表页、表单页、详情页骨架，也不允许绕过统一的 app shell、theme / i18n / alerts / permission / org-context / auth session。
 
 ## 平台定位
 
 - **不是普通组件库**：EFS 的核心产物是 `EfsApp`、资源运行时、认证与导航壳，而不是零散 UI 组件集合。
-- **企业只提供 schema**：主入口是 `app.schema.ts`，其中描述应用信息、认证、服务、资源 fields 与 operations；EFS 负责把这些输入编译/适配成运行时。
-- **平台优先自动推导**：页面 mode、默认 actions、字段基础展示规则优先由 runtime 推导，只在 `ui` 层提供最小 override。
+- **企业只提供 schema 目录**：主入口是 `user-apps/<app-name>/app.schema.ts`，其中描述应用信息、认证、服务、资源 fields 与 operations；EFS 负责把这些输入编译/装配成运行时。
+- **平台内置入口与服务接线**：用户不再需要自己写根组件；平台入口会直接加载 schema，并基于 `services + operations` 自动接线。
 - **controller-first 已降级**：旧的 controller tree 仍作为内部 runtime 兼容层保留，但不再是推荐的对外接入方式。
 
 ## 仓库内容

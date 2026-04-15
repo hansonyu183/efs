@@ -1,6 +1,6 @@
 # AgentOS 接入 EFS 规范
 
-本文定义 AgentOS 当前采用 EFS 的正式接入方式，后续项目默认参考同一模式。**主线是 schema-first**：业务仓库优先维护 `app.schema.ts`，再由 EFS schema adapter 接入现有 Vue runtime。
+本文定义 AgentOS 当前采用 EFS 的正式接入方式，后续项目默认参考同一模式。**主线是 schema-first**：业务仓库优先维护 `user-apps/<app-name>/app.schema.ts`，平台固定入口直接加载，不再要求业务自己写根组件。
 
 ## 当前正式接法
 
@@ -37,7 +37,7 @@ alias: {
 
 如果后续消费 runtime / 规范 / presets，也应增加对应 alias，而不是在业务项目内复制实现。
 
-### 3. 业务模块优先维护 `app.schema.ts`
+### 3. 业务模块优先维护 `user-apps/<app-name>/app.schema.ts`
 
 标准写法：
 
@@ -74,40 +74,22 @@ export const appSchema = defineAppSchema({
 })
 ```
 
-### 4. 用 schema adapter 接到现有 Vue runtime
+### 4. 用平台入口直接挂到现有 Vue runtime
 
 标准写法：
 
 ```ts
+import { createApp } from 'vue'
+import { createPlatformAppFromSchema } from '@efs/schema'
 import { EfsApp } from '@efs/vue'
-import { adaptAppSchemaToVueController } from '@efs/schema'
-import { appSchema } from './app.schema'
+import { appSchema } from '../user-apps/agentos/app.schema'
 
-export const app = adaptAppSchemaToVueController({
-  schema: appSchema,
-  auth: {
-    async login(input) {
-      return { accessToken: 'token' }
-    },
-  },
-  resources: {
-    'crm/customer': {
-      async list({ queryValues, page, pageSize }) {
-        return { items: [], total: 0 }
-      },
-      async create({ item }) {
-        return { refresh: true, close: true }
-      },
-      async update({ item }) {
-        return { refresh: true, close: true }
-      },
-      async remove({ item }) {
-        return { refresh: true, activeItem: null }
-      },
-      async export() {},
-    },
-  },
-})
+const app = createPlatformAppFromSchema(appSchema)
+
+createApp(EfsApp, {
+  app,
+  appName: appSchema.app.title || appSchema.app.name,
+}).mount('#app')
 ```
 
 业务侧应优先消费稳定入口：根入口只用于 `EfsApp`；schema authoring / adapter 从 `@efs/schema` 引入；运行时 helper 仅在确有需要时从文档约定的 `controller`、`shared` 子路径导入；不要直接依赖 `pages/*`、`panels/*`、`controls/*` 这类原始源码路径。

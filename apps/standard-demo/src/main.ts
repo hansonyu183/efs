@@ -1,5 +1,12 @@
 import { createApp } from 'vue'
-import DemoRoot from './DemoRoot.vue'
+import { createPlatformAppFromSchema } from '@efs/schema'
+import { EfsApp } from '@efs/vue'
+import { appSchema } from '../user-apps/standard-demo/app.schema'
 
-createApp(DemoRoot)
-  .mount('#app')
+const app = createPlatformAppFromSchema(appSchema)
+const appName = appSchema.app.title || appSchema.app.name
+
+createApp(EfsApp, {
+  app,
+  appName,
+}).mount('#app')

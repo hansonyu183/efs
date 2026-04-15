@@ -7,10 +7,10 @@ test('presets list includes core schema-first app types', () => {
  assert.deepEqual(presets, ['crud', 'report', 'workbench'])
 })
 
-test('scaffoldPreset returns schema-first app fixture content', () => {
- const generated = scaffoldPreset('crud', 'CustomerApp')
+test('scaffoldPreset returns schema directory and platform bootstrap content', () => {
+ const generated = scaffoldPreset('crud', 'Customer App')
+ assert.equal(generated.appDirName, 'customer-app')
  assert.match(generated.appSchema, /defineAppSchema\(/)
- assert.match(generated.appSchema, /operations:\s*\{/)
- assert.match(generated.runtimeEntry, /adaptAppSchemaToVueController/)
- assert.match(generated.rootVue, /<EfsApp/)
+ assert.match(generated.mainEntry, /createPlatformAppFromSchema/)
+ assert.match(generated.mainEntry, /user-apps\/customer-app\/app\.schema/)
 })

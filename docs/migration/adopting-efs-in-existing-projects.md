@@ -1,6 +1,6 @@
 # 既有项目接入 EFS 迁移规范
 
-本文用于指导已有企业项目从“本地自定义布局 / 本地自定义 Page”迁移到 EFS。当前迁移主线已经切到 **schema-first**：业务仓库优先维护 `app.schema.ts`，再由 EFS runtime inference + adapter 接到现有 Vue runtime。
+本文用于指导已有企业项目从“本地自定义布局 / 本地自定义 Page”迁移到 EFS。当前迁移主线已经切到 **schema-first**：业务仓库优先维护 `user-apps/<app-name>/app.schema.ts`，再由平台固定入口直接加载并接到运行时。
 
 ## 迁移目标
 
@@ -16,14 +16,14 @@
 ### 第一步：先建立 schema-first 根入口
 
 优先补齐：
-- `app.schema.ts`
+- `user-apps/<app-name>/app.schema.ts`
 - `defineAppSchema(...)`
-- `adaptAppSchemaToVueController(...)`
+- `createPlatformAppFromSchema(...)`
 - `EfsApp`
 
 最小目标：
 - 应用、认证、服务、domain/resource 信息进入 schema
-- 项目先跑通 `app.schema.ts -> adapter -> EfsApp`
+- 项目先跑通 `user-apps/<app-name>/app.schema.ts -> platform entry -> EfsApp`
 
 原因：
 - 先统一入口，后续页面与组件迁移才不会反复返工
@@ -82,7 +82,7 @@
 ## 业务项目本地允许保留的内容
 
 ### 应保留
-- `app.schema.ts` 及相关 schema authoring 文件
+- `user-apps/<app-name>/app.schema.ts` 及相关 schema authoring 文件
 - 业务资源字段、业务 operations、服务配置
 - 真实 API / session / 权限 / 组织上下文实现
 - adapter 里与后端交互的真实 handlers
@@ -101,10 +101,10 @@
 
 一个项目迁移到 EFS 成功，至少满足：
 
-1. 入口已经切到 `app.schema.ts`
+1. 入口已经切到 `user-apps/<app-name>/app.schema.ts`
 2. 资源业务能力主要通过 `fields + operations` 表达
 3. 页面通过 EFS 的标准 Page / View / Panel / App Shell 运行
-4. legacy controller 只留在 adapter / compat 边界，不再作为主 authoring 面
+4. 用户不再自己写根组件与 controller 入口，legacy controller 只留在平台 compat 边界
 5. lint / governance / 规范检查可通过
 
 ---
@@ -117,7 +117,7 @@
 - 业务长期保留本地共享 Page / View / Panel
 
 ### 新口径
-- 业务优先维护 `app.schema.ts`
+- 业务优先维护 `user-apps/<app-name>/app.schema.ts`
 - business schema 只描述 app/auth/services/resources/operations
 - `ui` 只做最小 override
 - runtime inference + adapter 负责接到当前页面运行时

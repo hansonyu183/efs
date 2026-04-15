@@ -1,5 +1,5 @@
 // Legacy controller-first fixture kept only as a migration/reference sample.
-// The runnable standard demo now uses app.schema.ts -> adaptAppSchemaToVueController.
+// The runnable standard demo now uses user-apps/<app-name>/app.schema.ts -> createPlatformAppFromSchema -> EfsApp.
 import type { LegacyAppController, LegacyDomainController, LegacyResController, ResRow, ResQueryParams } from '@efs/vue/legacy'
 
 const customerRows: ResRow[] = [

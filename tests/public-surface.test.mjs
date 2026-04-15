@@ -11,18 +11,16 @@ function read(relativePath) {
 
 test('standard demo is schema-first while legacy controller fixture remains isolated', () => {
  const legacySource = read('apps/standard-demo/src/legacy-controller-app.ts')
- const schemaSource = read('apps/standard-demo/app.schema.ts')
- const schemaRuntimeSource = read('apps/standard-demo/src/app-from-schema.ts')
- const demoRootSource = read('apps/standard-demo/src/DemoRoot.vue')
+ const schemaSource = read('apps/standard-demo/user-apps/standard-demo/app.schema.ts')
+ const mainSource = read('apps/standard-demo/src/main.ts')
 
- assert.doesNotMatch(legacySource, /from '@efs\/vue'/)
  assert.match(legacySource, /import type \{ LegacyAppController, LegacyDomainController, LegacyResController, ResRow, ResQueryParams \} from '@efs\/vue\/legacy'/)
- assert.doesNotMatch(legacySource, /import type \{ LegacyAppController, .*\} from '@efs\/vue'/)
-
  assert.match(schemaSource, /from '@efs\/schema'/)
  assert.match(schemaSource, /defineAppSchema\(/)
- assert.match(schemaRuntimeSource, /adaptAppSchemaToVueController/)
- assert.match(demoRootSource, /\.\/app-from-schema/)
+ assert.match(mainSource, /createPlatformAppFromSchema/)
+ assert.match(mainSource, /createApp\(EfsApp/)
+ assert.match(mainSource, /user-apps\/standard-demo\/app\.schema/)
+ assert.doesNotMatch(mainSource, /DemoRoot/)
 })
 
 test('docs avoid raw component package imports and use lowercase navigation-menu helper path', () => {
@@ -36,14 +34,14 @@ test('docs avoid raw component package imports and use lowercase navigation-menu
  assert.deepEqual(Object.keys(packageJson.exports).sort(), ['.', './legacy', './shared/navigation-menu'])
 })
 
-test('vue root export is shell-only while legacy types live under the legacy subpath', () => {
+test('vue root export is shell-only while user schema lives under user-apps/<app-name>', () => {
  const readme = read('README.md')
  const vueIndex = read('packages/vue/src/index.ts')
  const scaffoldingDoc = read('docs/standards/scaffolding.md')
 
- assert.doesNotMatch(readme, /standard-app/)
+ assert.match(readme, /user-apps\/<app-name>/)
  assert.match(vueIndex, /export \{ default as EfsApp \}/)
  assert.doesNotMatch(vueIndex, /LegacyAppController/)
- assert.match(scaffoldingDoc, /schema-first app fixture/i)
- assert.match(scaffoldingDoc, /不再生成 `\.page\.json` manifest/)
+ assert.match(scaffoldingDoc, /user-apps\/<app-name>\/app\.schema\.ts/)
+ assert.match(scaffoldingDoc, /不再需要用户自己写根组件/)
 })

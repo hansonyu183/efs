@@ -1,70 +1,30 @@
 function toSlug(value) {
     return value.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/\s+/g, '-').toLowerCase();
 }
-function toResKey(value) {
-    return toSlug(value).replace(/^-+|-+$/g, '') || 'sample';
+function toAppName(value) {
+    return toSlug(value).replace(/^-+|-+$/g, '') || 'sample-app';
 }
-function buildAppSchema(preset, name) {
-    const resKey = toResKey(name);
+function buildAppSchema(preset, appName, title) {
     const domainKey = preset === 'workbench' ? 'platform' : 'demo';
-    if (preset === 'workbench') {
-        return `import { defineAppSchema } from '@efs/schema'
-
-export const appSchema = defineAppSchema({
-  schemaVersion: 'v1',
-  app: {
-    id: '${resKey}-app',
-    name: '${resKey}-app',
-    title: '${name}',
-    defaultDomain: '${domainKey}',
-    defaultRes: '${resKey}',
-  },
-  domains: [
-    {
-      key: '${domainKey}',
-      title: '平台',
-      resources: [
-        {
-          key: '${resKey}',
-          title: '工作台',
-          fields: [
-            { key: 'summary', title: '概览', type: 'string', identity: 'title' },
-          ],
-          operations: {
-            list: { path: '/api/${domainKey}/${resKey}', method: 'GET' },
-          },
-        },
-      ],
-    },
-  ],
-  ui: {
-    domains: {
-      ${domainKey}: {
-        resources: {
-          '${resKey}': {
-            view: { mode: 'workspace' },
-            actions: {
-              refresh: { runtime: 'refresh' },
-            },
-          },
-        },
-      },
-    },
-  },
-})
-`;
-    }
+    const resKey = preset === 'workbench' ? 'workbench' : appName;
     if (preset === 'report') {
         return `import { defineAppSchema } from '@efs/schema'
 
 export const appSchema = defineAppSchema({
   schemaVersion: 'v1',
   app: {
-    id: '${resKey}-app',
-    name: '${resKey}-app',
-    title: '${name}',
+    id: '${appName}',
+    name: '${appName}',
+    title: '${title}',
     defaultDomain: '${domainKey}',
     defaultRes: '${resKey}',
+  },
+  services: {
+    api: {
+      kind: 'http',
+      baseUrl: 'http://127.0.0.1:8080',
+      healthPath: '/healthz',
+    },
   },
   domains: [
     {
@@ -104,16 +64,77 @@ export const appSchema = defineAppSchema({
 })
 `;
     }
+    if (preset === 'workbench') {
+        return `import { defineAppSchema } from '@efs/schema'
+
+export const appSchema = defineAppSchema({
+  schemaVersion: 'v1',
+  app: {
+    id: '${appName}',
+    name: '${appName}',
+    title: '${title}',
+    defaultDomain: '${domainKey}',
+    defaultRes: '${resKey}',
+  },
+  services: {
+    api: {
+      kind: 'http',
+      baseUrl: 'http://127.0.0.1:8080',
+      healthPath: '/healthz',
+    },
+  },
+  domains: [
+    {
+      key: '${domainKey}',
+      title: '平台',
+      resources: [
+        {
+          key: '${resKey}',
+          title: '工作台',
+          fields: [
+            { key: 'summary', title: '概览', type: 'string', identity: 'title' },
+          ],
+          operations: {
+            list: { path: '/api/${domainKey}/${resKey}', method: 'GET' },
+          },
+        },
+      ],
+    },
+  ],
+  ui: {
+    domains: {
+      ${domainKey}: {
+        resources: {
+          '${resKey}': {
+            view: { mode: 'workspace' },
+            actions: {
+              refresh: { runtime: 'refresh' },
+            },
+          },
+        },
+      },
+    },
+  },
+})
+`;
+    }
     return `import { defineAppSchema } from '@efs/schema'
 
 export const appSchema = defineAppSchema({
   schemaVersion: 'v1',
   app: {
-    id: '${resKey}-app',
-    name: '${resKey}-app',
-    title: '${name}',
+    id: '${appName}',
+    name: '${appName}',
+    title: '${title}',
     defaultDomain: '${domainKey}',
     defaultRes: '${resKey}',
+  },
+  services: {
+    api: {
+      kind: 'http',
+      baseUrl: 'http://127.0.0.1:8080',
+      healthPath: '/healthz',
+    },
   },
   domains: [
     {
@@ -156,73 +177,27 @@ export const appSchema = defineAppSchema({
 })
 `;
 }
-function buildRuntimeEntry(name) {
-    return `import type { LegacyAppController, ResQueryParams, ResRow } from '@efs/vue/legacy'
-import { adaptAppSchemaToVueController } from '@efs/schema'
-import { appSchema } from '../app.schema'
+function buildMainEntry(appName) {
+    return `import { createApp } from 'vue'
+import { createPlatformAppFromSchema } from '@efs/schema'
+import { EfsApp } from '@efs/vue'
+import { appSchema } from '../user-apps/${appName}/app.schema'
 
-const rows: ResRow[] = [
-  { id: 'sample-001', name: '${name} 示例' },
-]
+const app = createPlatformAppFromSchema(appSchema)
+const appNameText = appSchema.app.title || appSchema.app.name
 
-function paginate(items: ResRow[], { page, pageSize }: ResQueryParams) {
-  const start = Math.max(page - 1, 0) * pageSize
-  return items.slice(start, start + pageSize)
-}
-
-export const app = adaptAppSchemaToVueController({
-  schema: appSchema,
-  auth: {
-    async login() {
-      return { accessToken: 'demo-token' }
-    },
-  },
-  resources: {
-    'demo/${toResKey(name)}': {
-      async list({ queryValues, page, pageSize }) {
-        return {
-          items: paginate(rows, { queryValues, page, pageSize }),
-          total: rows.length,
-          activeItem: rows[0] ?? null,
-        }
-      },
-      async query({ queryValues, page, pageSize }) {
-        return {
-          items: paginate(rows, { queryValues, page, pageSize }),
-          total: rows.length,
-        }
-      },
-      async create() {
-        return { refresh: true, close: true }
-      },
-      async update() {
-        return { refresh: true, close: true }
-      },
-      async remove() {
-        return { refresh: true, activeItem: null }
-      },
-      async export() {},
-    },
-    'platform/${toResKey(name)}': {
-      async list({ queryValues, page, pageSize }) {
-        return {
-          items: paginate(rows, { queryValues, page, pageSize }),
-          total: rows.length,
-        }
-      },
-    },
-  },
-}) satisfies LegacyAppController
+createApp(EfsApp, {
+  app,
+  appName: appNameText,
+}).mount('#app')
 `;
 }
-function buildRootVue() {
-    return `<template>\n  <EfsApp :app="app" app-name="EFS Schema App" />\n</template>\n\n<script setup lang="ts">\nimport { EfsApp } from '@efs/vue'\nimport { app } from './app-from-schema'\n</script>\n`;
-}
 export function scaffoldPreset(preset, name) {
+    const appName = toAppName(name);
     return {
-        appSchema: buildAppSchema(preset, name),
-        runtimeEntry: buildRuntimeEntry(name),
-        rootVue: buildRootVue(),
+        appSchema: buildAppSchema(preset, appName, name),
+        mainEntry: buildMainEntry(appName),
+        appDirName: appName,
     };
 }
 export function listPresets() {

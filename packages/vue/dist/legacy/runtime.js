@@ -5,7 +5,7 @@ import { findResByPath } from './path-helpers';
  * Resolve a resource runtime from the legacy controller contract.
  *
  * Public app authoring should prefer schema-first input plus
- * `adaptAppSchemaToVueController(...)`; this module remains the controller-side
+ * `createPlatformAppFromSchema(...)` or internal bridges; this module remains the controller-side
  * runtime compatibility layer consumed after that bridge step.
  */
 export function resolveResRuntime(app, path, options = {}) {

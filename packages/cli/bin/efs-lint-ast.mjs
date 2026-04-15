@@ -12,19 +12,19 @@ if (!root) {
 }
 
 const appRoot = path.resolve(root)
-const schemaFile = path.join(appRoot, 'app.schema.ts')
-const runtimeFile = path.join(appRoot, 'src', 'app-from-schema.ts')
+const userAppsDir = path.join(appRoot, 'user-apps')
+const mainFile = path.join(appRoot, 'src', 'main.ts')
 const srcDir = path.join(appRoot, 'src')
 let failed = 0
 
-function walk(dir) {
+function walk(dir, matcher) {
  if (!fs.existsSync(dir)) return []
  const entries = fs.readdirSync(dir, { withFileTypes: true })
  const found = []
  for (const entry of entries) {
   const abs = path.join(dir, entry.name)
-  if (entry.isDirectory()) found.push(...walk(abs))
-  else if (entry.isFile() && abs.endsWith('.vue')) found.push(abs)
+  if (entry.isDirectory()) found.push(...walk(abs, matcher))
+  else if (matcher(abs)) found.push(abs)
  }
  return found
 }
@@ -36,29 +36,32 @@ function walkTemplate(node, callback) {
  if (Array.isArray(node.branches)) node.branches.forEach((branch) => walkTemplate(branch, callback))
 }
 
-if (!fs.existsSync(schemaFile)) {
- console.error('✗ AST: missing app.schema.ts')
+const schemaFiles = walk(userAppsDir, (f) => f.endsWith(path.join('', 'app.schema.ts')))
+if (schemaFiles.length === 0) {
+ console.error('✗ AST: missing user-apps/<app-name>/app.schema.ts')
  failed += 1
-} else {
- const source = fs.readFileSync(schemaFile, 'utf8')
+}
+
+for (const file of schemaFiles) {
+ const source = fs.readFileSync(file, 'utf8')
  if (!/defineAppSchema\(/.test(source)) {
-  console.error('✗ AST: app.schema.ts missing defineAppSchema(...)')
+  console.error(`✗ AST: ${path.relative(process.cwd(), file)} missing defineAppSchema(...)`)
   failed += 1
  }
 }
 
-if (!fs.existsSync(runtimeFile)) {
- console.error('✗ AST: missing src/app-from-schema.ts')
+if (!fs.existsSync(mainFile)) {
+ console.error('✗ AST: missing src/main.ts')
  failed += 1
 } else {
- const source = fs.readFileSync(runtimeFile, 'utf8')
- if (!/adaptAppSchemaToVueController/.test(source)) {
-  console.error('✗ AST: src/app-from-schema.ts missing adaptAppSchemaToVueController(...)')
+ const source = fs.readFileSync(mainFile, 'utf8')
+ if (!/createPlatformAppFromSchema/.test(source)) {
+  console.error('✗ AST: src/main.ts missing createPlatformAppFromSchema(...)')
   failed += 1
  }
 }
 
-for (const file of walk(srcDir)) {
+for (const file of walk(srcDir, (f) => f.endsWith('.vue'))) {
  const source = fs.readFileSync(file, 'utf8')
  const { descriptor } = parseSfc(source)
  const templateAst = parseTemplate(descriptor.template?.content || '')

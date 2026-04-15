@@ -32,9 +32,9 @@
 
 | 能力 | 当前成熟度 | 现状判断 | 是否适合作为标准资产 | 下一步重点 |
 |---|---|---|---|---|
-| `app.schema.ts` + `defineAppSchema(...)` | P0 | 已成为正式 authoring 主入口 | 是 | 继续补更多标准示例与校验 |
+| `user-apps/<app-name>/app.schema.ts` + `defineAppSchema(...)` | P0 | 已成为正式 authoring 主入口 | 是 | 继续补更多标准示例与校验 |
 | `inferResourceRuntime(...)` | P0 | 已能推导 CRUD/Report mode 与默认 actions | 是 | 继续补细粒度 field / action 推导 |
-| `adaptAppSchemaToVueController(...)` | P0 | 已能把 schema 接到当前 Vue runtime | 是 | 继续缩小 legacy bridge 面积 |
+| `createPlatformAppFromSchema(...)` | P0 | 已能把 schema 接到当前 Vue runtime | 是 | 继续缩小 legacy bridge 面积 |
 | 查询区 | P0 | 已具备标准查询头部和扩展位 | 是 | 继续补查询字段组合标准写法 |
 | EntityListTable | P0 | 已具备列设置、分页、移动端卡片 fallback、tableKey 等能力 | 是 | 继续补真实资源列表用例 |
 | EntityListView | P0 | 已把 EntityListTable / DetailPanel / CrudDialog 收敛成标准 CRUD View，并由 schema-first runtime 提供主输入 | 是 | 继续补移动端批量交互与更细的操作权限语义 |
