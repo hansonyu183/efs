@@ -1,4 +1,3 @@
-import { ref } from 'vue'
 import type { AppController } from '@efs/vue'
 import type { DomainController, ResController, ResRow, ResQueryParams } from '@efs/vue/controller'
 
@@ -115,24 +114,24 @@ export const app = {
   kind: 'app',
   auth: {
     kind: 'auth',
-    name: ref('demo'),
-    pwd: ref(''),
-    orgCode: ref('agentos'),
-    orgOptions: [{ key: 'agentos', value: 'agentos', title: 'AgentOS' }],
-    busy: ref(false),
-    error: ref(''),
-    authenticated: ref(true),
-    async login() {
-      this.authenticated && (this.authenticated.value = true)
-      this.error && (this.error.value = '')
+    async login({ orgCode }) {
+      return {
+        accessToken: `demo-token-${orgCode || 'default'}`,
+        expiresAt: '2099-01-01T00:00:00.000Z',
+      }
     },
-    async logout() {
-      this.authenticated && (this.authenticated.value = false)
+    async logout() {},
+    async getOrgs() {
+      return [{ key: 'agentos', value: 'agentos', title: 'AgentOS' }]
     },
+    getCurrentOrgCode() {
+      return 'agentos'
+    },
+    async setCurrentOrgCode() {},
   },
   main: {
     kind: 'main',
-    currentPath: ref('crm/customer'),
+    defaultPath: 'crm/customer',
     domains: [crmDomain, biDomain],
   },
 } satisfies AppController

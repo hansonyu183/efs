@@ -160,12 +160,26 @@ export interface AppController {
 ### 4.2 auth controller
 
 ```ts
+export interface AuthLoginInput {
+  name: string
+  pwd: string
+  orgCode?: string
+}
+
+export interface AuthLoginResult {
+  accessToken: string
+  refreshToken?: string
+  expiresAt?: string
+  tokenType?: string
+}
+
 export interface AuthController {
   kind: 'auth'
-  name: Ref<string>
-  pwd: Ref<string>
-  login: () => void | Promise<void>
+  login: (input: AuthLoginInput) => AuthLoginResult | Promise<AuthLoginResult>
   logout?: () => void | Promise<void>
+  getOrgs?: () => readonly AuthOption[] | Promise<readonly AuthOption[]>
+  getCurrentOrgCode?: () => string | undefined
+  setCurrentOrgCode?: (orgCode: string) => void | Promise<void>
 }
 ```
 
@@ -175,7 +189,7 @@ export interface AuthController {
 export interface MainController {
   kind: 'main'
   domains: readonly DomainController[]
-  currentPath?: Ref<DomainResPath | ''>
+  defaultPath?: DomainResPath | ''
 }
 ```
 
@@ -470,7 +484,7 @@ app.main.domains -> domain.items
 
 ### 8.4 共享运行时桥接 helper
 
-当前这条 bridge 已经提升成共享 helper：
+当前这条 bridge 仍然是共享 helper，但它更偏内部运行时装配：
 
 - `resolveResRuntime(app, path, options)`
 - `buildResCrudRuntime(app, path, options)`
@@ -490,10 +504,10 @@ app.main.domains -> domain.items
 - `path -> res controller` 定位
 - 根据资源当前声明选择运行时 kind（当前最小支持 `crud` / `report`）
 - `fields -> query/list/form/detail` 默认推导
-- 把 `ResController` 桥接成当前 view 可消费的 controller（当前已接 `ResourceCrudController` / `ReportViewController`）
+- 把 `ResController` 桥接成当前 view 可消费的内部 runtime controller（不再作为推荐公开契约）
 - 生成 detail 字段的默认值格式化逻辑
 
-对应类型：
+对应内部运行时类型：
 
 - `ResCrudRuntimeOptions`
 - `ResCrudRuntime`
@@ -513,7 +527,7 @@ app.main.domains -> domain.items
 其中：
 
 - `ResolvedResPage` 负责消费 `ResRuntime`，并按 `runtime.kind` 分发到当前已接入的共享 view（内部实现）
-- `EfsApp` 负责再往上收一层，把 `MainPage` / sidebar / route.path / `resolveResRuntime()` 一起包起来（公共入口）
+- `EfsApp` 负责再往上收一层，把 `MainPage` / sidebar / 内部 auth session / route.path / `resolveResRuntime()` 一起包起来（公共入口）
 
 `ResolvedResPage` 当前职责：
 
@@ -525,7 +539,7 @@ app.main.domains -> domain.items
 `EfsApp` 当前职责：
 
 - 接收 `app: AppController`
-- 从 router 自动读取当前 `route.path`
+- 从 browser history 自动读取当前 `route.path`
 - 内部调用 `flattenAppMenuNodes(app)` 生成 sidebar
 - 内部调用 `resolveResRuntime(app, route.path, options)` 解析资源运行时
 - 用 `MainPage + ResolvedResPage` 组合成默认应用壳
@@ -610,21 +624,24 @@ const app = useApp()
 ## 10. 标准接法参考
 
 ```ts
-import { ref } from 'vue'
 import type { AppController } from '@efs/vue'
 import type { AuthController, DomainController, MainController, ResController } from '@efs/vue/controller'
 
 export function useAuth(): AuthController {
-  const name = ref('')
-  const pwd = ref('')
-
-  async function login() {}
-
   return {
     kind: 'auth',
-    name,
-    pwd,
-    login,
+    async login({ name, pwd, orgCode }) {
+      return {
+        accessToken: `${name}:${pwd}:${orgCode || 'default'}`,
+        expiresAt: '2099-01-01T00:00:00.000Z',
+      }
+    },
+    async getOrgs() {
+      return [{ key: 'default', value: 'default', title: '默认组织' }]
+    },
+    getCurrentOrgCode() {
+      return 'default'
+    },
   }
 }
 
