@@ -2,8 +2,8 @@ import { computed, reactive } from 'vue'
 import type {
   ReportViewController,
   ReportViewControllerHandlers,
-} from '../components/views/report-view-types'
-import type { ResourceCrudController } from '../components/views/resource-crud-types'
+} from './report-view-types'
+import type { ResourceCrudController } from './resource-crud-types'
 import {
   defaultDetailValueFormatter,
   inferDetailFields,

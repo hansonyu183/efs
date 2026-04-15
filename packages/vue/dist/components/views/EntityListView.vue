@@ -299,7 +299,7 @@ import type {
  ResourceCrudFormSection,
  ResourceCrudRowAction,
  RowSelectionKey,
-} from './resource-crud-types'
+} from '../../controller/resource-crud-types'
 
 defineOptions({ name: 'EntityListView' })
 

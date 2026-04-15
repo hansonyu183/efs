@@ -1,5 +1,5 @@
-import type { ResourceCrudColumn, ResourceCrudDetailField, ResourceCrudFormField, ResourceCrudFormSection, ResourceCrudQueryField } from '../components/views/resource-crud-types';
-import type { ReportViewResultColumn, ReportViewSummaryMetric } from '../components/views/report-view-types';
+import type { ResourceCrudColumn, ResourceCrudDetailField, ResourceCrudFormField, ResourceCrudFormSection, ResourceCrudQueryField } from './resource-crud-types';
+import type { ReportViewResultColumn, ReportViewSummaryMetric } from './report-view-types';
 import type { FieldUse, ResField, ResRow } from './shared-types';
 import type { ResController } from './res-controller';
 export declare function inferFieldUses(field: ResField): readonly FieldUse[];

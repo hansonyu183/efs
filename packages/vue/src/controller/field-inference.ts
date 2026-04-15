@@ -5,8 +5,8 @@ import type {
   ResourceCrudFormSection,
   ResourceCrudQueryField,
   ResourceCrudQueryOption,
-} from '../components/views/resource-crud-types'
-import type { ReportViewResultColumn, ReportViewSummaryMetric } from '../components/views/report-view-types'
+} from './resource-crud-types'
+import type { ReportViewResultColumn, ReportViewSummaryMetric } from './report-view-types'
 import type { FieldUse, ResField, ResFieldQueryType, ResFieldWidget, ResRow } from './shared-types'
 import type { ResController } from './res-controller'
 

@@ -7,13 +7,13 @@ import type {
   ResourceCrudQueryField,
   ResourceCrudQueryOption,
   ResourceCrudController,
-} from '../components/views/resource-crud-types'
+} from './resource-crud-types'
 import type {
   ReportViewAction,
   ReportViewController,
   ReportViewResultColumn,
   ReportViewSummaryMetric,
-} from '../components/views/report-view-types'
+} from './report-view-types'
 
 export type DomainKey = string
 export type ResKey = string

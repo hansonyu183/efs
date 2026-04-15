@@ -1,6 +1,6 @@
 import type { ComputedRef, Ref } from 'vue';
-import type { ResourceCrudColumn, ResourceCrudDetailField, ResourceCrudFormField, ResourceCrudFormSection, ResourceCrudQueryField, ResourceCrudQueryOption, ResourceCrudController } from '../components/views/resource-crud-types';
-import type { ReportViewAction, ReportViewController, ReportViewResultColumn, ReportViewSummaryMetric } from '../components/views/report-view-types';
+import type { ResourceCrudColumn, ResourceCrudDetailField, ResourceCrudFormField, ResourceCrudFormSection, ResourceCrudQueryField, ResourceCrudQueryOption, ResourceCrudController } from './resource-crud-types';
+import type { ReportViewAction, ReportViewController, ReportViewResultColumn, ReportViewSummaryMetric } from './report-view-types';
 export type DomainKey = string;
 export type ResKey = string;
 export type DomainResPath<D extends string = string, R extends string = string> = `${D}/${R}`;

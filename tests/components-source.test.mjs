@@ -543,7 +543,7 @@ test('ReportView exposes controller-first report workbench contract', () => {
 })
 
 test('report view metadata types stay key-only and controller-first', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/views/report-view-types.ts'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/controller/report-view-types.ts'))
  assert.match(source, /export type ReportViewQueryField = \{/) 
  assert.match(source, /export type ReportViewResultColumn = \{/) 
  assert.match(source, /export type ReportViewSummaryMetric = \{/) 
@@ -559,7 +559,7 @@ test('report view metadata types stay key-only and controller-first', () => {
 })
 
 test('resource-crud metadata types rely on key-only lookup instead of inline labels or explicit i18n keys', () => {
- const source = read(path.join(repoRoot, 'packages/vue/src/components/views/resource-crud-types.ts'))
+ const source = read(path.join(repoRoot, 'packages/vue/src/controller/resource-crud-types.ts'))
  assert.match(source, /export type RowSelectionKey = string/)
  assert.match(source, /export type ResourceCrudColumn = \{/) 
  assert.match(source, /export type ResourceCrudQueryOption = \{/) 
