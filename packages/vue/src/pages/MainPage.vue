@@ -7,7 +7,8 @@
   >
    <div class="efs-main-layout__brand-wrap">
     <slot name="brand">
-     <div class="efs-main-layout__brand-mark">{{ brandInitial }}</div>
+     <img v-if="props.brandIcon" class="efs-main-layout__brand-logo" :src="props.brandIcon" :alt="resolvedBrandTitle" />
+     <div v-else class="efs-main-layout__brand-mark">{{ brandInitial }}</div>
      <div class="efs-main-layout__brand-copy">
       <strong class="efs-main-layout__brand">{{ resolvedBrandTitle }}</strong>
       <span v-if="resolvedBrandSubtitle" class="efs-main-layout__brand-subtitle">{{ resolvedBrandSubtitle }}</span>
@@ -235,6 +236,7 @@ type PageOption = {
 interface MainPageProps {
  title?: string
  subtitle?: string
+ brandIcon?: string
  brandTitle?: string
  appName?: string
  brandSubtitle?: string
@@ -255,6 +257,7 @@ interface MainPageProps {
 const props = withDefaults(defineProps<MainPageProps>(), {
  title: '',
  subtitle: '',
+ brandIcon: '',
  brandTitle: '',
  appName: '',
  brandSubtitle: '',
@@ -518,6 +521,15 @@ function handleAgentSessionsToggle() {
  background: color-mix(in srgb, var(--efs-primary, #2563eb) 16%, var(--efs-surface, #fff));
  color: var(--efs-primary, #2563eb);
  font-weight: 800;
+}
+
+.efs-main-layout__brand-logo {
+ width: 40px;
+ height: 40px;
+ border-radius: 12px;
+ object-fit: cover;
+ border: 1px solid var(--efs-border, #dbe3ef);
+ background: var(--efs-surface, #fff);
 }
 
 .efs-main-layout__brand-copy {

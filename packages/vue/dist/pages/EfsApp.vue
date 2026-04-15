@@ -1,7 +1,9 @@
 <template>
- <AuthPage
-  v-if="showAuthPage"
-  :app-name="props.app.appName || resolvedBrandTitle"
+<AuthPage
+ v-if="showAuthPage"
+ :app-name="props.appName || resolvedBrandTitle"
+ :logo-src="props.brandIcon || ''"
+ :logo-alt="props.appName || resolvedBrandTitle"
   :title="resolvedLoginTitle"
   :subtitle="resolvedLoginSubtitle"
  :hero-title="resolvedLoginHeroTitle"
@@ -52,8 +54,9 @@
 
  <MainPage
   v-else
+ :brand-icon="props.brandIcon || ''"
   :title="resolvedMainTitle"
- :app-name="props.app.appName || ''"
+ :app-name="props.appName || ''"
  :brand-title="resolvedBrandTitle"
  :brand-subtitle="resolvedBrandSubtitle"
   :current-org-code="currentOrgCode"
@@ -103,17 +106,15 @@ defineOptions({ name: 'EfsApp' })
 
 interface EfsAppProps {
  app: AppController
+ appName?: string
+ brandIcon?: string
  i18n?: EfsI18nConfig
 }
 
 const props = defineProps<EfsAppProps>()
 
-const shell = computed(() => props.app.shell ?? {})
-const shellBrand = computed(() => shell.value.brand ?? {})
-const shellAuthPage = computed(() => shell.value.authPage ?? {})
-const shellRuntime = computed(() => shell.value.runtime ?? {})
-const locale = ref(shell.value.locale || 'zh-CN')
-const theme = ref<'light' | 'dark'>(shell.value.theme || 'dark')
+const locale = ref('zh-CN')
+const theme = ref<'light' | 'dark'>('dark')
 const mergedI18n = computed(() => mergeEfsI18nConfigs(props.i18n, { locale: locale.value }))
 
 provide(EFS_I18N_CONTEXT, {
@@ -123,23 +124,23 @@ provide(EFS_I18N_CONTEXT, {
 
 const sidebarMenus = computed<FlatMenuNode[]>(() => flattenAppMenuNodes(props.app))
 const runtime = computed(() => resolveResRuntime(props.app, currentPath.value, {}))
-const resolvedBrandTitle = computed(() => resolveCopy('efs.brand.title', shellBrand.value.title || props.app.appName || ''))
-const resolvedBrandSubtitle = computed(() => resolveCopy('efs.brand.subtitle', shellBrand.value.subtitle || ''))
+const resolvedBrandTitle = computed(() => resolveCopy('efs.brand.title', props.appName || ''))
+const resolvedBrandSubtitle = computed(() => resolveCopy('efs.brand.subtitle', ''))
 const currentOrgCode = computed(() => props.app.auth.orgCode?.value || '')
-const resolvedEmptyTitle = computed(() => resolveCopy('efs.runtime.emptyTitle', shellRuntime.value.emptyTitle || '资源不存在'))
-const resolvedEmptySubtitle = computed(() => resolveCopy('efs.runtime.emptySubtitle', shellRuntime.value.emptySubtitle || '当前 path 未在 app.main.domains 中注册对应 res controller。'))
-const resolvedLoginTitle = computed(() => resolveCopy('efs.auth.title', shellAuthPage.value.title || '登录到工作台'))
-const resolvedLoginSubtitle = computed(() => resolveCopy('efs.auth.subtitle', shellAuthPage.value.subtitle || '请输入账号凭证继续访问当前系统。'))
-const resolvedLoginHeroTitle = computed(() => resolveCopy('efs.auth.heroTitle', shellAuthPage.value.heroTitle || resolvedBrandTitle.value || props.app.appName || 'Enterprise Frontend Shell'))
-const resolvedLoginHeroSubtitle = computed(() => resolveCopy('efs.auth.heroSubtitle', shellAuthPage.value.heroSubtitle || resolvedBrandSubtitle.value || '通过单一 EfsApp 入口承载认证与业务运行时。'))
-const resolvedLoginNameLabel = computed(() => resolveCopy('efs.auth.nameLabel', shellAuthPage.value.nameLabel || '用户名'))
-const resolvedLoginNamePlaceholder = computed(() => resolveCopy('efs.auth.namePlaceholder', shellAuthPage.value.namePlaceholder || '请输入用户名'))
-const resolvedLoginPasswordLabel = computed(() => resolveCopy('efs.auth.passwordLabel', shellAuthPage.value.passwordLabel || '密码'))
-const resolvedLoginPasswordPlaceholder = computed(() => resolveCopy('efs.auth.passwordPlaceholder', shellAuthPage.value.passwordPlaceholder || '请输入密码'))
-const resolvedLoginOrgLabel = computed(() => resolveCopy('efs.auth.orgLabel', shellAuthPage.value.orgLabel || '组织'))
-const resolvedLoginOrgPlaceholder = computed(() => resolveCopy('efs.auth.orgPlaceholder', shellAuthPage.value.orgPlaceholder || '请输入组织编码'))
-const resolvedLoginSubmitLabel = computed(() => resolveCopy('efs.auth.submitLabel', shellAuthPage.value.submitLabel || '登录'))
-const resolvedLoginSubmittingLabel = computed(() => resolveCopy('efs.auth.submittingLabel', shellAuthPage.value.submittingLabel || '登录中…'))
+const resolvedEmptyTitle = computed(() => resolveCopy('efs.runtime.emptyTitle', '资源不存在'))
+const resolvedEmptySubtitle = computed(() => resolveCopy('efs.runtime.emptySubtitle', '当前 path 未在 app.main.domains 中注册对应 res controller。'))
+const resolvedLoginTitle = computed(() => resolveCopy('efs.auth.title', '登录到工作台'))
+const resolvedLoginSubtitle = computed(() => resolveCopy('efs.auth.subtitle', '请输入账号凭证继续访问当前系统。'))
+const resolvedLoginHeroTitle = computed(() => resolveCopy('efs.auth.heroTitle', resolvedBrandTitle.value || props.appName || 'Enterprise Frontend Shell'))
+const resolvedLoginHeroSubtitle = computed(() => resolveCopy('efs.auth.heroSubtitle', resolvedBrandSubtitle.value || '通过单一 EfsApp 入口承载认证与业务运行时。'))
+const resolvedLoginNameLabel = computed(() => resolveCopy('efs.auth.nameLabel', '用户名'))
+const resolvedLoginNamePlaceholder = computed(() => resolveCopy('efs.auth.namePlaceholder', '请输入用户名'))
+const resolvedLoginPasswordLabel = computed(() => resolveCopy('efs.auth.passwordLabel', '密码'))
+const resolvedLoginPasswordPlaceholder = computed(() => resolveCopy('efs.auth.passwordPlaceholder', '请输入密码'))
+const resolvedLoginOrgLabel = computed(() => resolveCopy('efs.auth.orgLabel', '组织'))
+const resolvedLoginOrgPlaceholder = computed(() => resolveCopy('efs.auth.orgPlaceholder', '请输入组织编码'))
+const resolvedLoginSubmitLabel = computed(() => resolveCopy('efs.auth.submitLabel', '登录'))
+const resolvedLoginSubmittingLabel = computed(() => resolveCopy('efs.auth.submittingLabel', '登录中…'))
 const resolvedMainTitle = computed(() => runtime.value?.title || resolvedEmptyTitle.value)
 const resolvedLocaleOptions = computed(() => [
  { title: resolveCopy('efs.localeOptions.zh-CN', '简体中文'), value: 'zh-CN' },

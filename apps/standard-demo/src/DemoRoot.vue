@@ -1,5 +1,8 @@
 <template>
-  <EfsApp :app="app" />
+  <EfsApp
+    :app="app"
+    app-name="Enterprise Frontend Standard"
+  />
 </template>
 
 <script setup lang="ts">

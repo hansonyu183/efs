@@ -152,7 +152,6 @@ EFS 约定把可静态约束的部分尽量落到 TypeScript 类型中。
 ```ts
 export interface AppController {
   kind: 'app'
-  appName?: string
   auth: AuthController
   main: MainController
 }
@@ -540,12 +539,12 @@ app.main.domains -> domain.items
 如果是工作台这类自定义内容页，也可以写成：
 
 ```vue
-<EfsApp :app="useApp()" title="统一工作台">
+<EfsApp :app="useApp()" app-name="统一工作台">
   <!-- workbench/dashboard content -->
 </EfsApp>
 ```
 
-其中 `appName` 应直接放在 `useApp()` 返回的 `AppController` 上，而不是再单独作为 `EfsApp` 输入；`EfsApp` 默认主题为 `dark`。对使用方来说，公开建模入口仍然应以 `AppController` 这套 controller 类型为主，而不是 `EfsApp` 自身 props 类型。
+其中 `AppController` 只保留运行时 controller 结构；像 `appName`、`brandIcon` 这类壳层品牌输入改由 `EfsApp` 自身接收。`EfsApp` 默认主题为 `dark`。对使用方来说，公开建模入口应区分为：`AppController` 负责业务运行时，`EfsApp` 负责应用壳品牌与入口装配。
 
 当前默认应用壳还额外做了四项收口：
 
