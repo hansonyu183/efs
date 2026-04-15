@@ -15,13 +15,13 @@ import {
 } from './field-inference'
 import { findResByPath } from './path-helpers'
 import type {
-  AppController,
   ResCrudRuntime,
   ResCrudRuntimeOptions,
   ResReportRuntime,
   ResReportRuntimeOptions,
   ResRuntime,
-} from './types'
+} from './shared-types'
+import type { AppController } from './app-controller'
 
 export function resolveResRuntime(
   app: AppController,

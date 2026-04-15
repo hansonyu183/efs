@@ -7,7 +7,8 @@ import type {
   ResourceCrudQueryOption,
 } from '../components/views/resource-crud-types'
 import type { ReportViewResultColumn, ReportViewSummaryMetric } from '../components/views/report-view-types'
-import type { FieldUse, ResController, ResField, ResFieldQueryType, ResFieldWidget, ResRow } from './types'
+import type { FieldUse, ResField, ResFieldQueryType, ResFieldWidget, ResRow } from './shared-types'
+import type { ResController } from './res-controller'
 
 export function inferFieldUses(field: ResField): readonly FieldUse[] {
   if (field.use?.length) return [...field.use]

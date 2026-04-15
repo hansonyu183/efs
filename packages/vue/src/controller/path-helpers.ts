@@ -1,5 +1,8 @@
 import type { FlatMenuNode } from '../shared/NavigationMenu'
-import type { AppController, DomainController, DomainResPath, ResController } from './types'
+import type { DomainResPath } from './shared-types'
+import type { AppController } from './app-controller'
+import type { DomainController } from './domain-controller'
+import type { ResController } from './res-controller'
 
 export function buildResPath<D extends string, R extends string>(domain: D, res: R): DomainResPath<D, R> {
   return `${domain}/${res}` as DomainResPath<D, R>
