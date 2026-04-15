@@ -35,3 +35,15 @@ test('docs avoid raw component package imports and use lowercase navigation-menu
  assert.doesNotMatch(navDoc, /@efs\/vue\/shared\/NavigationMenu/)
  assert.deepEqual(Object.keys(packageJson.exports).sort(), ['.', './controller', './shared/navigation-menu'])
 })
+
+test('standard-app is documented as a legacy fixture while standard-demo remains schema-first', () => {
+ const readme = read('README.md')
+ const standardAppReadme = read('standard-app/README.md')
+ const scaffoldingDoc = read('docs/standards/scaffolding.md')
+
+ assert.match(readme, /standard-app.*legacy page-manifest fixture/)
+ assert.match(standardAppReadme, /legacy fixture/i)
+ assert.match(standardAppReadme, /app\.schema\.ts/)
+ assert.match(scaffoldingDoc, /legacy page-manifest fixture/i)
+ assert.match(scaffoldingDoc, /schema-first `app\.schema\.ts`/)
+})

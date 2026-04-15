@@ -9,7 +9,7 @@ function runNode(args, cwd = repoRoot) {
  return execFileSync(process.execPath, args, { cwd, encoding: 'utf8' })
 }
 
-test('governance passes for standard app', () => {
+test('governance passes for legacy standard-app fixture', () => {
  const output = runNode(['packages/cli/bin/efs-governance.mjs', 'standard-app'])
  assert.match(output, /Governance check passed/)
 })

@@ -16,7 +16,7 @@
 - `packages/presets`：标准页面 preset 定义与平台脚手架模板
 - `packages/vue`：Vue 应用壳、资源运行时与共享前端平台能力
 - `packages/cli`：平台接入用 lint / scaffold / governance 命令
-- `standard-app`：唯一标准接法落地工程
+- `standard-app`：legacy page-manifest fixture（主要用于 CLI/lint/governance 回归测试）
 - `apps/standard-demo`：可运行的 EfsApp 标准演示应用（schema-first 主路径，用于 build smoke test）
 - `tests/`：组件、脚手架、AST lint、治理与打包测试
 
