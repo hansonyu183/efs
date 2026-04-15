@@ -28,22 +28,25 @@ third_party/efs
 
 ```ts
 alias: {
- '@efs/vue/components': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/components'),
+ '@efs/vue': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/index.ts'),
+ '@efs/vue/controller': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/controller/index.ts'),
+ '@efs/vue/shared': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/shared'),
 }
 ```
 
-如果后续消费 runtime / 规范s / presets，也应增加对应 alias，而不是在业务项目内复制实现。
+如果后续消费 runtime / 规范 / presets，也应增加对应 alias，而不是在业务项目内复制实现。
 
 ### 3. 业务模块通过统一别名直接 import
 
 标准写法：
 
 ```ts
-import MainPage from '@efs/vue/components/pages/MainPage.vue'
-import AuthPage from '@efs/vue/components/pages/AuthPage.vue'
-import 查询区 from '@efs/vue/components/panels/查询区.vue'
-import EntityListTable from '@efs/vue/components/panels/EntityListTable.vue'
+import { EfsApp } from '@efs/vue'
+import type { AppController, ResController } from '@efs/vue/controller'
+import { buildSidebarMenuTree } from '@efs/vue/shared/navigation-menu'
 ```
+
+业务侧应优先消费稳定入口：根入口只用于 `EfsApp` / `AppController`，其他公开 helper 仅从文档约定的 `controller`、`shared` 子路径导入；不要直接依赖 `components/pages/*`、`components/panels/*` 这类原始组件路径。
 
 ## 为什么当前采用这种接法
 

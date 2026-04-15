@@ -118,7 +118,7 @@ EFS 约定把可静态约束的部分尽量落到 TypeScript 类型中。
 
 当前参考类型文件：
 
-- `packages/vue/src/controller/AppController.ts`
+- `packages/vue/src/controller/app-controller.ts`
 - `packages/vue/src/controller/path-helpers.ts`
 - `packages/vue/src/controller/field-inference.ts`
 - `packages/vue/src/controller/runtime.ts`
@@ -292,7 +292,7 @@ type ResField = {
 { key: 'orgId', kind: 'ref', ref: 'admin/org', dict: 'org' }
 ```
 
-对应类型在 `AppController.ts` 中被拆成：
+对应类型在 `app-controller.ts` / `shared-types.ts` 中被拆成：
 
 - `ResValueField`
 - `ResEnumField`
@@ -579,7 +579,7 @@ const app = useApp()
 
 参考文件：
 
-- `packages/vue/src/controller/AppController.ts`
+- `packages/vue/src/controller/app-controller.ts`
 - `packages/vue/src/controller/path-helpers.ts`
 - `packages/vue/src/controller/runtime.ts`
 - `packages/vue/src/components/pages/ResolvedResPage.vue`（内部）
@@ -612,7 +612,8 @@ const app = useApp()
 
 ```ts
 import { ref } from 'vue'
-import type { AppController, AuthController, DomainController, MainController, ResController } from '@efs/vue'
+import type { AppController } from '@efs/vue'
+import type { AuthController, DomainController, MainController, ResController } from '@efs/vue/controller'
 
 export function useAuth(): AuthController {
   const name = ref('')

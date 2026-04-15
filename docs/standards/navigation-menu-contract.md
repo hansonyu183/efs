@@ -149,12 +149,12 @@ icon: 'report'
 业务接入方可以直接把 Sidebar 渲染接到运行时菜单组装层：
 
 ```ts
-import { buildSidebarMenuTree } from '@efs/vue/shared/NavigationMenu'
+import { buildSidebarMenuTree } from '@efs/vue/shared/navigation-menu'
 
 const tree = buildSidebarMenuTree(flatMenus)
 ```
 
-说明：`@efs/vue` 根入口当前只保留 `AppController` 与 `EfsApp`；菜单 helper 属于运行时内部能力，请从 `@efs/vue/shared/NavigationMenu` 子路径导入。
+说明：`@efs/vue` 根入口当前只保留 `AppController` 与 `EfsApp`；菜单 helper 属于运行时内部能力，请从 `@efs/vue/shared/navigation-menu` 子路径导入。
 
 ```vue
 <CustomSidebarNav :items="sidebarMenus" :current-path="route.path" />

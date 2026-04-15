@@ -12,18 +12,21 @@
    "types": "./dist/index.d.ts",
    "default": "./dist/index.js"
   },
-  "./components/*": "./dist/components/*",
-  "./shared/*": {
-   "types": "./dist/shared/*.d.ts",
-   "default": "./dist/shared/*.js"
+  "./controller": {
+   "types": "./dist/controller/index.d.ts",
+   "default": "./dist/controller/index.js"
   },
-  "./controller/*": {
-   "types": "./dist/controller/*.d.ts",
-   "default": "./dist/controller/*.js"
+  "./shared/navigation-menu": {
+   "types": "./dist/shared/navigation-menu.d.ts",
+   "default": "./dist/shared/navigation-menu.js"
   }
  },
  "files": [
   "dist"
  ],
+ "peerDependencies": {
+  "vue": "^3.5.13",
+  "vue-router": "^4.5.1"
+ },
  "sideEffects": false
 }

@@ -17,4 +17,6 @@ These instructions apply to this repository.
 - Components manage their own `dirty` state.
 
 ## Public surface
-- Expose `AppController` and `EfsApp` only.
+- Root entry exports only `AppController` and `EfsApp`.
+- Do not expose raw component subpaths as package API.
+- Shared/controller helper subpaths must stay deliberate and documented.

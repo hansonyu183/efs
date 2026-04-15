@@ -1,5 +1,6 @@
 import { ref } from 'vue'
-import type { AppController, DomainController, ResController, ResRow, ResQueryParams } from '@efs/vue'
+import type { AppController } from '@efs/vue'
+import type { DomainController, ResController, ResRow, ResQueryParams } from '@efs/vue/controller'
 
 const customerRows: ResRow[] = [
   { id: 'C-001', name: '杭州云启', owner: '张三', status: 'active', createdAt: '2026-04-01 09:00:00' },
