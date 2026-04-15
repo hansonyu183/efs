@@ -4,5 +4,4 @@ export type { EfsAuthSchema, EfsTokenSchema, EfsOrgSchema } from './app/auth-sch
 export type { EfsServiceSchema } from './app/service-schema';
 export type { EfsDomainSchema, EfsResourceSchema, EfsResourceApisSchema, EfsEndpointSchema } from './resource/resource-schema';
 export type { EfsFieldSchema, EfsFieldOption } from './resource/field-schema';
-export type { EfsActionSchema } from './resource/action-schema';
-export type { EfsAppUiSchema, EfsDomainUiSchema, EfsResourceUiSchema, EfsFieldUiSchema, EfsActionUiSchema } from './resource/ui-schema';
+export type { EfsAppUiSchema, EfsDomainUiSchema, EfsResourceUiSchema, EfsResourceViewUiSchema, EfsFieldUiSchema, EfsActionUiSchema, EfsRuntimeActionKey, } from './resource/ui-schema';

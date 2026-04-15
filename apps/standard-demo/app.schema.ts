@@ -74,14 +74,10 @@ export const appSchema = defineAppSchema({
             create: { path: '/api/crm/customers', method: 'POST' },
             update: { path: '/api/crm/customers/:id', method: 'PUT' },
             remove: { path: '/api/crm/customers/:id', method: 'DELETE' },
-            export: { path: '/api/crm/customers/export', method: 'POST' },
+            custom: {
+              export: { path: '/api/crm/customers/export', method: 'POST' },
+            },
           },
-          actions: [
-            { key: 'create', title: '新建客户', intent: 'create', api: { path: '/api/crm/customers', method: 'POST' } },
-            { key: 'update', title: '更新客户', intent: 'update', api: { path: '/api/crm/customers/:id', method: 'PUT' } },
-            { key: 'remove', title: '删除客户', intent: 'delete', api: { path: '/api/crm/customers/:id', method: 'DELETE' } },
-            { key: 'export', title: '导出客户', intent: 'export', api: { path: '/api/crm/customers/export', method: 'POST' } },
-          ],
         },
       ],
     },
@@ -100,11 +96,10 @@ export const appSchema = defineAppSchema({
           ],
           apis: {
             query: { path: '/api/bi/customer-report', method: 'GET' },
-            export: { path: '/api/bi/customer-report/export', method: 'POST' },
+            custom: {
+              export: { path: '/api/bi/customer-report/export', method: 'POST' },
+            },
           },
-          actions: [
-            { key: 'export', title: '导出报表', intent: 'export', api: { path: '/api/bi/customer-report/export', method: 'POST' } },
-          ],
         },
       ],
     },
@@ -125,6 +120,10 @@ export const appSchema = defineAppSchema({
             actions: {
               export: {
                 placement: 'page',
+                api: 'export',
+              },
+              filter: {
+                runtime: 'filter',
               },
             },
           },
@@ -135,6 +134,15 @@ export const appSchema = defineAppSchema({
           'customer-report': {
             view: {
               mode: 'report',
+            },
+            actions: {
+              export: {
+                placement: 'page',
+                api: 'export',
+              },
+              refresh: {
+                runtime: 'refresh',
+              },
             },
           },
         },

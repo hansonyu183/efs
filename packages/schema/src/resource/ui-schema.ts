@@ -23,5 +23,10 @@ export interface EfsFieldUiSchema {
 
 export interface EfsActionUiSchema {
   hidden?: boolean
+  label?: string
   placement?: 'page' | 'row' | 'batch' | 'detail'
+  api?: string
+  runtime?: EfsRuntimeActionKey
 }
+
+export type EfsRuntimeActionKey = 'refresh' | 'filter' | 'toggle-hidden' | 'toggle-columns'

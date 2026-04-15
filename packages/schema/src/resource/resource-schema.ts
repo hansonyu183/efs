@@ -1,5 +1,4 @@
 import type { EfsFieldSchema } from './field-schema'
-import type { EfsActionSchema } from './action-schema'
 
 export interface EfsDomainSchema {
   key: string
@@ -12,7 +11,6 @@ export interface EfsResourceSchema {
   title: string
   fields?: EfsFieldSchema[]
   apis?: EfsResourceApisSchema
-  actions?: EfsActionSchema[]
   description?: string
 }
 
@@ -23,8 +21,7 @@ export interface EfsResourceApisSchema {
   create?: EfsEndpointSchema
   update?: EfsEndpointSchema
   remove?: EfsEndpointSchema
-  save?: EfsEndpointSchema
-  export?: EfsEndpointSchema
+  custom?: Record<string, EfsEndpointSchema>
 }
 
 export interface EfsEndpointSchema {

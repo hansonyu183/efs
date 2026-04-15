@@ -127,7 +127,7 @@ The new platform should revolve around a single app schema root.
 
 Schema should be split into two distinct kinds:
 
-- **Business schema** — describes only business data and API contracts: app identity, auth capability, services, domain/resource definitions, business fields, business actions, datasource/API endpoints, permissions, and related metadata.
+- **Business schema** — describes only business data and API contracts: app identity, auth capability, services, domain/resource definitions, business fields, and resource API endpoints.
 - **UI schema** — a separate later layer for rendering/runtime overrides if needed.
 
 Strict boundary for business schema:
@@ -138,7 +138,6 @@ Strict boundary for business schema:
 - business schema should answer only:
   - what data exists
   - what APIs exist
-  - what business actions exist
   - what services/auth capabilities exist
 
 Design bias:
@@ -240,14 +239,12 @@ interface EfsResourceSchema {
     create?: EndpointSpec
     update?: EndpointSpec
     remove?: EndpointSpec
-    save?: EndpointSpec
-    export?: EndpointSpec
+    custom?: Record<string, EndpointSpec>
   }
-  actions?: EfsActionSchema[]
 }
 ```
 
-The business resource schema should describe only data and APIs. Runtime/view generation is inferred by EFS. Optional UI overrides, if needed, should live in a separate UI schema layer rather than inside the business resource contract.
+The business resource schema should describe only data and APIs. Runtime/view generation is inferred by EFS. Backend-invoking operations are modeled as resource APIs, not as a separate business action schema. Optional UI overrides, if needed, should live in a separate UI schema layer rather than inside the business resource contract.
 
 ### Minimal UI override policy
 
@@ -255,7 +252,9 @@ The first UI schema should stay deliberately small and only cover a few high-val
 
 - `resource.view.mode` — let apps hint the runtime mode when inference is not enough
 - `resource.fields.<field>.hidden` / `label` — let apps hide a field or override a UI label
-- `resource.actions.<action>.hidden` / `placement` — let apps hide an action or choose a coarse placement
+- `resource.actions.<action>.api` — bind a UI action to a named resource API
+- `resource.actions.<action>.runtime` — enable a built-in frontend/runtime action
+- `resource.actions.<action>.hidden` / `placement` / `label` — coarse presentation overrides only
 
 Do **not** expand the first UI schema into a full per-widget/per-column/per-form configuration language.
 
