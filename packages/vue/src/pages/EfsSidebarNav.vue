@@ -37,7 +37,7 @@
 import { computed, inject } from 'vue'
 import type { FlatMenuNode, SidebarMenuTreeNode } from '../shared/navigation-menu'
 import { buildSidebarMenuTree } from '../shared/navigation-menu'
-import { splitResPath } from '../legacy/path-helpers'
+import { splitResPath } from '../runtime/navigation-paths'
 import { EFS_I18N_CONTEXT } from '../shared/efs-i18n'
 import SemanticIcon from '../controls/SemanticIcon.vue'
 

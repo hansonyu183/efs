@@ -1,4 +1,4 @@
-import type { AuthLoginResult } from '../legacy/auth-controller'
+import type { AuthLoginResult } from '../runtime/auth-contract'
 
 export type AuthStatus = 'anonymous' | 'authenticated' | 'expired'
 

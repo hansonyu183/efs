@@ -8,7 +8,7 @@
   @click="cycleLocale"
  >
   <span class="efs-localeswitcher__lead">
-   <SemanticIcon name="locale" :label="resolvedLabel" aria-hidden="true" />
+   <span class="efs-localeswitcher__badge" aria-hidden="true">{{ currentLabel }}</span>
    <span v-if="props.mode === 'menu'" class="efs-localeswitcher__label">{{ resolvedLabel }}</span>
   </span>
   <span v-if="props.mode !== 'icon'" class="efs-localeswitcher__value">{{ currentLabel }}</span>
@@ -17,7 +17,6 @@
 
 <script setup lang="ts">
 import { computed, inject } from 'vue'
-import SemanticIcon from './SemanticIcon.vue'
 import { EFS_I18N_CONTEXT } from '../shared/efs-i18n'
 
 defineOptions({ name: 'LocaleSwitcher' })
@@ -101,6 +100,17 @@ function resolveCopy(key: string, fallback: string) {
  min-width: 0;
 }
 
+.efs-localeswitcher__badge {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ min-width: 1.8rem;
+ font-size: 0.85rem;
+ font-weight: 700;
+ line-height: 1;
+ text-transform: uppercase;
+}
+
 .efs-localeswitcher__label,
 .efs-localeswitcher__value {
  font-size: 0.85rem;
@@ -112,5 +122,6 @@ function resolveCopy(key: string, fallback: string) {
 
 .efs-localeswitcher__value {
  color: var(--efs-text-muted, #64748b);
+ text-transform: uppercase;
 }
 </style>

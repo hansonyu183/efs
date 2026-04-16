@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-import { adaptAppSchemaToVueController } from '../packages/schema/dist/adapter/vue-controller.js'
+import { createRuntimeFromSchema } from '../packages/schema/dist/adapter/platform-runtime.js'
 
 const schema = {
  schemaVersion: 'v1',
@@ -78,9 +78,9 @@ const schema = {
  }
 }
 
-test('adaptAppSchemaToVueController builds controller tree and delegates CRUD/report handlers', async () => {
+test('createRuntimeFromSchema builds controller tree and delegates CRUD/report handlers', async () => {
  const calls = []
- const app = adaptAppSchemaToVueController({
+ const app = createRuntimeFromSchema({
   schema,
   auth: {
    async login(input) {
@@ -157,4 +157,66 @@ test('adaptAppSchemaToVueController builds controller tree and delegates CRUD/re
  await app.auth.login({ name: 'demo', pwd: 'demo', orgCode: 'demo' })
 
  assert.deepEqual(calls.map((entry) => entry[0]), ['list', 'create', 'update', 'remove', 'export', 'query', 'report-export', 'login'])
+})
+
+test('createRuntimeFromSchema maps delete operation aliases onto CRUD remove handler', async () => {
+ const calls = []
+ const deleteSchema = {
+  schemaVersion: 'v1',
+  app: { key: 'demo', title: 'Demo' },
+  auth: { login: { path: '/login', method: 'POST' } },
+  domains: [
+   {
+    key: 'admin',
+    title: 'Admin',
+    resources: [
+     {
+      key: 'user',
+      title: '用户',
+      fields: [{ key: 'id', title: 'ID', type: 'number', identity: 'id' }],
+      operations: {
+       query: { path: '/admin/user/query', method: 'POST' },
+       delete: { path: '/admin/user/delete', method: 'POST' },
+      },
+     },
+    ],
+   },
+  ],
+  ui: {
+   defaultPath: 'admin/user',
+   domains: {
+    admin: {
+     resources: {
+      user: {
+       view: { mode: 'crud' },
+       actions: {
+        delete: { api: 'delete', placement: 'row', label: '删除' },
+       },
+      },
+     },
+    },
+   },
+  },
+ }
+
+ const app = createRuntimeFromSchema({
+  schema: deleteSchema,
+  auth: { async login() { return { accessToken: 'demo' } } },
+  resources: {
+   'admin/user': {
+    async query() {
+     return { items: [{ id: 1 }], total: 1 }
+    },
+    async delete(params) {
+      calls.push(['delete', params])
+      return { refresh: true }
+    },
+   },
+  },
+ })
+
+ const user = app.main.domains[0].items[0]
+ assert.deepEqual(user.actions.row.map((item) => item.key), ['remove'])
+ await user.remove({ id: 1 })
+ assert.deepEqual(calls.map((entry) => entry[0]), ['delete'])
 })

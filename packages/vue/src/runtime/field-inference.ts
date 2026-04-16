@@ -5,10 +5,10 @@ import type {
   ResourceCrudFormSection,
   ResourceCrudQueryField,
   ResourceCrudQueryOption,
-} from './resource-crud-types'
+} from './crud-view-types'
 import type { ReportViewResultColumn, ReportViewSummaryMetric } from './report-view-types'
-import type { FieldUse, ResField, ResFieldQueryType, ResFieldWidget, ResRow } from './shared-types'
-import type { LegacyResController } from './res-controller'
+import type { FieldUse, ResField, ResFieldQueryType, ResFieldWidget, ResRow } from './runtime-types'
+import type { PlatformResource } from './resource-contract'
 
 export function inferFieldUses(field: ResField): readonly FieldUse[] {
   if (field.use?.length) return [...field.use]
@@ -31,7 +31,7 @@ export function inferFieldOrder(field: ResField): number {
   return 60
 }
 
-export function inferListColumns(res: LegacyResController): ResourceCrudColumn[] {
+export function inferListColumns(res: PlatformResource): ResourceCrudColumn[] {
   return getOrderedFields(res)
     .filter((field) => inferFieldUses(field).includes('list'))
     .map((field) => ({
@@ -41,7 +41,7 @@ export function inferListColumns(res: LegacyResController): ResourceCrudColumn[]
     }))
 }
 
-export function inferQueryFields(res: LegacyResController): ResourceCrudQueryField[] {
+export function inferQueryFields(res: PlatformResource): ResourceCrudQueryField[] {
   return getOrderedFields(res)
     .filter((field) => inferFieldUses(field).includes('query'))
     .map((field) => ({
@@ -51,7 +51,7 @@ export function inferQueryFields(res: LegacyResController): ResourceCrudQueryFie
     }))
 }
 
-export function inferFormFields(res: LegacyResController): ResourceCrudFormField[] {
+export function inferFormFields(res: PlatformResource): ResourceCrudFormField[] {
   return getOrderedFields(res)
     .filter((field) => !field.readonly && inferFieldUses(field).includes('form'))
     .map((field) => ({
@@ -60,19 +60,19 @@ export function inferFormFields(res: LegacyResController): ResourceCrudFormField
     }))
 }
 
-export function inferFormSections(res: LegacyResController): ResourceCrudFormSection[] {
+export function inferFormSections(res: PlatformResource): ResourceCrudFormSection[] {
   const fields = inferFormFields(res)
   if (fields.length === 0) return []
   return [{ key: 'basic', fields }]
 }
 
-export function inferDetailFields(res: LegacyResController): ResourceCrudDetailField[] {
+export function inferDetailFields(res: PlatformResource): ResourceCrudDetailField[] {
   return getOrderedFields(res)
     .filter((field) => inferFieldUses(field).includes('detail'))
     .map((field) => ({ key: field.key }))
 }
 
-export function inferReportColumns(res: LegacyResController): ReportViewResultColumn[] {
+export function inferReportColumns(res: PlatformResource): ReportViewResultColumn[] {
   return getOrderedFields(res)
     .filter((field) => inferFieldUses(field).includes('list'))
     .map((field) => ({
@@ -82,7 +82,7 @@ export function inferReportColumns(res: LegacyResController): ReportViewResultCo
     }))
 }
 
-export function inferReportSummaryMetrics(res: LegacyResController, items: ResRow[] = []): ReportViewSummaryMetric[] {
+export function inferReportSummaryMetrics(res: PlatformResource, items: ResRow[] = []): ReportViewSummaryMetric[] {
   const summaryFields = getOrderedFields(res).filter((field) => field.summary)
   return summaryFields.map((field) => ({
     key: field.key,
@@ -90,7 +90,7 @@ export function inferReportSummaryMetrics(res: LegacyResController, items: ResRo
   }))
 }
 
-function getOrderedFields(res: LegacyResController): ResField[] {
+function getOrderedFields(res: PlatformResource): ResField[] {
   return [...(res.fields ?? [])].sort((left, right) => {
     const orderDelta = inferFieldOrder(left) - inferFieldOrder(right)
     if (orderDelta !== 0) return orderDelta
@@ -117,10 +117,15 @@ function inferQueryFieldType(field: ResField): ResFieldQueryType {
 
 function inferFormWidget(field: ResField): ResFieldWidget {
   if (field.widget) return field.widget
+  const normalizedKey = field.key.toLowerCase()
   if (field.kind === 'enum' || field.kind === 'ref') return 'select'
+  if (normalizedKey.endsWith('_id') || normalizedKey.endsWith('id') || normalizedKey.endsWith('_ids') || normalizedKey.endsWith('ids')) return 'select'
   if (field.kind === 'bool') return 'switch'
   if (field.kind === 'number') return 'number'
   if (field.kind === 'date' || field.kind === 'datetime') return 'date'
+  if (normalizedKey.endsWith('_date') || normalizedKey.endsWith('date')) return 'date'
+  if (normalizedKey.endsWith('_month') || normalizedKey.endsWith('month')) return 'date'
+  if (normalizedKey.endsWith('_datetime') || normalizedKey.endsWith('datetime')) return 'date'
   if (field.kind === 'tags') return 'tags'
   if (field.kind === 'json') return 'json'
   return 'text'

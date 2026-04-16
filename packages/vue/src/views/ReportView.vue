@@ -20,13 +20,13 @@
       <AppField v-for="queryField in normalizedQueryFields" :key="queryField.key" :label="queryField.label">
        <AppSelect
         v-if="queryField.type === 'select'"
-        :model-value="stringValue(localQueryValues[queryField.key])"
+        :model-value="stringValue(viewState.queryValues[queryField.key])"
         :options="queryField.options"
         @update:model-value="(value) => updateQueryValue(queryField.key, value)"
        />
        <AppInput
         v-else
-        :model-value="stringValue(localQueryValues[queryField.key])"
+        :model-value="stringValue(viewState.queryValues[queryField.key])"
         :type="queryField.type"
         @update:model-value="(value) => updateQueryValue(queryField.key, value)"
        />
@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, getCurrentInstance, onMounted, ref, watch } from 'vue'
+import { computed, getCurrentInstance, onMounted, reactive, ref, watch } from 'vue'
 import AppButton from '../controls/AppButton.vue'
 import AppField from '../controls/AppField.vue'
 import AppInput from '../controls/AppInput.vue'
@@ -92,6 +92,8 @@ import LoadingState from '../interaction/LoadingState.vue'
 import DashboardCardPanel from '../panels/DashboardCardPanel.vue'
 import ReportPanel from '../panels/ReportPanel.vue'
 import { resolveLabel, resolveOptionalLabel } from '../shared/label-resolver'
+import { useControllerStateSync } from '../shared/use-controller-state-sync'
+import { useViewSessionState } from '../shared/use-view-session-state'
 import type {
  ReportViewAction,
  ReportViewActionHandlerPayload,
@@ -99,7 +101,7 @@ import type {
  ReportViewQueryField,
  ReportViewResultColumn,
  ReportViewSummaryMetric,
-} from '../legacy/report-view-types'
+} from '../runtime/report-view-types'
 
 defineOptions({ name: 'ReportView' })
 
@@ -123,17 +125,19 @@ const props = withDefaults(defineProps<ReportViewProps>(), {
  storageKey: '',
 })
 
-const localQueryValues = ref<Record<string, string>>({})
-const localPage = ref(1)
-const localPageSize = ref(20)
-const localItems = ref<Record<string, unknown>[]>([])
-const localTotal = ref(0)
-const localSummary = ref<ReportViewSummaryMetric[]>([])
-const localBusy = ref(false)
-const localError = ref('')
+const viewState = reactive({
+ queryValues: {} as Record<string, string>,
+ page: 1,
+ pageSize: 20,
+ items: [] as Record<string, unknown>[],
+ total: 0,
+ summary: [] as ReportViewSummaryMetric[],
+})
+const runtimeState = reactive({
+ busy: false,
+ error: '',
+})
 const visibleColumnKeys = ref<string[]>([])
-const restoredFromSession = ref(false)
-const storageReady = ref(false)
 
 const normalizedQueryFields = computed(() => props.queryFields.map((field) => ({
  key: field.key,
@@ -153,12 +157,12 @@ const normalizedColumns = computed(() => props.columns.map((column) => ({
  visible: column.visible,
 })))
 
-const resolvedBusy = computed(() => props.controller?.state?.busy ?? localBusy.value)
-const resolvedError = computed(() => props.controller?.state?.error ?? localError.value)
-const resolvedItems = computed(() => props.controller?.state?.items ?? localItems.value)
-const resolvedTotal = computed(() => props.controller?.state?.total ?? localTotal.value)
-const resolvedSummary = computed(() => props.controller?.state?.summary ?? localSummary.value)
-const resolvedPageCount = computed(() => Math.max(1, Math.ceil(resolvedTotal.value / Math.max(localPageSize.value, 1))))
+const resolvedBusy = computed(() => props.controller?.state?.busy ?? runtimeState.busy)
+const resolvedError = computed(() => props.controller?.state?.error ?? runtimeState.error)
+const resolvedItems = computed(() => props.controller?.state?.items ?? viewState.items)
+const resolvedTotal = computed(() => props.controller?.state?.total ?? viewState.total)
+const resolvedSummary = computed(() => props.controller?.state?.summary ?? viewState.summary)
+const resolvedPageCount = computed(() => Math.max(1, Math.ceil(resolvedTotal.value / Math.max(viewState.pageSize, 1))))
 const resolvedSearchLabel = computed(() => resolveOptionalLabel({ key: 'searchLabel', instance, namespaces: ['efs.reportView'] }) || '查询')
 const resolvedResetLabel = computed(() => resolveOptionalLabel({ key: 'resetLabel', instance, namespaces: ['efs.reportView'] }) || '重置')
 const resolvedFiltersSummaryLabel = computed(() => resolveOptionalLabel({ key: 'filtersSummaryLabel', instance, namespaces: ['efs.reportView'] }) || '筛选字段')
@@ -166,6 +170,42 @@ const resolvedTotalLabel = computed(() => resolveOptionalLabel({ key: 'totalLabe
 const querySummaryText = computed(() => normalizedQueryFields.value.length > 0 ? `${resolvedFiltersSummaryLabel.value}：${normalizedQueryFields.value.length}` : '')
 const resultCountText = computed(() => `${resolvedTotalLabel.value}：${resolvedTotal.value}`)
 const stateStorageKey = computed(() => props.storageKey ? `efs:view-state:report:${props.storageKey}` : '')
+const { syncViewStateToController } = useControllerStateSync(props.controller, () => ({
+ queryValues: { ...viewState.queryValues },
+ page: viewState.page,
+ pageSize: viewState.pageSize,
+ items: [...viewState.items],
+ total: viewState.total,
+ summary: [...viewState.summary],
+}))
+const { restoredFromSession, storageReady, hydrateSessionState, persistSessionState } = useViewSessionState<{
+ queryValues?: Record<string, string>
+ page?: number
+ pageSize?: number
+ items?: Record<string, unknown>[]
+ total?: number
+ summary?: ReportViewSummaryMetric[]
+}>(stateStorageKey, {
+ loadState: (parsed) => {
+  viewState.queryValues = { ...buildDefaultQueryValues(), ...(parsed.queryValues ?? {}) }
+  viewState.page = typeof parsed.page === 'number' && parsed.page > 0 ? parsed.page : viewState.page
+  viewState.pageSize = typeof parsed.pageSize === 'number' && parsed.pageSize > 0 ? parsed.pageSize : viewState.pageSize
+  viewState.items = Array.isArray(parsed.items) ? [...parsed.items] : []
+  viewState.total = typeof parsed.total === 'number' ? parsed.total : viewState.items.length
+  viewState.summary = Array.isArray(parsed.summary) ? [...parsed.summary] : []
+  runtimeState.busy = false
+  runtimeState.error = ''
+  syncViewStateToController()
+ },
+ getState: () => ({
+  queryValues: viewState.queryValues,
+  page: viewState.page,
+  pageSize: viewState.pageSize,
+  items: viewState.items,
+  total: viewState.total,
+  summary: viewState.summary,
+ }),
+})
 
 const resultRows = computed(() => resolvedItems.value.map((item, index) => ({
  __reportRowKey: String(index + 1),
@@ -184,7 +224,7 @@ const visibleActions = computed(() => (props.controller?.actions?.actions ?? [])
  })))
 
 watch(() => props.queryFields, () => {
- localQueryValues.value = buildDefaultQueryValues()
+ viewState.queryValues = buildDefaultQueryValues()
 }, { immediate: true, deep: true })
 
 watch(() => props.columns, () => {
@@ -195,7 +235,8 @@ watch(() => props.controller?.state, () => {
  syncFromControllerState()
 }, { immediate: true, deep: true })
 
-watch([localQueryValues, localPage, localPageSize, localItems, localTotal, localSummary], () => {
+watch(viewState, () => {
+ syncViewStateToController()
  if (!storageReady.value) return
  persistSessionState()
 }, { deep: true })
@@ -207,83 +248,24 @@ onMounted(() => {
 })
 
 function shouldRunInitialQuery() {
- return !restoredFromSession.value || localItems.value.length === 0
+ return !restoredFromSession.value || viewState.items.length === 0
 }
 
 function syncFromControllerState() {
  const state = props.controller?.state
  if (!state) return
- localQueryValues.value = state.queryValues ? { ...buildDefaultQueryValues(), ...state.queryValues } : buildDefaultQueryValues()
- localPage.value = state.page && state.page > 0 ? state.page : 1
- localPageSize.value = state.pageSize && state.pageSize > 0 ? state.pageSize : 20
- localItems.value = state.items ?? []
- localTotal.value = state.total ?? localItems.value.length
- localSummary.value = state.summary ?? []
- localBusy.value = state.busy ?? false
- localError.value = state.error ?? ''
-}
-
-function hydrateSessionState() {
- if (typeof window === 'undefined' || !stateStorageKey.value || typeof window.localStorage === 'undefined') return
- try {
-  const raw = window.localStorage.getItem(stateStorageKey.value)
-  if (!raw) return
-  const parsed = JSON.parse(raw) as {
-   queryValues?: Record<string, string>
-   page?: number
-   pageSize?: number
-   items?: Record<string, unknown>[]
-   total?: number
-   summary?: ReportViewSummaryMetric[]
-  }
-  localQueryValues.value = { ...buildDefaultQueryValues(), ...(parsed.queryValues ?? {}) }
-  localPage.value = typeof parsed.page === 'number' && parsed.page > 0 ? parsed.page : localPage.value
-  localPageSize.value = typeof parsed.pageSize === 'number' && parsed.pageSize > 0 ? parsed.pageSize : localPageSize.value
-  localItems.value = Array.isArray(parsed.items) ? [...parsed.items] : []
-  localTotal.value = typeof parsed.total === 'number' ? parsed.total : localItems.value.length
-  localSummary.value = Array.isArray(parsed.summary) ? [...parsed.summary] : []
-  setControllerState({
-   queryValues: { ...localQueryValues.value },
-   page: localPage.value,
-   pageSize: localPageSize.value,
-   items: [...localItems.value],
-   total: localTotal.value,
-   summary: [...localSummary.value],
-   busy: false,
-   error: '',
-  })
-  restoredFromSession.value = true
- } catch {
-  restoredFromSession.value = false
- }
-}
-
-function persistSessionState() {
- if (typeof window === 'undefined' || !stateStorageKey.value || typeof window.localStorage === 'undefined') return
- try {
-  window.localStorage.setItem(stateStorageKey.value, JSON.stringify({
-   queryValues: localQueryValues.value,
-   page: localPage.value,
-   pageSize: localPageSize.value,
-   items: localItems.value,
-   total: localTotal.value,
-   summary: localSummary.value,
-  }))
- } catch {
-  // ignore storage failures
- }
+ viewState.queryValues = state.queryValues ? { ...buildDefaultQueryValues(), ...state.queryValues } : buildDefaultQueryValues()
+ viewState.page = state.page && state.page > 0 ? state.page : 1
+ viewState.pageSize = state.pageSize && state.pageSize > 0 ? state.pageSize : 20
+ viewState.items = state.items ?? []
+ viewState.total = state.total ?? viewState.items.length
+ viewState.summary = state.summary ?? []
+ runtimeState.busy = state.busy ?? false
+ runtimeState.error = state.error ?? ''
 }
 
 function buildDefaultQueryValues() {
  return Object.fromEntries(props.queryFields.map((field) => [field.key, '']))
-}
-
-function setControllerState(patch: Partial<NonNullable<ReportViewController['state']>>) {
- if (!props.controller) return
- props.controller.state = {
-  ...(props.controller.state ?? {}),
-  ...patch,
- }
 }
 
 function stringValue(value: unknown) {
@@ -291,78 +273,64 @@ function stringValue(value: unknown) {
 }
 
 function updateQueryValue(key: string, value: string) {
- localQueryValues.value = {
-  ...localQueryValues.value,
+ viewState.queryValues = {
+  ...viewState.queryValues,
   [key]: value,
  }
- setControllerState({ queryValues: localQueryValues.value })
 }
 
 async function runQuery() {
  if (!props.controller?.handlers?.query) return
- localBusy.value = true
- localError.value = ''
- setControllerState({ busy: true, error: '' })
+ runtimeState.busy = true
+ runtimeState.error = ''
+ applyControllerStatePatch(props.controller, { busy: true, error: '' })
  try {
   const result = await props.controller.handlers.query({
-   queryValues: localQueryValues.value,
-   page: localPage.value,
-   pageSize: localPageSize.value,
+   queryValues: viewState.queryValues,
+   page: viewState.page,
+   pageSize: viewState.pageSize,
   })
-  localItems.value = result.items
-  localTotal.value = result.total ?? result.items.length
-  localSummary.value = result.summary ?? []
-  setControllerState({
-   queryValues: localQueryValues.value,
-   page: localPage.value,
-   pageSize: localPageSize.value,
-   items: localItems.value,
-   total: localTotal.value,
-   summary: localSummary.value,
-   busy: false,
-   error: '',
-  })
- } catch (error) {
+  viewState.items = result.items
+  viewState.total = result.total ?? result.items.length
+  viewState.summary = result.summary ?? []
+ syncViewStateToController()
+} catch (error) {
   const message = error instanceof Error ? error.message : '报表查询失败'
-  localError.value = message
-  setControllerState({ busy: false, error: message })
+  runtimeState.error = message
+  applyControllerStatePatch(props.controller, { busy: false, error: message })
  } finally {
-  localBusy.value = false
+  runtimeState.busy = false
  }
 }
 
 function handleSearch() {
- localPage.value = 1
- setControllerState({ page: 1, queryValues: localQueryValues.value })
+ viewState.page = 1
  runQuery()
 }
 
 function handleReset() {
- localQueryValues.value = buildDefaultQueryValues()
- localPage.value = 1
- setControllerState({ queryValues: localQueryValues.value, page: 1 })
+ viewState.queryValues = buildDefaultQueryValues()
+ viewState.page = 1
  runQuery()
 }
 
 function handlePageChange(value: number) {
- localPage.value = value
- setControllerState({ page: value })
+ viewState.page = value
  runQuery()
 }
 
 function handlePageSizeChange(value: number) {
- localPageSize.value = value
- localPage.value = 1
- setControllerState({ pageSize: value, page: 1 })
+ viewState.pageSize = value
+ viewState.page = 1
  runQuery()
 }
 
 async function handleExport() {
  if (!props.controller?.handlers?.export || resolvedBusy.value) return
  await props.controller.handlers.export({
-  queryValues: localQueryValues.value,
-  page: localPage.value,
-  pageSize: localPageSize.value,
+  queryValues: viewState.queryValues,
+  page: viewState.page,
+  pageSize: viewState.pageSize,
   items: resolvedItems.value,
   total: resolvedTotal.value,
   summary: resolvedSummary.value,
@@ -375,9 +343,9 @@ async function dispatchAction(action: ReportViewAction) {
  const payload: ReportViewActionHandlerPayload = {
   key: action.key,
   scope: 'page',
-  queryValues: localQueryValues.value,
-  page: localPage.value,
-  pageSize: localPageSize.value,
+  queryValues: viewState.queryValues,
+  page: viewState.page,
+  pageSize: viewState.pageSize,
   items: resolvedItems.value,
   total: resolvedTotal.value,
   summary: resolvedSummary.value,

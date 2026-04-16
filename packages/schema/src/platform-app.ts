@@ -1,15 +1,15 @@
 import type { EfsAppI18nSchema, EfsAppSchema } from './app/app-schema.js'
 import type { EfsServiceSchema } from './app/service-schema.js'
 import type { EfsEndpointSchema, EfsResourceSchema } from './resource/resource-schema.js'
-import { adaptAppSchemaToVueController, type SchemaAuthAdapter, type SchemaOperationAdapterMap, type SchemaResourceAdapters } from './adapter/vue-controller.js'
+import { createRuntimeFromSchema, type SchemaAuthAdapter, type SchemaOperationAdapterMap, type SchemaResourceAdapters } from './adapter/platform-runtime.js'
 
-export interface CreatePlatformAppFromSchemaOptions {
+export interface CreateAppFromSchemaOptions {
   fetcher?: typeof fetch
   serviceKey?: string
 }
 
-export interface PlatformEfsAppProps {
-  app: ReturnType<typeof createPlatformAppFromSchema>
+export interface EfsAppProps {
+  app: ReturnType<typeof createAppFromSchema>
   appName: string
   brandIcon?: string
   theme?: 'light' | 'dark'
@@ -23,7 +23,7 @@ type TransportOptions = {
   authScheme?: string
 }
 
-export function createPlatformAppFromSchema(schema: EfsAppSchema, options: CreatePlatformAppFromSchemaOptions = {}) {
+export function createAppFromSchema(schema: EfsAppSchema, options: CreateAppFromSchemaOptions = {}) {
   const fetcher = options.fetcher ?? globalThis.fetch
   if (!fetcher) {
     throw new Error('fetch is not available; provide options.fetcher when creating a platform app from schema')
@@ -56,19 +56,19 @@ export function createPlatformAppFromSchema(schema: EfsAppSchema, options: Creat
   )
   const resources = buildResourceAdapters(schema, baseUrl, transport, fetcher, () => currentAccessToken)
 
-  return adaptAppSchemaToVueController({
+  return createRuntimeFromSchema({
     schema,
     auth,
     resources,
   })
 }
 
-export function createPlatformEfsAppPropsFromSchema(
+export function createAppPropsFromSchema(
   schema: EfsAppSchema,
-  options: CreatePlatformAppFromSchemaOptions = {},
-): PlatformEfsAppProps {
+  options: CreateAppFromSchemaOptions = {},
+): EfsAppProps {
   return {
-    app: createPlatformAppFromSchema(schema, options),
+    app: createAppFromSchema(schema, options),
     appName: schema.app.title || schema.app.name,
     brandIcon: schema.app.brandIcon,
     theme: schema.app.theme,

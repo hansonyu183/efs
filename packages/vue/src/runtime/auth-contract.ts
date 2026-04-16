@@ -1,4 +1,4 @@
-import type { AuthOption } from './shared-types'
+import type { AuthOption } from './runtime-types'
 
 export interface AuthLoginInput {
   name: string
@@ -13,7 +13,7 @@ export interface AuthLoginResult {
   tokenType?: string
 }
 
-export interface LegacyAuthController {
+export interface AppAuthContract {
   kind: 'auth'
   login: (input: AuthLoginInput) => AuthLoginResult | Promise<AuthLoginResult>
   logout?: () => void | Promise<void>

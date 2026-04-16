@@ -7,7 +7,7 @@ import type {
   ResourceCrudQueryField,
   ResourceCrudQueryOption,
   ResourceCrudController,
-} from './resource-crud-types'
+} from './crud-view-types'
 import type {
   ReportViewAction,
   ReportViewController,

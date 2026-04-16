@@ -194,11 +194,11 @@ const layoutClasses = computed(() => ({
  text-align: left;
 }
 
-.efs-auth-layout--centered:not(.efs-auth-layout--legacy-left) .efs-auth-layout__header {
+.efs-auth-layout--centered:not(.efs-auth-layout--header-left) .efs-auth-layout__header {
  text-align: center;
 }
 
-.efs-auth-layout--legacy-left .efs-auth-layout__header {
+.efs-auth-layout--header-left .efs-auth-layout__header {
  text-align: left;
 }
 

@@ -72,9 +72,9 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue'
-import type { LegacyAppController, AuthOption, ResRuntime } from '../legacy/index'
-import { flattenAppMenuNodes, splitResPath } from '../legacy/path-helpers'
-import { resolveResRuntime } from '../legacy/runtime'
+import type { PlatformApp, AuthOption, ResRuntime } from '../runtime/index'
+import { flattenAppMenuNodes, splitResPath } from '../runtime/navigation-paths'
+import { resolveResRuntime } from '../runtime/resource-runtime'
 import type { EfsI18nConfig } from '../shared/efs-i18n'
 import { EFS_I18N_CONTEXT, mergeEfsI18nConfigs, resolveEfsI18nLabel } from '../shared/efs-i18n'
 import { normalizeEfsPath, useEfsNavigation } from '../shared/navigation-runtime'
@@ -100,7 +100,7 @@ import ResolvedResPage from './ResolvedResPage.vue'
 defineOptions({ name: 'EfsApp' })
 
 interface EfsAppProps {
- app: LegacyAppController
+ app: PlatformApp
  appName?: string
  brandIcon?: string
  theme?: 'light' | 'dark'
@@ -173,7 +173,7 @@ const resolvedLoginPasswordLabel = computed(() => resolveCopy('efs.auth.password
 const resolvedLoginPasswordPlaceholder = computed(() => resolveCopy('efs.auth.passwordPlaceholder', '请输入密码'))
 const resolvedLoginSubmitLabel = computed(() => resolveCopy('efs.auth.submitLabel', '登录'))
 const resolvedLoginSubmittingLabel = computed(() => resolveCopy('efs.auth.submittingLabel', '登录中…'))
-// legacy shape reference: const resolvedMainTitle = computed(() => runtime.value?.title || resolvedEmptyTitle.value)
+// runtime shape reference: const resolvedMainTitle = computed(() => runtime.value?.title || resolvedEmptyTitle.value)
 const resolvedMainTitle = computed(() => resolveNavigationTitle(currentPath.value, runtime.value?.title || resolvedEmptyTitle.value))
 const isLoginRoute = computed(() => nav.isLoginRoute.value)
 const isAuthenticated = computed(() => authRuntime.status.value === 'authenticated')

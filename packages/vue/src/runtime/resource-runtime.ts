@@ -3,7 +3,7 @@ import type {
   ReportViewController,
   ReportViewControllerHandlers,
 } from './report-view-types'
-import type { ResourceCrudController } from './resource-crud-types'
+import type { ResourceCrudController } from './crud-view-types'
 import {
   defaultDetailValueFormatter,
   inferDetailFields,
@@ -13,25 +13,25 @@ import {
   inferReportColumns,
   inferReportSummaryMetrics,
 } from './field-inference'
-import { findResByPath } from './path-helpers'
+import { findResByPath } from './navigation-paths'
 import type {
   ResCrudRuntime,
   ResCrudRuntimeOptions,
   ResReportRuntime,
   ResReportRuntimeOptions,
   ResRuntime,
-} from './shared-types'
-import type { LegacyAppController } from './app-controller'
+} from './runtime-types'
+import type { PlatformApp } from './app-contract'
 
 /**
- * Resolve a resource runtime from the legacy controller contract.
+ * Resolve a resource runtime from the platform runtime contract.
  *
  * Public app authoring should prefer schema-first input plus
- * `createPlatformAppFromSchema(...)` or internal bridges; this module remains the controller-side
+ * `createAppFromSchema(...)` or internal bridges; this module remains the controller-side
  * runtime compatibility layer consumed after that bridge step.
  */
 export function resolveResRuntime(
-  app: LegacyAppController,
+  app: PlatformApp,
   path: string,
   options: ResCrudRuntimeOptions & ResReportRuntimeOptions = {},
 ): ResRuntime | null {
@@ -41,7 +41,7 @@ export function resolveResRuntime(
   return buildResCrudRuntime(app, path, options)
 }
 
-export function buildResReportRuntime(app: LegacyAppController, path: string, options: ResReportRuntimeOptions = {}): ResReportRuntime | null {
+export function buildResReportRuntime(app: PlatformApp, path: string, options: ResReportRuntimeOptions = {}): ResReportRuntime | null {
   const res = findResByPath(app, path)
   if (!res) return null
 
@@ -85,7 +85,7 @@ export function buildResReportRuntime(app: LegacyAppController, path: string, op
   }
 }
 
-export function buildResCrudRuntime(app: LegacyAppController, path: string, options: ResCrudRuntimeOptions = {}): ResCrudRuntime | null {
+export function buildResCrudRuntime(app: PlatformApp, path: string, options: ResCrudRuntimeOptions = {}): ResCrudRuntime | null {
   const res = findResByPath(app, path)
   if (!res) return null
 

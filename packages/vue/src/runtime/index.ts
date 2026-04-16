@@ -1,11 +1,11 @@
 export type {
-  LegacyAppController,
-  LegacyAuthController,
+  PlatformApp,
+  AppAuthContract,
   AuthLoginInput,
   AuthLoginResult,
-  LegacyDomainController,
-  LegacyMainController,
-  LegacyResController,
+  PlatformDomain,
+  PlatformMain,
+  PlatformResource,
 } from './types'
 
 export type {
@@ -39,6 +39,6 @@ export type {
   ResSaveResult,
   ResSelectField,
   ResValueField,
-} from './shared-types'
+} from './runtime-types'
 
 export type { EfsI18nMessages } from '../shared/efs-i18n'

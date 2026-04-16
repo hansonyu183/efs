@@ -106,7 +106,7 @@ export interface ResourceCrudControllerHandlers {
  }) => Promise<ResourceCrudSaveResult>
  remove?: (item: Record<string, unknown>) => Promise<ResourceCrudRemoveResult>
  create?: () => void | Promise<void>
- edit?: (row: Record<string, unknown>) => void | Promise<void>
+ edit?: (row: Record<string, unknown>) => Record<string, unknown> | void | Promise<Record<string, unknown> | void>
  refresh?: () => void | Promise<void>
  actions?: Record<string, ResourceCrudCustomActionHandler>
 }

@@ -4,10 +4,10 @@ import type { EfsResourceSchema } from '../resource/resource-schema.js'
 import type { EfsResourceUiSchema } from '../resource/ui-schema.js'
 
 /**
- * Bridge schema-first app/resource input into the current Vue runtime's
- * legacy controller contract. This adapter is the compatibility seam between
- * the public authoring model (`app.schema.ts`) and the existing controller-
- * shaped runtime consumed by `@efs/vue`.
+ * Bridge schema-first app/resource input into the current Vue runtime
+ * contract. This adapter is the compatibility seam between the public
+ * authoring model (`app.schema.ts`) and the internal controller-shaped
+ * runtime consumed by the platform shell.
  */
 
 export interface SchemaAuthAdapter {
@@ -62,13 +62,13 @@ export interface SchemaResourceAdapters {
   [resourcePath: string]: SchemaOperationAdapterMap | undefined
 }
 
-export interface AdaptAppSchemaToVueControllerOptions {
+export interface CreateRuntimeFromSchemaOptions {
   schema: EfsAppSchema
   auth: SchemaAuthAdapter
   resources?: SchemaResourceAdapters
 }
 
-export function adaptAppSchemaToVueController(options: AdaptAppSchemaToVueControllerOptions) {
+export function createRuntimeFromSchema(options: CreateRuntimeFromSchemaOptions) {
   const { schema } = options
 
   return {
@@ -114,6 +114,7 @@ function adaptResourceToVueController(
     runtimeKind: inferred.mode === 'report' ? 'report' as const : 'crud' as const,
     fields: fieldDefs,
     query: adaptQueryHandler(resource, handlers, inferred.mode),
+    edit: inferred.mode === 'crud' ? adaptEditHandler(handlers) : undefined,
     save: inferred.mode === 'crud' ? adaptSaveHandler(handlers) : undefined,
     remove: inferred.mode === 'crud' ? adaptRemoveHandler(handlers) : undefined,
     export: inferred.mode === 'report' ? adaptReportExportHandler(handlers) : undefined,
@@ -139,6 +140,25 @@ function adaptQueryHandler(resource: EfsResourceSchema, handlers: SchemaOperatio
   }
 }
 
+function adaptEditHandler(handlers?: SchemaOperationAdapterMap) {
+  const detailHandler = handlers?.detail ?? handlers?.get
+  if (!detailHandler) return undefined
+  return async (row: Record<string, unknown>) => {
+    const result = await detailHandler({
+      item: row,
+      id: typeof row?.id === 'string' || typeof row?.id === 'number' ? String(row.id) : undefined,
+      code: typeof row?.code === 'string' ? row.code : undefined,
+    })
+    if (result && typeof result === 'object' && 'item' in result && result.item && typeof result.item === 'object') {
+      return { ...row, ...(result.item as Record<string, unknown>) }
+    }
+    if (result && typeof result === 'object') {
+      return { ...row, ...(result as Record<string, unknown>) }
+    }
+    return row
+  }
+}
+
 function adaptSaveHandler(handlers?: SchemaOperationAdapterMap) {
   if (!handlers?.create && !handlers?.update) return undefined
   return async ({ mode, item, queryValues, page, pageSize }: { mode: 'create' | 'edit'; item: Record<string, unknown>; queryValues: Record<string, string>; page: number; pageSize: number }) => {
@@ -149,8 +169,9 @@ function adaptSaveHandler(handlers?: SchemaOperationAdapterMap) {
 }
 
 function adaptRemoveHandler(handlers?: SchemaOperationAdapterMap) {
-  if (!handlers?.remove) return undefined
-  return async (item: Record<string, unknown>) => await handlers.remove?.({ item })
+  const removeHandler = handlers?.remove ?? handlers?.delete
+  if (!removeHandler) return undefined
+  return async (item: Record<string, unknown>) => await removeHandler({ item })
 }
 
 function adaptReportExportHandler(handlers?: SchemaOperationAdapterMap) {
@@ -183,7 +204,7 @@ function buildCrudActions(inferred: ReturnType<typeof inferResourceRuntime>, han
       row.push({ key: 'update' })
       continue
     }
-    if (action.api === 'remove') {
+    if (action.api === 'remove' || action.api === 'delete') {
       row.push({ key: 'remove' })
       continue
     }

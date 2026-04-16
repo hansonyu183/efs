@@ -81,11 +81,11 @@
        <slot name="toolbar" />
       </div>
 
-      <button v-if="isMobile" type="button" :title="resolvedAgentToggleLabel" :aria-label="resolvedAgentToggleLabel" @click="toggleMobileAgentBar">
+      <button v-if="isMobile" type="button" :title="resolvedAgentShowLabel" :aria-label="resolvedAgentShowLabel" @click="toggleMobileAgentBar">
        <span class="efs-main-layout__menuicon" aria-hidden="true">
-        <SemanticIcon :name="showAgentBar ? 'close' : 'chat'" :label="resolvedAgentToggleLabel" size="sm" />
+        <SemanticIcon name="chat" :label="resolvedAgentShowLabel" size="sm" />
        </span>
-       <span class="efs-main-layout__menulabel">{{ resolvedAgentToggleLabel }}</span>
+       <span class="efs-main-layout__menulabel">{{ resolvedAgentShowLabel }}</span>
       </button>
 
       <button v-if="resolvedProfileDialog.enabled" type="button" :title="resolvedProfileDialog.label" :aria-label="resolvedProfileDialog.label" @click="openProfileDialog">
@@ -313,9 +313,7 @@ const resolvedAgentSubmitLabel = computed(() => resolveCopy('efs.shell.agentSubm
 const resolvedAgentSessionsLabel = computed(() => resolveCopy('efs.shell.agentSessionsLabel', '会话管理'))
 const resolvedAgentSessionsEmptyText = computed(() => resolveCopy('efs.shell.agentSessionsEmptyText', '暂无会话'))
 const resolvedCloseLabel = computed(() => resolveCopy('efs.shell.closeLabel', '关闭'))
-const resolvedAgentShowLabel = computed(() => resolveCopy('efs.shell.showAgentLabel', '显示对话框'))
-const resolvedAgentHideLabel = computed(() => resolveCopy('efs.shell.hideAgentLabel', '隐藏对话框'))
-const resolvedAgentToggleLabel = computed(() => showAgentBar.value ? resolvedAgentHideLabel.value : resolvedAgentShowLabel.value)
+const resolvedAgentShowLabel = computed(() => resolveCopy('efs.shell.showAgentLabel', 'Agent'))
 const resolvedProfileDialog = computed(() => ({
  enabled: true,
  label: resolveCopy('efs.shell.profileDialog.label', '个人资料'),

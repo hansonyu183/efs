@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
-import { createPlatformEfsAppPropsFromSchema } from '@efs/schema'
-import { EfsApp } from '@efs/vue'
+import { createAppPropsFromSchema } from '@efs/schema'
+import { EfsApp } from '../../../packages/vue/src/index.ts'
 import { appSchema } from '../schemas/app.schema'
 
-createApp(EfsApp, createPlatformEfsAppPropsFromSchema(appSchema)).mount('#app')
+createApp(EfsApp, createAppPropsFromSchema(appSchema)).mount('#app')

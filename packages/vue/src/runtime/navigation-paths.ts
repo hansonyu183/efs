@@ -1,8 +1,8 @@
 import type { FlatMenuNode } from '../shared/navigation-menu'
-import type { DomainResPath } from './shared-types'
-import type { LegacyAppController } from './app-controller'
-import type { LegacyDomainController } from './domain-controller'
-import type { LegacyResController } from './res-controller'
+import type { DomainResPath } from './runtime-types'
+import type { PlatformApp } from './app-contract'
+import type { PlatformDomain } from './domain-contract'
+import type { PlatformResource } from './resource-contract'
 
 export function buildResPath<D extends string, R extends string>(domain: D, res: R): DomainResPath<D, R> {
   return `${domain}/${res}` as DomainResPath<D, R>
@@ -18,7 +18,7 @@ export function splitResPath(path: string): { domain: string, res: string } | nu
   return { domain, res }
 }
 
-export function isResController(value: unknown): value is LegacyResController {
+export function isResController(value: unknown): value is PlatformResource {
   return Boolean(
     value
       && typeof value === 'object'
@@ -28,21 +28,21 @@ export function isResController(value: unknown): value is LegacyResController {
   )
 }
 
-export function listAllResControllers(app: LegacyAppController): LegacyResController[] {
+export function listAllResControllers(app: PlatformApp): PlatformResource[] {
   return app.main.domains.flatMap((domain) => [...domain.items])
 }
 
-export function findDomainByKey<D extends string = string>(app: LegacyAppController, domainKey: D): LegacyDomainController<D> | undefined {
-  return app.main.domains.find((domain) => domain.domain === domainKey) as LegacyDomainController<D> | undefined
+export function findDomainByKey<D extends string = string>(app: PlatformApp, domainKey: D): PlatformDomain<D> | undefined {
+  return app.main.domains.find((domain) => domain.domain === domainKey) as PlatformDomain<D> | undefined
 }
 
-export function findResByPath(app: LegacyAppController, path: string): LegacyResController | undefined {
+export function findResByPath(app: PlatformApp, path: string): PlatformResource | undefined {
   const parsed = splitResPath(path)
   if (!parsed) return undefined
   return listAllResControllers(app).find((item) => item.domain === parsed.domain && item.res === parsed.res)
 }
 
-export function flattenAppMenuNodes(app: LegacyAppController): FlatMenuNode[] {
+export function flattenAppMenuNodes(app: PlatformApp): FlatMenuNode[] {
   const domainNodes: FlatMenuNode[] = app.main.domains.map((domain, index) => ({
     key: domain.domain,
     title: domain.title || domain.domain,

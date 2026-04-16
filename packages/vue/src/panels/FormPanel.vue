@@ -156,11 +156,11 @@ const normalizedSections = computed(() => props.sections.map((section) => ({
 
 <style scoped>
 .efs-formshell {
- padding: 20px;
- border-radius: 20px;
- border: 1px solid var(--efs-border, #dbe3ef);
- background: var(--efs-surface, #fff);
- box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+ padding: 0;
+ border-radius: 0;
+ border: 0;
+ background: transparent;
+ box-shadow: none;
  display: grid;
  gap: 16px;
 }

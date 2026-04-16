@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 import { computed, inject } from 'vue'
-import type { ResRuntime } from '../legacy/index'
+import type { ResRuntime } from '../runtime/index'
 import PagePanel from '../panels/PagePanel.vue'
 import EntityListView from '../views/EntityListView.vue'
 import ReportView from '../views/ReportView.vue'
@@ -57,10 +57,10 @@ const props = withDefaults(defineProps<ResolvedResPageProps>(), {
 const i18nContext = inject(EFS_I18N_CONTEXT, null)
 const crudRuntime = computed(() => props.runtime?.kind === 'crud' ? props.runtime : null)
 const reportRuntime = computed(() => props.runtime?.kind === 'report' ? props.runtime : null)
-const resolvedCrudSubtitle = computed(() => resolveCopy('efs.runtime.crudSubtitle', '基于 const app = useApp() 的最小运行时资源页'))
-const resolvedReportSubtitle = computed(() => resolveCopy('efs.runtime.reportSubtitle', '基于 const app = useApp() 的最小运行时报表页'))
+const resolvedCrudSubtitle = computed(() => resolveCopy('efs.runtime.crudSubtitle', '基于平台 runtime contract 的最小运行时资源页'))
+const resolvedReportSubtitle = computed(() => resolveCopy('efs.runtime.reportSubtitle', '基于平台 runtime contract 的最小运行时报表页'))
 const resolvedEmptyTitle = computed(() => resolveCopy('efs.runtime.emptyTitle', '资源不存在'))
-const resolvedEmptySubtitle = computed(() => resolveCopy('efs.runtime.emptySubtitle', '当前 path 未在 app.main.domains 中注册对应 res controller。'))
+const resolvedEmptySubtitle = computed(() => resolveCopy('efs.runtime.emptySubtitle', '当前 path 未在 app.main.domains 中注册对应资源 runtime。'))
 
 function resolveCopy(key: string, fallback: string) {
  return i18nContext?.translate(key) || fallback

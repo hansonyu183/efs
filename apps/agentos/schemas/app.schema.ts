@@ -13,9 +13,9 @@ export const appSchema = defineAppSchema({
   },
   auth: {
     mode: 'token',
-    login: { path: '/session/login', method: 'POST' },
-    logout: { path: '/session/logout', method: 'POST' },
-    orgs: { path: '/session/orgs', method: 'GET' },
+    login: { path: '/user/login', method: 'POST' },
+    logout: { path: '/user/logout', method: 'POST' },
+    orgs: { path: '/user/orgs', method: 'GET' },
     token: {
       accessTokenField: 'token',
       tokenTypeField: 'tokenType',
@@ -68,8 +68,8 @@ export const appSchema = defineAppSchema({
             logoutLabel: '退出登录',
             moreLabel: '更多',
             closeLabel: '关闭',
-            showAgentLabel: '显示对话框',
-            hideAgentLabel: '隐藏对话框',
+            showAgentLabel: 'Agent',
+            hideAgentLabel: '收起 Agent',
             agentTitle: 'Agent',
             agentSessionsLabel: '会话管理',
             agentPlaceholder: '请输入你的问题或操作指令',
@@ -77,6 +77,7 @@ export const appSchema = defineAppSchema({
           },
           domains: {
             admin: { title: '平台管理' },
+            masterdata: { title: '基础资料' },
             crm: { title: '客户中心' },
             workflow: { title: '流程中心' },
           },
@@ -87,6 +88,17 @@ export const appSchema = defineAppSchema({
               organization: { title: '组织' },
               membership: { title: '成员关系' },
               permission: { title: '权限目录' },
+            },
+            masterdata: {
+              customer: { title: '客户主数据' },
+              supplier: { title: '供应商主数据' },
+              department: { title: '部门主数据' },
+              position: { title: '岗位主数据' },
+              employee: { title: '员工主数据' },
+              product: { title: '产品主数据' },
+              service: { title: '服务主数据' },
+              category: { title: '分类主数据' },
+              change: { title: '主数据变更单' },
             },
             crm: {
               customer: { title: '客户' },
@@ -184,8 +196,8 @@ export const appSchema = defineAppSchema({
             moreLabel: 'More',
             closeLabel: 'Close',
             mobileMenuLabel: 'Toggle navigation',
-            showAgentLabel: 'Show chat',
-            hideAgentLabel: 'Hide chat',
+            showAgentLabel: 'Agent',
+            hideAgentLabel: 'Hide Agent',
             agentTitle: 'Agent',
             agentSessionsLabel: 'Sessions',
             agentSessionsEmptyText: 'No sessions yet',
@@ -194,6 +206,7 @@ export const appSchema = defineAppSchema({
           },
           domains: {
             admin: { title: 'Admin' },
+            masterdata: { title: 'Master Data' },
             crm: { title: 'CRM' },
             workflow: { title: 'Workflow' },
           },
@@ -204,6 +217,17 @@ export const appSchema = defineAppSchema({
               organization: { title: 'Organizations' },
               membership: { title: 'Memberships' },
               permission: { title: 'Permissions' },
+            },
+            masterdata: {
+              customer: { title: 'Customers' },
+              supplier: { title: 'Suppliers' },
+              department: { title: 'Departments' },
+              position: { title: 'Positions' },
+              employee: { title: 'Employees' },
+              product: { title: 'Products' },
+              service: { title: 'Services' },
+              category: { title: 'Categories' },
+              change: { title: 'Changes' },
             },
             crm: {
               customer: { title: 'Customers' },
@@ -406,6 +430,175 @@ export const appSchema = defineAppSchema({
       ],
     },
     {
+      key: 'masterdata',
+      title: '基础资料',
+      resources: [
+        {
+          key: 'customer',
+          title: '客户主数据',
+          fields: [
+            { key: 'id', title: 'ID', type: 'number', identity: 'id', readonly: true },
+            { key: 'code', title: '编码', type: 'string', identity: 'code', required: true },
+            { key: 'name', title: '名称', type: 'string', identity: 'title', required: true },
+            { key: 'status', title: '状态', type: 'string' },
+          ],
+          operations: {
+            create: { path: '/masterdata/customer/create', method: 'POST' },
+            query: { path: '/masterdata/customer/query', method: 'POST' },
+            detail: { path: '/masterdata/customer/detail', method: 'POST' },
+            update: { path: '/masterdata/customer/update', method: 'POST' },
+            delete: { path: '/masterdata/customer/delete', method: 'POST' },
+            submit: { path: '/masterdata/customer/submit', method: 'POST' },
+          },
+        },
+        {
+          key: 'supplier',
+          title: '供应商主数据',
+          fields: [
+            { key: 'id', title: 'ID', type: 'number', identity: 'id', readonly: true },
+            { key: 'code', title: '编码', type: 'string', identity: 'code', required: true },
+            { key: 'name', title: '名称', type: 'string', identity: 'title', required: true },
+            { key: 'status', title: '状态', type: 'string' },
+          ],
+          operations: {
+            create: { path: '/masterdata/supplier/create', method: 'POST' },
+            query: { path: '/masterdata/supplier/query', method: 'POST' },
+            detail: { path: '/masterdata/supplier/detail', method: 'POST' },
+            update: { path: '/masterdata/supplier/update', method: 'POST' },
+            delete: { path: '/masterdata/supplier/delete', method: 'POST' },
+            submit: { path: '/masterdata/supplier/submit', method: 'POST' },
+          },
+        },
+        {
+          key: 'department',
+          title: '部门主数据',
+          fields: [
+            { key: 'id', title: 'ID', type: 'number', identity: 'id', readonly: true },
+            { key: 'code', title: '编码', type: 'string', identity: 'code', required: true },
+            { key: 'name', title: '名称', type: 'string', identity: 'title', required: true },
+            { key: 'status', title: '状态', type: 'string' },
+          ],
+          operations: {
+            create: { path: '/masterdata/department/create', method: 'POST' },
+            query: { path: '/masterdata/department/query', method: 'POST' },
+            detail: { path: '/masterdata/department/detail', method: 'POST' },
+            update: { path: '/masterdata/department/update', method: 'POST' },
+            delete: { path: '/masterdata/department/delete', method: 'POST' },
+            submit: { path: '/masterdata/department/submit', method: 'POST' },
+          },
+        },
+        {
+          key: 'position',
+          title: '岗位主数据',
+          fields: [
+            { key: 'id', title: 'ID', type: 'number', identity: 'id', readonly: true },
+            { key: 'code', title: '编码', type: 'string', identity: 'code', required: true },
+            { key: 'name', title: '名称', type: 'string', identity: 'title', required: true },
+            { key: 'status', title: '状态', type: 'string' },
+          ],
+          operations: {
+            create: { path: '/masterdata/position/create', method: 'POST' },
+            query: { path: '/masterdata/position/query', method: 'POST' },
+            detail: { path: '/masterdata/position/detail', method: 'POST' },
+            update: { path: '/masterdata/position/update', method: 'POST' },
+            delete: { path: '/masterdata/position/delete', method: 'POST' },
+            submit: { path: '/masterdata/position/submit', method: 'POST' },
+          },
+        },
+        {
+          key: 'employee',
+          title: '员工主数据',
+          fields: [
+            { key: 'id', title: 'ID', type: 'number', identity: 'id', readonly: true },
+            { key: 'code', title: '编码', type: 'string', identity: 'code', required: true },
+            { key: 'name', title: '名称', type: 'string', identity: 'title', required: true },
+            { key: 'status', title: '状态', type: 'string' },
+          ],
+          operations: {
+            create: { path: '/masterdata/employee/create', method: 'POST' },
+            query: { path: '/masterdata/employee/query', method: 'POST' },
+            detail: { path: '/masterdata/employee/detail', method: 'POST' },
+            update: { path: '/masterdata/employee/update', method: 'POST' },
+            delete: { path: '/masterdata/employee/delete', method: 'POST' },
+            submit: { path: '/masterdata/employee/submit', method: 'POST' },
+          },
+        },
+        {
+          key: 'product',
+          title: '产品主数据',
+          fields: [
+            { key: 'id', title: 'ID', type: 'number', identity: 'id', readonly: true },
+            { key: 'code', title: '编码', type: 'string', identity: 'code', required: true },
+            { key: 'name', title: '名称', type: 'string', identity: 'title', required: true },
+            { key: 'status', title: '状态', type: 'string' },
+          ],
+          operations: {
+            create: { path: '/masterdata/product/create', method: 'POST' },
+            query: { path: '/masterdata/product/query', method: 'POST' },
+            detail: { path: '/masterdata/product/detail', method: 'POST' },
+            update: { path: '/masterdata/product/update', method: 'POST' },
+            delete: { path: '/masterdata/product/delete', method: 'POST' },
+            submit: { path: '/masterdata/product/submit', method: 'POST' },
+          },
+        },
+        {
+          key: 'service',
+          title: '服务主数据',
+          fields: [
+            { key: 'id', title: 'ID', type: 'number', identity: 'id', readonly: true },
+            { key: 'code', title: '编码', type: 'string', identity: 'code', required: true },
+            { key: 'name', title: '名称', type: 'string', identity: 'title', required: true },
+            { key: 'status', title: '状态', type: 'string' },
+          ],
+          operations: {
+            create: { path: '/masterdata/service/create', method: 'POST' },
+            query: { path: '/masterdata/service/query', method: 'POST' },
+            detail: { path: '/masterdata/service/detail', method: 'POST' },
+            update: { path: '/masterdata/service/update', method: 'POST' },
+            delete: { path: '/masterdata/service/delete', method: 'POST' },
+            submit: { path: '/masterdata/service/submit', method: 'POST' },
+          },
+        },
+        {
+          key: 'category',
+          title: '分类主数据',
+          fields: [
+            { key: 'id', title: 'ID', type: 'number', identity: 'id', readonly: true },
+            { key: 'setCode', title: '分类集编码', type: 'string', identity: 'code', required: true },
+            { key: 'setName', title: '分类集名称', type: 'string' },
+            { key: 'name', title: '分类名称', type: 'string', identity: 'title', required: true },
+            { key: 'status', title: '状态', type: 'string' },
+          ],
+          operations: {
+            create: { path: '/masterdata/category/create', method: 'POST' },
+            query: { path: '/masterdata/category/query', method: 'POST' },
+            detail: { path: '/masterdata/category/detail', method: 'POST' },
+            update: { path: '/masterdata/category/update', method: 'POST' },
+            delete: { path: '/masterdata/category/delete', method: 'POST' },
+            submit: { path: '/masterdata/category/submit', method: 'POST' },
+            bind: { path: '/masterdata/category/bind', method: 'POST' },
+          },
+        },
+        {
+          key: 'change',
+          title: '主数据变更单',
+          fields: [
+            { key: 'id', title: 'ID', type: 'number', identity: 'id', readonly: true },
+            { key: 'resource', title: '资源', type: 'string' },
+            { key: 'changeType', title: '变更类型', type: 'string' },
+            { key: 'status', title: '状态', type: 'string' },
+            { key: 'title', title: '标题', type: 'string', identity: 'title' },
+          ],
+          operations: {
+            query: { path: '/masterdata/change/query', method: 'POST' },
+            detail: { path: '/masterdata/change/detail', method: 'POST' },
+            approve: { path: '/masterdata/change/approve', method: 'POST' },
+            reject: { path: '/masterdata/change/reject', method: 'POST' },
+          },
+        },
+      ],
+    },
+    {
       key: 'crm',
       title: '客户中心',
       resources: [
@@ -511,6 +704,82 @@ export const appSchema = defineAppSchema({
             view: { mode: 'crud' },
             actions: {
               refresh: { runtime: 'refresh' },
+            },
+          },
+        },
+      },
+      masterdata: {
+        resources: {
+          customer: {
+            view: { mode: 'crud' },
+            actions: {
+              submit: { api: 'submit', placement: 'page', label: '提交变更' },
+              delete: { api: 'delete', placement: 'row', label: '删除' },
+              refresh: { runtime: 'refresh' },
+            },
+          },
+          supplier: {
+            view: { mode: 'crud' },
+            actions: {
+              submit: { api: 'submit', placement: 'page', label: '提交变更' },
+              delete: { api: 'delete', placement: 'row', label: '删除' },
+              refresh: { runtime: 'refresh' },
+            },
+          },
+          department: {
+            view: { mode: 'crud' },
+            actions: {
+              submit: { api: 'submit', placement: 'page', label: '提交变更' },
+              delete: { api: 'delete', placement: 'row', label: '删除' },
+              refresh: { runtime: 'refresh' },
+            },
+          },
+          position: {
+            view: { mode: 'crud' },
+            actions: {
+              submit: { api: 'submit', placement: 'page', label: '提交变更' },
+              delete: { api: 'delete', placement: 'row', label: '删除' },
+              refresh: { runtime: 'refresh' },
+            },
+          },
+          employee: {
+            view: { mode: 'crud' },
+            actions: {
+              submit: { api: 'submit', placement: 'page', label: '提交变更' },
+              delete: { api: 'delete', placement: 'row', label: '删除' },
+              refresh: { runtime: 'refresh' },
+            },
+          },
+          product: {
+            view: { mode: 'crud' },
+            actions: {
+              submit: { api: 'submit', placement: 'page', label: '提交变更' },
+              delete: { api: 'delete', placement: 'row', label: '删除' },
+              refresh: { runtime: 'refresh' },
+            },
+          },
+          service: {
+            view: { mode: 'crud' },
+            actions: {
+              submit: { api: 'submit', placement: 'page', label: '提交变更' },
+              delete: { api: 'delete', placement: 'row', label: '删除' },
+              refresh: { runtime: 'refresh' },
+            },
+          },
+          category: {
+            view: { mode: 'crud' },
+            actions: {
+              submit: { api: 'submit', placement: 'page', label: '提交变更' },
+              bind: { api: 'bind', placement: 'page', label: '绑定分类' },
+              delete: { api: 'delete', placement: 'row', label: '删除' },
+              refresh: { runtime: 'refresh' },
+            },
+          },
+          change: {
+            view: { mode: 'report' },
+            actions: {
+              approve: { api: 'approve', placement: 'page', label: '审批通过' },
+              reject: { api: 'reject', placement: 'page', label: '驳回变更' },
             },
           },
         },

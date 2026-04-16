@@ -1,4 +1,4 @@
-import type { Ref, ReportViewAction, ReportViewSummaryMetric } from './shared-types'
+import type { Ref, ReportViewAction, ReportViewSummaryMetric } from './runtime-types'
 import type {
   MenuOrder,
   ResAction,
@@ -12,9 +12,9 @@ import type {
   ResSaveParams,
   ResSaveResult,
   ResQueryValues,
-} from './shared-types'
+} from './runtime-types'
 
-export interface LegacyResController<D extends string = string, R extends string = string> {
+export interface PlatformResource<D extends string = string, R extends string = string> {
   kind: 'res'
   domain: D
   res: R
