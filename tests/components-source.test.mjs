@@ -160,6 +160,7 @@ test('ResolvedResPage exposes shared runtime-kind shell contract', () => {
  assert.match(source, /v-else-if="reportRuntime"/)
  assert.match(source, /:detail-fields="crudRuntime\.detailFields\.value"/)
  assert.match(source, /<EntityListView/)
+ assert.match(source, /:key="props\.path"/)
  assert.match(source, /<ReportView/)
  assert.match(source, /v-if="props\.path"/)
  assert.match(source, /当前路径：\{\{ props\.path \}\}/)

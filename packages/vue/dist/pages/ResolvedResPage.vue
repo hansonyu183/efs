@@ -2,6 +2,7 @@
  <section class="efs-resolvedrespage">
   <PagePanel v-if="crudRuntime">
    <EntityListView
+    :key="props.path"
     :row-key="crudRuntime.rowKey"
     :title="crudRuntime.title"
     :query-fields="crudRuntime.queryFields"
@@ -17,6 +18,7 @@
 
   <PagePanel v-else-if="reportRuntime">
    <ReportView
+    :key="props.path"
     :title="reportRuntime.title"
     :query-fields="reportRuntime.queryFields"
     :columns="reportRuntime.columns"
