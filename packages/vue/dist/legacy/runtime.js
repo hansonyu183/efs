@@ -108,7 +108,7 @@ export function buildResCrudRuntime(app, path, options = {}) {
     return {
         kind: 'crud',
         title: res.title || res.res,
-        rowKey: options.rowKey ?? 'id',
+        rowKey: options.rowKey ?? inferRowKey(res),
         pageSizeOptions: options.pageSizeOptions ?? [10, 20, 50],
         selectableRows: options.selectableRows ?? true,
         queryFields: inferQueryFields(res),
@@ -117,4 +117,16 @@ export function buildResCrudRuntime(app, path, options = {}) {
         controller,
         detailFields,
     };
+}
+function inferRowKey(res) {
+    const primaryField = res.fields?.find((field) => field.identity === 'primary');
+    if (primaryField?.key)
+        return primaryField.key;
+    const codeField = res.fields?.find((field) => field.identity === 'code');
+    if (codeField?.key)
+        return codeField.key;
+    const titleField = res.fields?.find((field) => field.identity === 'title');
+    if (titleField?.key)
+        return titleField.key;
+    return 'id';
 }

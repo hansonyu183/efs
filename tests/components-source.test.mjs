@@ -241,6 +241,25 @@ test('AppAlerts and global alerts host expose reusable global alert contracts', 
  assert.match(storeSource, /danger\(/)
 })
 
+test('EntityListView and ReportView auto query on mount when current state has no rows', () => {
+ const entitySource = read(path.join(repoRoot, 'packages/vue/src/views/EntityListView.vue'))
+ const reportSource = read(path.join(repoRoot, 'packages/vue/src/views/ReportView.vue'))
+ assert.match(entitySource, /function shouldRunInitialQuery\(\) \{\s*return !restoredFromSession\.value \|\| localItems\.value\.length === 0\s*\}/)
+ assert.match(entitySource, /if \(shouldRunInitialQuery\(\)\) \{\s*await runQuery\(\)/)
+ assert.match(reportSource, /function shouldRunInitialQuery\(\) \{\s*return !restoredFromSession\.value \|\| localItems\.value\.length === 0\s*\}/)
+ assert.match(reportSource, /if \(props\.controller\?\.handlers\?\.query && shouldRunInitialQuery\(\)\) runQuery\(\)/)
+})
+
+test('legacy runtime infers CRUD rowKey from resource identity instead of always using id', () => {
+ const runtimeSource = read(path.join(repoRoot, 'packages/vue/src/legacy/runtime.ts'))
+ assert.match(runtimeSource, /rowKey: options\.rowKey \?\? inferRowKey\(res\)/)
+ assert.match(runtimeSource, /function inferRowKey\(res: NonNullable<ReturnType<typeof findResByPath>>\)/)
+ assert.match(runtimeSource, /field\.identity === 'primary'/)
+ assert.match(runtimeSource, /field\.identity === 'code'/)
+ assert.match(runtimeSource, /field\.identity === 'title'/)
+ assert.doesNotMatch(runtimeSource, /rowKey: options\.rowKey \?\? 'id'/)
+})
+
 test('LegacyAppController types expose app/main/domain/res contract and typed domain-res path helpers', () => {
  const barrelSource = read(path.join(repoRoot, 'packages/vue/src/legacy/index.ts'))
  const typesBarrelSource = read(path.join(repoRoot, 'packages/vue/src/legacy/types.ts'))

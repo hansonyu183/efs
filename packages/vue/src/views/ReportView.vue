@@ -203,8 +203,12 @@ watch([localQueryValues, localPage, localPageSize, localItems, localTotal, local
 onMounted(() => {
  hydrateSessionState()
  storageReady.value = true
- if (props.controller?.handlers?.query && !restoredFromSession.value) runQuery()
+ if (props.controller?.handlers?.query && shouldRunInitialQuery()) runQuery()
 })
+
+function shouldRunInitialQuery() {
+ return !restoredFromSession.value || localItems.value.length === 0
+}
 
 function syncFromControllerState() {
  const state = props.controller?.state

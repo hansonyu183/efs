@@ -542,7 +542,7 @@ onMounted(async () => {
  storageReady.value = true
  if (typeof window !== 'undefined') window.addEventListener('resize', syncViewport)
  if (props.controller?.handlers?.query) {
-  if (!restoredFromSession.value) {
+  if (shouldRunInitialQuery()) {
    await runQuery()
    return
   }
@@ -551,6 +551,10 @@ onMounted(async () => {
  }
  ensureActiveItem()
 })
+
+function shouldRunInitialQuery() {
+ return !restoredFromSession.value || localItems.value.length === 0
+}
 
 onBeforeUnmount(() => {
  if (typeof window !== 'undefined') window.removeEventListener('resize', syncViewport)
