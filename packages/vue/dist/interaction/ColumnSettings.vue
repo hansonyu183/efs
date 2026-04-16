@@ -3,15 +3,27 @@
   <summary class="efs-columnsettings__trigger">{{ resolvedLabel }}</summary>
   <div class="efs-columnsettings__panel">
    <div class="efs-columnsettings__list">
-    <label v-for="column in normalizedColumns" :key="column.key" class="efs-columnsettings__item">
-     <input
-      type="checkbox"
-      :checked="isVisible(column.key)"
-      :disabled="column.hideable === false"
-      @change="onToggle(column.key, ($event.target as HTMLInputElement).checked)"
-     />
-     <span>{{ column.title }}</span>
-    </label>
+    <details
+     v-for="group in groupedColumns"
+     :key="group.key"
+     class="efs-columnsettings__group"
+     :open="group.defaultOpen"
+    >
+     <summary class="efs-columnsettings__group-summary">
+      <strong class="efs-columnsettings__group-title">{{ group.title }}</strong>
+     </summary>
+     <div class="efs-columnsettings__group-items">
+      <label v-for="column in group.columns" :key="column.key" class="efs-columnsettings__item">
+       <input
+        type="checkbox"
+        :checked="isVisible(column.key)"
+        :disabled="column.hideable === false"
+        @change="onToggle(column.key, ($event.target as HTMLInputElement).checked)"
+       />
+       <span>{{ column.title }}</span>
+      </label>
+     </div>
+    </details>
    </div>
    <div class="efs-columnsettings__actions">
     <button type="button" @click="emit('show-all')">{{ resolvedShowAllLabel }}</button>
@@ -32,6 +44,7 @@ type InputColumn = string | {
  title?: string
  label?: string
  hideable?: boolean
+ group?: 'business' | 'system'
 }
 
 const props = withDefaults(defineProps<{
@@ -56,14 +69,24 @@ const resolvedShowAllLabel = computed(() => resolveOptionalLabel({ key: 'showAll
 
 const normalizedColumns = computed(() => props.columns.map((column) => {
  if (typeof column === 'string') {
-  return { key: column, title: column, hideable: true }
+  return { key: column, title: column, hideable: true, group: 'business' as const }
  }
  return {
   key: column.key,
   title: column.title ?? column.label ?? column.key,
   hideable: column.hideable !== false,
+  group: column.group === 'system' ? 'system' as const : 'business' as const,
  }
 }))
+
+const groupedColumns = computed(() => {
+ const business = normalizedColumns.value.filter((column) => column.group !== 'system')
+ const system = normalizedColumns.value.filter((column) => column.group === 'system')
+ return [
+  { key: 'business', title: '业务字段', columns: business, defaultOpen: true },
+  { key: 'system', title: '系统字段', columns: system, defaultOpen: false },
+ ].filter((group) => group.columns.length > 0)
+})
 
 function isVisible(key: string) {
  return props.visibleKeys.includes(key)
@@ -103,7 +126,7 @@ function onToggle(key: string, checked: boolean) {
  position: absolute;
  top: calc(100% + 8px);
  right: 0;
- width: 240px;
+ width: 280px;
  padding: 10px;
  border-radius: 14px;
  border: 1px solid var(--efs-border, #dbe3ef);
@@ -116,7 +139,37 @@ function onToggle(key: string, checked: boolean) {
 
 .efs-columnsettings__list {
  display: grid;
+ gap: 12px;
+}
+
+.efs-columnsettings__group {
+ display: grid;
  gap: 8px;
+}
+
+.efs-columnsettings__group-summary {
+ list-style: none;
+ cursor: pointer;
+}
+
+.efs-columnsettings__group-summary::-webkit-details-marker {
+ display: none;
+}
+
+.efs-columnsettings__group-items {
+ display: grid;
+ gap: 8px;
+}
+
+.efs-columnsettings__group + .efs-columnsettings__group {
+ padding-top: 10px;
+ border-top: 1px solid var(--efs-border, #dbe3ef);
+}
+
+.efs-columnsettings__group-title {
+ color: var(--efs-text-muted, #64748b);
+ font-size: 0.82rem;
+ font-weight: 700;
 }
 
 .efs-columnsettings__item {
@@ -124,6 +177,14 @@ function onToggle(key: string, checked: boolean) {
  align-items: center;
  gap: 8px;
  font-size: 0.9rem;
+}
+
+.efs-columnsettings__item input {
+ flex-shrink: 0;
+}
+
+.efs-columnsettings__item span {
+ min-width: 0;
 }
 
 .efs-columnsettings__actions {
@@ -139,5 +200,11 @@ function onToggle(key: string, checked: boolean) {
  border: 1px solid var(--efs-border, #dbe3ef);
  background: var(--efs-surface-soft, #f8fafc);
  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+ .efs-columnsettings__panel {
+  width: min(320px, calc(100vw - 24px));
+ }
 }
 </style>

@@ -1,3 +1,0 @@
-export type { LegacyAppController, LegacyAuthController, AuthLoginInput, AuthLoginResult, LegacyDomainController, LegacyMainController, LegacyResController, } from './types';
-export type { AuthOption, DomainKey, DomainResPath, EfsI18nConfig, FieldUse, MenuOrder, ResAction, ResActionHandlerPayload, ResActionScope, ResEnumField, ResField, ResFieldIdentity, ResFieldKind, ResFieldOption, ResFieldQueryType, ResFieldRender, ResFieldWidget, ResKey, ResQueryParams, ResQueryResult, ResQueryValues, ResRefField, ResRemoveResult, ResRow, ResRowAction, ResSaveMode, ResSaveParams, ResSaveResult, ResSelectField, ResValueField, } from './shared-types';
-export type { EfsI18nMessages } from '../shared/efs-i18n';

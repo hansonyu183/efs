@@ -1,5 +1,5 @@
-import { adaptAppSchemaToVueController } from './adapter/vue-controller.js';
-export function createPlatformAppFromSchema(schema, options = {}) {
+import { createRuntimeFromSchema } from './adapter/platform-runtime.js';
+export function createAppFromSchema(schema, options = {}) {
     const fetcher = options.fetcher ?? globalThis.fetch;
     if (!fetcher) {
         throw new Error('fetch is not available; provide options.fetcher when creating a platform app from schema');
@@ -18,15 +18,15 @@ export function createPlatformAppFromSchema(schema, options = {}) {
         cachedOrgs = value;
     });
     const resources = buildResourceAdapters(schema, baseUrl, transport, fetcher, () => currentAccessToken);
-    return adaptAppSchemaToVueController({
+    return createRuntimeFromSchema({
         schema,
         auth,
         resources,
     });
 }
-export function createPlatformEfsAppPropsFromSchema(schema, options = {}) {
+export function createAppPropsFromSchema(schema, options = {}) {
     return {
-        app: createPlatformAppFromSchema(schema, options),
+        app: createAppFromSchema(schema, options),
         appName: schema.app.title || schema.app.name,
         brandIcon: schema.app.brandIcon,
         theme: schema.app.theme,

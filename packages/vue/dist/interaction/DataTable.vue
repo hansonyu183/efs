@@ -12,7 +12,7 @@
        @change="toggleSelectAll"
       >
      </th>
-     <th v-for="column in normalizedColumns" :key="column.key">{{ column.title }}</th>
+     <th v-for="column in normalizedColumns" :key="column.key" :class="column.meta.cellClass">{{ column.title }}</th>
      <th v-if="props.rowActions.length > 0" class="efs-datatable__actions-header">{{ resolvedActionsLabel }}</th>
     </tr>
    </thead>
@@ -34,9 +34,11 @@
        @change="toggleRowSelection(row, rowIndex)"
       >
      </td>
-     <td v-for="column in normalizedColumns" :key="column.key">
+     <td v-for="column in normalizedColumns" :key="column.key" :class="column.meta.cellClass">
       <template v-if="column.render === 'status'">
-       <StatusChip :tone="resolveTone(row, column)">{{ displayText(resolveDisplayValue(row, column)) }}</StatusChip>
+       <span class="efs-datatable__cell-content efs-datatable__cell-content--status">
+        <StatusChip :tone="resolveTone(row, column)">{{ displayText(resolveDisplayValue(row, column)) }}</StatusChip>
+       </span>
       </template>
       <template v-else-if="column.render === 'tags'">
        <div class="efs-datatable__taglist">
@@ -45,13 +47,19 @@
        </div>
       </template>
       <template v-else>
-       {{ displayText(resolveDisplayValue(row, column)) }}
+       <span
+        class="efs-datatable__cell-content"
+        :class="column.meta.cellClass"
+        :title="displayText(resolveDisplayValue(row, column))"
+       >
+        {{ displayText(resolveDisplayValue(row, column)) }}
+       </span>
       </template>
      </td>
      <td v-if="props.rowActions.length > 0" class="efs-datatable__actions-cell" @click.stop>
       <div class="efs-datatable__actionlist">
        <button
-        v-for="action in visibleActions(row)"
+        v-for="action in standardActions(row)"
         :key="action.key"
         type="button"
         class="efs-datatable__actionbutton"
@@ -60,6 +68,21 @@
        >
         {{ action.label }}
        </button>
+       <details v-if="overflowActions(row).length > 0" class="efs-datatable__moremenu">
+        <summary class="efs-datatable__morebutton" :aria-label="resolvedMoreLabel" :title="resolvedMoreLabel">…</summary>
+        <div class="efs-datatable__morepanel">
+         <button
+          v-for="action in overflowActions(row)"
+          :key="action.key"
+          type="button"
+          class="efs-datatable__moreitem"
+          :class="`efs-datatable__moreitem--${action.variant ?? 'default'}`"
+          @click="action.onClick(row)"
+         >
+          {{ action.label }}
+         </button>
+        </div>
+       </details>
       </div>
      </td>
     </tr>
@@ -103,6 +126,16 @@ interface NormalizedColumn {
  render: CellRenderer
  formatter?: (value: unknown, row: Record<string, unknown>) => unknown
  visible: boolean
+ meta: ColumnMeta
+}
+
+interface ColumnMeta {
+ align: 'left' | 'right'
+ codeLike: boolean
+ truncates: boolean
+ compact: boolean
+ statusLike: boolean
+ cellClass: string[]
 }
 
 interface DataTableProps {
@@ -134,17 +167,19 @@ const emit = defineEmits<{
 const instance = getCurrentInstance()
 const resolvedActionsLabel = computed(() => resolveOptionalLabel({ key: 'actionsLabel', instance, namespaces: ['efs.dataTable'] }) || '操作')
 const resolvedSelectionLabel = computed(() => resolveOptionalLabel({ key: 'selectionLabel', instance, namespaces: ['efs.dataTable'] }) || '选择行')
+const resolvedMoreLabel = computed(() => resolveOptionalLabel({ key: 'moreLabel', instance, namespaces: ['efs.dataTable'] }) || '更多')
 
 const inferredColumns = computed<NormalizedColumn[]>(() => {
  const firstRow = props.rows[0] ?? null
  if (!firstRow) return []
  return Object.keys(firstRow)
   .filter((key) => !isIdentityKey(key))
-  .map((key) => ({
-   key,
-   title: resolveColumnTitle(key),
-   render: inferRenderer(key, firstRow[key]),
-   visible: true,
+ .map((key) => ({
+  key,
+  title: resolveColumnTitle(key),
+  render: inferRenderer(key, firstRow[key]),
+  visible: true,
+  meta: resolveColumnMeta(key, inferRenderer(key, firstRow[key])),
   }))
 })
 
@@ -156,6 +191,7 @@ const normalizedColumns = computed<NormalizedColumn[]>(() => {
    render: column.render ?? inferRenderer(column.key),
    formatter: column.formatter,
    visible: column.visible !== false,
+   meta: resolveColumnMeta(column.key, column.render ?? inferRenderer(column.key)),
    }))
   : inferredColumns.value
 
@@ -232,6 +268,18 @@ function visibleActions(row: Record<string, unknown>) {
  return props.rowActions.filter((action) => action.visible ? action.visible(row) : true)
 }
 
+function standardActions(row: Record<string, unknown>) {
+ return visibleActions(row).filter((action) => isStandardRowActionKey(action.key))
+}
+
+function overflowActions(row: Record<string, unknown>) {
+ return visibleActions(row).filter((action) => !isStandardRowActionKey(action.key))
+}
+
+function isStandardRowActionKey(key: string) {
+ return ['detail', 'edit', 'update', 'delete', 'remove'].includes(key)
+}
+
 function isSelected(row: Record<string, unknown>, rowIndex: number) {
  return selectedKeySet.value.has(String(resolveRowKey(row, rowIndex)))
 }
@@ -260,6 +308,43 @@ function inferRenderer(key: string, sampleValue?: unknown): CellRenderer {
  if (Array.isArray(sampleValue)) return 'tags'
  if (['status', 'state', 'tier'].some((token) => normalizedKey.includes(token))) return 'status'
  return 'text'
+}
+
+function resolveColumnMeta(key: string, render: CellRenderer): ColumnMeta {
+ const statusLike = isStatusColumn(key, render)
+ const codeLike = isCodeColumn(key)
+ const truncates = isLongTextColumn(key)
+ const compact = statusLike || codeLike
+ const align = statusLike ? 'right' as const : 'left' as const
+ return {
+  align,
+  codeLike,
+  truncates,
+  compact,
+  statusLike,
+  cellClass: [
+   align === 'right' ? 'efs-datatable__cell--align-right' : 'efs-datatable__cell--align-left',
+   codeLike ? 'efs-datatable__cell--code' : '',
+   truncates ? 'efs-datatable__cell--truncate' : '',
+   compact ? 'efs-datatable__cell--compact' : '',
+   statusLike ? 'efs-datatable__cell--status' : '',
+  ].filter(Boolean),
+ }
+}
+
+function isStatusColumn(key: string, render: CellRenderer) {
+ const normalizedKey = key.trim().toLowerCase()
+ return render === 'status' || ['status', 'state', 'tier'].some((token) => normalizedKey.includes(token))
+}
+
+function isCodeColumn(key: string) {
+ const normalizedKey = key.trim().toLowerCase()
+ return normalizedKey === 'code' || normalizedKey.endsWith('code') || normalizedKey.includes('code')
+}
+
+function isLongTextColumn(key: string) {
+ const normalizedKey = key.trim().toLowerCase()
+ return ['remark', 'memo', 'description', 'desc'].some((token) => normalizedKey.includes(token))
 }
 
 function resolveColumnTitle(column: string | Pick<InputColumn, 'key'>) {
@@ -297,6 +382,40 @@ function resolveColumnTitle(column: string | Pick<InputColumn, 'key'>) {
  background: var(--efs-surface-soft, #f8fafc);
  font-size: 0.84rem;
  color: var(--efs-text-muted, #64748b);
+}
+
+.efs-datatable__cell-content {
+ display: block;
+ min-width: 0;
+}
+
+.efs-datatable__cell-content--status {
+ display: flex;
+ justify-content: flex-end;
+}
+
+.efs-datatable__cell--align-right {
+ text-align: right !important;
+}
+
+.efs-datatable__cell--code {
+ font-family: ui-monospace, SFMono-Regular, 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+.efs-datatable__cell--truncate {
+ max-width: 24ch;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+}
+
+.efs-datatable__cell--compact {
+ width: 1%;
+ white-space: nowrap;
+}
+
+.efs-datatable__cell--status {
+ min-width: 8.5rem;
 }
 
 .efs-datatable__selection-header,

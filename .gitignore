@@ -3,4 +3,5 @@ coverage/
 .DS_Store
 *.log
 .tmp/
-apps/demo-app/dist/
+apps/*/dist/
+packages/*/dist/

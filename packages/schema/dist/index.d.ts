@@ -1,6 +1,6 @@
 export { defineAppSchema } from './authoring/define-app-schema.js';
-export { adaptAppSchemaToVueController } from './adapter/vue-controller.js';
-export { createPlatformAppFromSchema, createPlatformEfsAppPropsFromSchema } from './platform-app.js';
+export { createRuntimeFromSchema } from './adapter/platform-runtime.js';
+export { createAppFromSchema, createAppPropsFromSchema } from './platform-app.js';
 export { inferResourceRuntime } from './inference/resource-runtime.js';
 export type { EfsAppSchema, EfsAppInfoSchema, EfsAppI18nSchema, EfsAppI18nMessages } from './app/app-schema.js';
 export type { EfsAuthSchema, EfsTokenSchema, EfsOrgSchema } from './app/auth-schema.js';

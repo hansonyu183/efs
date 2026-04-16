@@ -1,16 +1,16 @@
 import type { EfsAppI18nSchema, EfsAppSchema } from './app/app-schema.js';
-export interface CreatePlatformAppFromSchemaOptions {
+export interface CreateAppFromSchemaOptions {
     fetcher?: typeof fetch;
     serviceKey?: string;
 }
-export interface PlatformEfsAppProps {
-    app: ReturnType<typeof createPlatformAppFromSchema>;
+export interface EfsAppProps {
+    app: ReturnType<typeof createAppFromSchema>;
     appName: string;
     brandIcon?: string;
     theme?: 'light' | 'dark';
     i18n?: EfsAppI18nSchema;
 }
-export declare function createPlatformAppFromSchema(schema: EfsAppSchema, options?: CreatePlatformAppFromSchemaOptions): {
+export declare function createAppFromSchema(schema: EfsAppSchema, options?: CreateAppFromSchemaOptions): {
     kind: "app";
     auth: {
         kind: "auth";
@@ -125,14 +125,15 @@ export declare function createPlatformAppFromSchema(schema: EfsAppSchema, option
                         badge?: string;
                     }[];
                 }>;
+                edit: (row: Record<string, unknown>) => Promise<Record<string, unknown>>;
                 save: ({ mode, item, queryValues, page, pageSize }: {
                     mode: "create" | "edit";
                     item: Record<string, unknown>;
                     queryValues: Record<string, string>;
                     page: number;
                     pageSize: number;
-                }) => Promise<void | import("./adapter/vue-controller.js").SchemaSaveResult>;
-                remove: (item: Record<string, unknown>) => Promise<void | import("./adapter/vue-controller.js").SchemaRemoveResult>;
+                }) => Promise<void | import("./adapter/platform-runtime.js").SchemaSaveResult>;
+                remove: (item: Record<string, unknown>) => Promise<any>;
                 export: ({ queryValues, page, pageSize, items, total, summary }: {
                     queryValues: Record<string, string>;
                     page: number;
@@ -159,4 +160,4 @@ export declare function createPlatformAppFromSchema(schema: EfsAppSchema, option
         }[];
     };
 };
-export declare function createPlatformEfsAppPropsFromSchema(schema: EfsAppSchema, options?: CreatePlatformAppFromSchemaOptions): PlatformEfsAppProps;
+export declare function createAppPropsFromSchema(schema: EfsAppSchema, options?: CreateAppFromSchemaOptions): EfsAppProps;

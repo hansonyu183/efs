@@ -36,7 +36,9 @@
       <span class="efs-entitylisttable__mobile-label">{{ column.title }}</span>
       <div class="efs-entitylisttable__mobile-value">
        <template v-if="column.render === 'status'">
-        <StatusChip :tone="resolveTone(item, column)">{{ displayText(resolveDisplayValue(item, column)) }}</StatusChip>
+        <span class="efs-entitylisttable__mobile-value-content efs-entitylisttable__mobile-value-content--status">
+         <StatusChip :tone="resolveTone(item, column)">{{ displayText(resolveDisplayValue(item, column)) }}</StatusChip>
+        </span>
        </template>
        <template v-else-if="column.render === 'tags'">
         <div class="efs-entitylisttable__mobile-taglist">
@@ -44,7 +46,9 @@
          <span v-if="resolveTags(item, column).length === 0">-</span>
         </div>
        </template>
-       <strong v-else>{{ displayText(resolveDisplayValue(item, column)) }}</strong>
+       <strong v-else class="efs-entitylisttable__mobile-value-content" :class="resolveColumnClassNames(column)">
+        {{ displayText(resolveDisplayValue(item, column)) }}
+       </strong>
       </div>
      </div>
     </article>
@@ -92,7 +96,15 @@ interface NormalizedColumn {
  formatter?: (value: unknown, row: Record<string, unknown>) => unknown
  visible: boolean
  hideable: boolean
+ group: 'business' | 'system'
 }
+
+type ColumnClassName =
+ | 'efs-entitylisttable__column--align-right'
+ | 'efs-entitylisttable__column--code'
+ | 'efs-entitylisttable__column--truncate'
+ | 'efs-entitylisttable__column--compact'
+ | 'efs-entitylisttable__column--status'
 
 interface EntityListTableProps {
  rowKey: string
@@ -132,28 +144,32 @@ const instance = getCurrentInstance()
 const visibleColumnKeys = ref<string[]>([])
 const isMobile = ref(false)
 
+const businessColumnPriority = ['name', 'title', 'code', 'status', 'type', 'category', 'remark', 'description'] as const
+
 const inferredColumns = computed<NormalizedColumn[]>(() => {
  const firstRow = props.items[0] ?? null
  if (!firstRow) return []
- return Object.keys(firstRow)
+ return sortColumnsByPriority(Object.keys(firstRow)
   .filter((key) => !isIdentityKey(key))
   .map((key) => ({
    key,
    title: resolveColumnTitle(key),
    render: inferRenderer(key, firstRow[key]),
-   visible: true,
+   visible: !isDefaultHiddenColumn(key),
    hideable: true,
-  }))
+   group: isDefaultHiddenColumn(key) ? 'system' as const : 'business' as const,
+  })))
 })
 
-const normalizedColumns = computed<NormalizedColumn[]>(() => (props.columns.length > 0
+const normalizedColumns = computed<NormalizedColumn[]>(() => sortColumnsByPriority(props.columns.length > 0
  ? props.columns.map((column) => ({
    key: column.key,
    title: resolveColumnTitle(column),
    render: column.render ?? inferRenderer(column.key),
    formatter: column.formatter,
-   visible: column.visible !== false,
+   visible: column.visible !== false && !isDefaultHiddenColumn(column.key),
    hideable: true,
+   group: isDefaultHiddenColumn(column.key) ? 'system' as const : 'business' as const,
   }))
  : inferredColumns.value))
 
@@ -176,6 +192,54 @@ const visibleColumns = computed(() => {
 
 function isIdentityKey(key: string) {
  return key === props.rowKey
+}
+
+function isDefaultHiddenColumn(key: string) {
+ const normalizedKey = key.trim().toLowerCase()
+ const hiddenSystemKeys = new Set([
+  'createdat',
+  'updatedat',
+  'deletedat',
+  'creatorid',
+  'updaterid',
+  'createdby',
+  'updatedby',
+  'deletedby',
+  'createtime',
+  'updatetime',
+  'deletetime',
+  'sort',
+  'sortno',
+  'sortorder',
+  'orderindex',
+  'version',
+ ])
+ return normalizedKey === 'id' || normalizedKey.endsWith('id') || hiddenSystemKeys.has(normalizedKey)
+}
+
+function sortColumnsByPriority(columns: NormalizedColumn[]) {
+ return [...columns].sort((a, b) => {
+  if (a.group !== b.group) return a.group === 'business' ? -1 : 1
+  const aPriority = resolveBusinessColumnPriority(a.key)
+  const bPriority = resolveBusinessColumnPriority(b.key)
+  if (aPriority !== bPriority) return aPriority - bPriority
+  return a.key.localeCompare(b.key)
+ })
+}
+
+function resolveBusinessColumnPriority(key: string) {
+ const normalizedKey = key.trim().toLowerCase()
+ const exactIndex = businessColumnPriority.indexOf(normalizedKey as typeof businessColumnPriority[number])
+ if (exactIndex >= 0) return exactIndex
+ if (normalizedKey.endsWith('name')) return 0
+ if (normalizedKey.endsWith('title')) return 1
+ if (normalizedKey.endsWith('code')) return 2
+ if (normalizedKey.includes('status') || normalizedKey.includes('state')) return 3
+ if (normalizedKey.endsWith('type')) return 4
+ if (normalizedKey.endsWith('category')) return 5
+ if (normalizedKey.includes('remark') || normalizedKey.includes('memo')) return 6
+ if (normalizedKey.includes('description') || normalizedKey.includes('desc')) return 7
+ return 100
 }
 
 function resolveRowKey(row: Record<string, unknown>, rowIndex: number) {
@@ -237,6 +301,34 @@ function inferRenderer(key: string, sampleValue?: unknown): 'text' | 'status' | 
  if (Array.isArray(sampleValue)) return 'tags'
  if (['status', 'state', 'tier'].some((token) => normalizedKey.includes(token))) return 'status'
  return 'text'
+}
+
+function resolveColumnClassNames(column: Pick<NormalizedColumn, 'key' | 'render'>): ColumnClassName[] {
+ const statusLike = isStatusColumn(column.key, column.render)
+ const codeLike = isCodeColumn(column.key)
+ const truncates = isLongTextColumn(column.key)
+ return [
+  statusLike ? 'efs-entitylisttable__column--align-right' : null,
+  codeLike ? 'efs-entitylisttable__column--code' : null,
+  truncates ? 'efs-entitylisttable__column--truncate' : null,
+  statusLike || codeLike ? 'efs-entitylisttable__column--compact' : null,
+  statusLike ? 'efs-entitylisttable__column--status' : null,
+ ].filter(Boolean) as ColumnClassName[]
+}
+
+function isStatusColumn(key: string, render: NormalizedColumn['render']) {
+ const normalizedKey = key.trim().toLowerCase()
+ return render === 'status' || ['status', 'state', 'tier'].some((token) => normalizedKey.includes(token))
+}
+
+function isCodeColumn(key: string) {
+ const normalizedKey = key.trim().toLowerCase()
+ return normalizedKey === 'code' || normalizedKey.endsWith('code') || normalizedKey.includes('code')
+}
+
+function isLongTextColumn(key: string) {
+ const normalizedKey = key.trim().toLowerCase()
+ return ['remark', 'memo', 'description', 'desc'].some((token) => normalizedKey.includes(token))
 }
 
 function syncViewport() {
@@ -384,6 +476,40 @@ function resolveColumnTitle(column: string | Pick<InputColumn, 'key'>) {
 
 .efs-entitylisttable__mobile-value {
  font-size: 0.95rem;
+}
+
+.efs-entitylisttable__mobile-value-content {
+ display: block;
+ min-width: 0;
+}
+
+.efs-entitylisttable__mobile-value-content--status {
+ display: flex;
+ justify-content: flex-end;
+}
+
+.efs-entitylisttable__column--align-right {
+ text-align: right;
+}
+
+.efs-entitylisttable__column--code {
+ font-family: ui-monospace, SFMono-Regular, 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+.efs-entitylisttable__column--truncate {
+ max-width: 24ch;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+}
+
+.efs-entitylisttable__column--compact {
+ width: fit-content;
+}
+
+.efs-entitylisttable__column--status {
+ min-width: 8.5rem;
+ margin-left: auto;
 }
 
 .efs-entitylisttable__footer {

@@ -1,5 +1,6 @@
 export declare const semanticIconMap: {
     readonly home: "⌂";
+    readonly add: "+";
     readonly workbench: "⌂";
     readonly users: "◪";
     readonly user: "👤";
@@ -8,11 +9,18 @@ export declare const semanticIconMap: {
     readonly password: "🔒";
     readonly logout: "↗";
     readonly settings: "⚙";
+    readonly filter: "⌕";
+    readonly chat: "💬";
+    readonly search: "⌖";
+    readonly refresh: "↻";
+    readonly previous: "‹";
+    readonly next: "›";
     readonly more: "⋯";
     readonly theme: "◐";
     readonly light: "☼";
     readonly dark: "☾";
     readonly locale: "文";
+    readonly print: "🖨";
     readonly report: "▣";
     readonly finance: "¤";
     readonly workflow: "⇄";

@@ -179,11 +179,11 @@ export const appSchema = defineAppSchema({
 }
 function buildMainEntry() {
     return `import { createApp } from 'vue'
-import { createPlatformEfsAppPropsFromSchema } from '@efs/schema'
+import { createAppPropsFromSchema } from '@efs/schema'
 import { EfsApp } from '@efs/vue'
 import { appSchema } from '../schemas/app.schema'
 
-createApp(EfsApp, createPlatformEfsAppPropsFromSchema(appSchema)).mount('#app')
+createApp(EfsApp, createAppPropsFromSchema(appSchema)).mount('#app')
 `;
 }
 export function scaffoldPreset(preset, name) {
