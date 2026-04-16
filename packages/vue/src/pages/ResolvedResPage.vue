@@ -11,6 +11,7 @@
     :selectable-rows="crudRuntime.selectableRows"
     :form-sections="crudRuntime.formSections"
     :controller="crudRuntime.controller"
+    :storage-key="props.path"
    />
   </PagePanel>
 
@@ -21,6 +22,7 @@
     :columns="reportRuntime.columns"
     :page-size-options="reportRuntime.pageSizeOptions"
     :controller="reportRuntime.controller"
+    :storage-key="props.path"
    />
   </PagePanel>
 

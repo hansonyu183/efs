@@ -10,6 +10,8 @@ export function adaptAppSchemaToVueController(options) {
             getOrgs: options.auth.getOrgs,
             getCurrentOrgCode: options.auth.getCurrentOrgCode,
             setCurrentOrgCode: options.auth.setCurrentOrgCode,
+            getCurrentAccessToken: options.auth.getCurrentAccessToken,
+            setCurrentAccessToken: options.auth.setCurrentAccessToken,
         },
         main: {
             kind: 'main',

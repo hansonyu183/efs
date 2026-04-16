@@ -16,6 +16,8 @@ export interface SchemaAuthAdapter {
   getOrgs?: () => Promise<readonly { key: string; value: string; title?: string; label?: string; disabled?: boolean }[]> | readonly { key: string; value: string; title?: string; label?: string; disabled?: boolean }[]
   getCurrentOrgCode?: () => string | undefined
   setCurrentOrgCode?: (orgCode: string) => Promise<void> | void
+  getCurrentAccessToken?: () => string | undefined
+  setCurrentAccessToken?: (token?: string) => Promise<void> | void
 }
 
 export interface SchemaResourceAdapterContext {
@@ -78,6 +80,8 @@ export function adaptAppSchemaToVueController(options: AdaptAppSchemaToVueContro
       getOrgs: options.auth.getOrgs,
       getCurrentOrgCode: options.auth.getCurrentOrgCode,
       setCurrentOrgCode: options.auth.setCurrentOrgCode,
+      getCurrentAccessToken: options.auth.getCurrentAccessToken,
+      setCurrentAccessToken: options.auth.setCurrentAccessToken,
     },
     main: {
       kind: 'main' as const,

@@ -32,22 +32,7 @@
      @update:model-value="loginPwd = $event"
     />
    </AppField>
-   <AppField v-if="showOrgSelectField" :label="resolvedLoginOrgLabel">
-    <AppSelect
-     :model-value="loginOrgCode"
-     :options="authOrgOptions"
-     :placeholder="resolvedLoginOrgPlaceholder"
-     @update:model-value="handleOrgCodeUpdate"
-    />
-   </AppField>
-   <AppField v-else-if="showOrgInputField" :label="resolvedLoginOrgLabel">
-    <AppInput
-     :model-value="loginOrgCode"
-     :placeholder="resolvedLoginOrgPlaceholder"
-     @update:model-value="handleOrgCodeUpdate"
-    />
-   </AppField>
-   <p v-if="authError" class="efs-app__auth-error">{{ authError }}</p>
+<p v-if="authError" class="efs-app__auth-error">{{ authError }}</p>
    <AppButton variant="primary" type="submit" block :disabled="authBusy">
     {{ authBusy ? resolvedLoginSubmittingLabel : resolvedLoginSubmitLabel }}
    </AppButton>
@@ -106,7 +91,6 @@ import {
 import AppButton from '../controls/AppButton.vue'
 import AppField from '../controls/AppField.vue'
 import AppInput from '../controls/AppInput.vue'
-import AppSelect from '../controls/AppSelect.vue'
 import ErrorState from '../interaction/ErrorState.vue'
 import AuthPage from './AuthPage.vue'
 import MainPage from './MainPage.vue'
@@ -151,6 +135,8 @@ const authRuntime = {
  getOrgs: props.app.auth.getOrgs,
  getCurrentOrgCode: props.app.auth.getCurrentOrgCode,
  setCurrentOrgCode: props.app.auth.setCurrentOrgCode,
+ getCurrentAccessToken: props.app.auth.getCurrentAccessToken,
+ setCurrentAccessToken: props.app.auth.setCurrentAccessToken,
  status: authStatus,
  token: authToken,
 }
@@ -185,8 +171,6 @@ const resolvedLoginNameLabel = computed(() => resolveCopy('efs.auth.nameLabel', 
 const resolvedLoginNamePlaceholder = computed(() => resolveCopy('efs.auth.namePlaceholder', '请输入用户名'))
 const resolvedLoginPasswordLabel = computed(() => resolveCopy('efs.auth.passwordLabel', '密码'))
 const resolvedLoginPasswordPlaceholder = computed(() => resolveCopy('efs.auth.passwordPlaceholder', '请输入密码'))
-const resolvedLoginOrgLabel = computed(() => resolveCopy('efs.auth.orgLabel', '组织'))
-const resolvedLoginOrgPlaceholder = computed(() => resolveCopy('efs.auth.orgPlaceholder', '请输入组织编码'))
 const resolvedLoginSubmitLabel = computed(() => resolveCopy('efs.auth.submitLabel', '登录'))
 const resolvedLoginSubmittingLabel = computed(() => resolveCopy('efs.auth.submittingLabel', '登录中…'))
 // legacy shape reference: const resolvedMainTitle = computed(() => runtime.value?.title || resolvedEmptyTitle.value)
@@ -194,9 +178,6 @@ const resolvedMainTitle = computed(() => resolveNavigationTitle(currentPath.valu
 const isLoginRoute = computed(() => nav.isLoginRoute.value)
 const isAuthenticated = computed(() => authRuntime.status.value === 'authenticated')
 const showAuthPage = computed(() => !isAuthenticated.value || isLoginRoute.value)
-const supportsOrg = computed(() => Boolean(authRuntime.getOrgs || authRuntime.getCurrentOrgCode || authRuntime.setCurrentOrgCode))
-const showOrgSelectField = computed(() => supportsOrg.value && authOrgOptions.value.length > 0)
-const showOrgInputField = computed(() => supportsOrg.value && authOrgOptions.value.length === 0)
 
 watch(initialLocale, (value) => {
  locale.value = value
@@ -218,8 +199,13 @@ watch(authStatus, (value) => {
  if (value !== 'expired') return
  clearStoredAuthSession()
  authToken.value = null
+ authRuntime.setCurrentAccessToken?.(undefined)
  authError.value = ''
 }, { immediate: true })
+
+watch(authToken, (value) => {
+ authRuntime.setCurrentAccessToken?.(value?.accessToken)
+}, { immediate: true, deep: true })
 
 watch([isAuthenticated, isLoginRoute, firstRuntimePath, currentPath], ([authenticated, loginRoute, firstPath, path]) => {
  if (!authenticated && path !== '/login') {
@@ -237,6 +223,7 @@ onMounted(() => {
  authClockTimer = window.setInterval(() => {
   authClock.value += 1
  }, 60_000)
+ authRuntime.setCurrentAccessToken?.(authToken.value?.accessToken)
  void syncAuthContext()
 })
 
@@ -293,7 +280,6 @@ async function handleLogin() {
   const result = await authRuntime.login({
    name: loginName.value,
    pwd: loginPwd.value,
-   orgCode: loginOrgCode.value || undefined,
   })
   const nextSession = normalizeAuthSession(result)
   authToken.value = nextSession
@@ -311,11 +297,27 @@ async function handleLogin() {
 }
 
 async function handleLogout() {
- await authRuntime.logout?.()
+ try {
+  await authRuntime.logout?.()
+ } catch {
+  // ignore logout transport failures; local sign-out should still succeed
+ }
  clearStoredAuthSession()
+ clearPersistedViewState()
+ authRuntime.setCurrentAccessToken?.(undefined)
  authToken.value = null
  authError.value = ''
+ loginPwd.value = ''
+ loginOrgCode.value = ''
+ currentOrgCode.value = ''
+ authOrgOptions.value = []
  nav.replace('/login')
+}
+
+function clearPersistedViewState() {
+ if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') return
+ const keysToRemove = Object.keys(window.localStorage).filter((key) => key.startsWith('efs:view-state:'))
+ for (const key of keysToRemove) window.localStorage.removeItem(key)
 }
 
 async function syncAuthContext() {

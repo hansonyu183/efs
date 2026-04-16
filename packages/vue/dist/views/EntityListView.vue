@@ -253,8 +253,8 @@
       <span v-if="resolvedDirty" class="efs-resourcecrudpage__dirty">{{ resolvedDirtyLabel }}</span>
      </div>
      <div class="efs-resourcecrudpage__dialog-footer-actions">
-      <AppButton :disabled="resolvedBusy" @click="requestCancel">取消</AppButton>
-      <AppButton variant="primary" :loading="resolvedBusy" @click="handleSave">保存</AppButton>
+      <AppButton :disabled="resolvedBusy" @click="requestCancel">{{ resolvedCancelLabel }}</AppButton>
+      <AppButton variant="primary" :loading="resolvedBusy" @click="handleSave">{{ resolvedSaveLabel }}</AppButton>
      </div>
     </div>
    </template>
@@ -305,6 +305,7 @@ interface EntityListViewProps {
  formSections?: ResourceCrudFormSection[]
  detailFields?: ResourceCrudDetailField[]
  controller?: ResourceCrudController
+ storageKey?: string
 }
 
 const props = withDefaults(defineProps<EntityListViewProps>(), {
@@ -317,6 +318,7 @@ const props = withDefaults(defineProps<EntityListViewProps>(), {
  formSections: () => [],
  detailFields: () => [],
  controller: undefined,
+ storageKey: '',
 })
 
 const instance = getCurrentInstance()
@@ -337,6 +339,8 @@ const isMobile = ref(false)
 const querySheetOpen = ref(false)
 const editingItem = ref<Record<string, unknown> | null>(null)
 const editingDraft = ref<Record<string, unknown>>({})
+const restoredFromSession = ref(false)
+const storageReady = ref(false)
 
 watch(() => props.controller?.state?.queryValues, (value) => {
  if (!value) return
@@ -371,6 +375,11 @@ watch(() => props.controller?.state?.pageSize, (value) => {
  if (typeof value !== 'number') return
  localPageSize.value = value
 })
+
+watch([localQueryValues, localSelectedRowKeys, localItems, localTotal, localPage, localPageSize, localActiveItem], () => {
+ if (!storageReady.value) return
+ persistSessionState()
+}, { deep: true })
 
 const normalizedQueryFields = computed(() => props.queryFields.map((queryField) => ({
  key: queryField.key,
@@ -481,6 +490,7 @@ const showBatchBar = computed(() => resolvedSelectedCount.value > 0 || (!isMobil
 const resolvedPageCount = computed(() => Math.max(1, Math.ceil(Math.max(resolvedTotal.value, 0) / Math.max(localPageSize.value, 1))))
 const resolvedDetailFields = computed<ResourceCrudDetailField[]>(() => props.detailFields)
 const hasDetail = computed(() => resolvedDetailFields.value.length > 0)
+const stateStorageKey = computed(() => props.storageKey ? `efs:view-state:crud:${props.storageKey}` : '')
 
 const defaultActions = computed<ResourceCrudAction[]>(() => {
  const actions: ResourceCrudAction[] = []
@@ -528,9 +538,15 @@ const resolvedDialogTitle = computed(() => dialogMode.value === 'edit' ? (resolv
 
 onMounted(async () => {
  syncViewport()
+ hydrateSessionState()
+ storageReady.value = true
  if (typeof window !== 'undefined') window.addEventListener('resize', syncViewport)
  if (props.controller?.handlers?.query) {
-  await runQuery()
+  if (!restoredFromSession.value) {
+   await runQuery()
+   return
+  }
+  ensureActiveItem()
   return
  }
  ensureActiveItem()
@@ -550,6 +566,57 @@ function syncViewport() {
  if (typeof window === 'undefined') return
  isMobile.value = window.innerWidth <= 960
  if (!isMobile.value) querySheetOpen.value = false
+}
+
+function hydrateSessionState() {
+ if (typeof window === 'undefined' || !stateStorageKey.value || typeof window.localStorage === 'undefined') return
+ try {
+  const raw = window.localStorage.getItem(stateStorageKey.value)
+  if (!raw) return
+  const parsed = JSON.parse(raw) as {
+   queryValues?: Record<string, string>
+   selectedRowKeys?: RowSelectionKey[]
+   items?: Record<string, unknown>[]
+   total?: number
+   page?: number
+   pageSize?: number
+   activeItem?: Record<string, unknown> | null
+  }
+  localQueryValues.value = { ...buildDefaultQueryValues(), ...(parsed.queryValues ?? {}) }
+  localSelectedRowKeys.value = Array.isArray(parsed.selectedRowKeys) ? [...parsed.selectedRowKeys] : []
+  localItems.value = Array.isArray(parsed.items) ? [...parsed.items] : []
+  localTotal.value = typeof parsed.total === 'number' ? parsed.total : localItems.value.length
+  localPage.value = typeof parsed.page === 'number' && parsed.page > 0 ? parsed.page : localPage.value
+  localPageSize.value = typeof parsed.pageSize === 'number' && parsed.pageSize > 0 ? parsed.pageSize : localPageSize.value
+  localActiveItem.value = parsed.activeItem ?? localItems.value[0] ?? null
+  setControllerState('queryValues', { ...localQueryValues.value })
+  setControllerState('selectedRowKeys', [...localSelectedRowKeys.value])
+  setControllerState('items', [...localItems.value])
+  setControllerState('total', localTotal.value)
+  setControllerState('page', localPage.value)
+  setControllerState('pageSize', localPageSize.value)
+  setControllerState('activeItem', localActiveItem.value)
+  restoredFromSession.value = true
+ } catch {
+  restoredFromSession.value = false
+ }
+}
+
+function persistSessionState() {
+ if (typeof window === 'undefined' || !stateStorageKey.value || typeof window.localStorage === 'undefined') return
+ try {
+  window.localStorage.setItem(stateStorageKey.value, JSON.stringify({
+   queryValues: localQueryValues.value,
+   selectedRowKeys: localSelectedRowKeys.value,
+   items: localItems.value,
+   total: localTotal.value,
+   page: localPage.value,
+   pageSize: localPageSize.value,
+   activeItem: localActiveItem.value,
+  }))
+ } catch {
+  // ignore storage failures
+ }
 }
 
 function ensureActiveItem() {
@@ -838,9 +905,11 @@ function handleClose() {
  resetDirty()
 }
 
+const resolvedDiscardConfirmLabel = computed(() => resolveOptionalLabel({ key: 'discardConfirmLabel', instance, namespaces: ['efs.resourceCrud'] }) || '当前有未保存修改，确认关闭吗？')
+
 function shouldDiscardDirtyChanges() {
  if (!resolvedDirty.value || typeof window === 'undefined' || typeof window.confirm !== 'function') return true
- return window.confirm('当前有未保存修改，确认关闭吗？')
+ return window.confirm(resolvedDiscardConfirmLabel.value)
 }
 
 function handleRequestClose() {

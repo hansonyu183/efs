@@ -10,6 +10,12 @@ type LabelResolverOptions = {
 
 type Translator = ((key: string) => unknown) | undefined
 
+type ResolvedI18nContext = {
+ translator?: Translator
+ locale?: string
+ config?: unknown
+}
+
 const BUILTIN_ZH_LABELS: Record<string, string> = {
  'efs.crudDialog.closeLabel': '关闭',
  'efs.crudDialog.footer.dirtyLabel': '存在未保存修改',
@@ -106,20 +112,116 @@ const BUILTIN_ZH_LABELS: Record<string, string> = {
  'actions.disable': '停用',
 }
 
+const BUILTIN_EN_LABELS: Record<string, string> = {
+ 'efs.crudDialog.closeLabel': 'Close',
+ 'efs.crudDialog.footer.dirtyLabel': 'Unsaved changes',
+ 'efs.crudDialog.footer.submitLabel': 'Save',
+ 'efs.crudDialog.footer.savingLabel': 'Saving...',
+ 'efs.crudDialog.footer.cancelLabel': 'Cancel',
+ 'efs.reportPanel.exportLabel': 'Export',
+ 'efs.reportPanel.queryTitle': 'Query conditions',
+ 'efs.reportPanel.queryEmptyText': 'No report query fields configured.',
+ 'efs.reportPanel.resultTitle': 'Results',
+ 'efs.reportPanel.resultEmptyText': 'No report results available.',
+ 'efs.detailPanel.fieldsLabel': 'Fields:',
+ 'efs.detailPanel.emptyText': 'No detail fields available.',
+ 'efs.masterDetail.masterTitle': 'Master list',
+ 'efs.masterDetail.detailTitle': 'Details',
+ 'efs.masterDetail.detailEmptyTitle': 'Select a record',
+ 'efs.masterDetail.detailEmptyDescription': 'Details appear after selecting a record from the master list.',
+ 'efs.simpleTable.rowsLabel': 'Rows:',
+ 'efs.formPanel.sectionsLabel': 'Sections:',
+ 'efs.formPanel.emptyText': 'No form sections configured.',
+ 'efs.formPanel.requiredHint': '* Required fields',
+ 'efs.formPanel.footer.dirtyLabel': 'Unsaved changes',
+ 'efs.formPanel.footer.submitLabel': 'Save',
+ 'efs.formPanel.footer.savingLabel': 'Saving...',
+ 'efs.formPanel.footer.cancelLabel': 'Cancel',
+ 'efs.pagination.pageSizeLabel': 'Rows per page',
+ 'efs.pagination.summaryLabel': 'Page',
+ 'efs.pagination.previousLabel': 'Previous',
+ 'efs.pagination.nextLabel': 'Next',
+ 'efs.columnSettings.label': 'Columns',
+ 'efs.columnSettings.resetLabel': 'Reset',
+ 'efs.columnSettings.showAllLabel': 'Show all',
+ 'efs.dataTable.actionsLabel': 'Actions',
+ 'efs.dataTable.selectionLabel': 'Select row',
+ 'efs.state.loading.default.title': 'Loading data',
+ 'efs.state.loading.default.message': 'Please wait while the current resource is prepared.',
+ 'efs.state.loading.resource.title': 'Loading data',
+ 'efs.state.loading.resource.message': 'Please wait while the resource list syncs.',
+ 'efs.state.loading.report.title': 'Loading report',
+ 'efs.state.loading.report.message': 'Please wait while results refresh.',
+ 'efs.state.empty.default.title': 'No data',
+ 'efs.state.empty.default.description': 'There is nothing to display right now.',
+ 'efs.state.empty.default.icon': '○',
+ 'efs.state.empty.resource.title': 'No data',
+ 'efs.state.empty.resource.description': 'There are no resource records to display.',
+ 'efs.state.empty.resource.icon': '○',
+ 'efs.state.empty.report.title': 'No results',
+ 'efs.state.empty.report.description': 'There are no report results for the current filters.',
+ 'efs.state.empty.report.icon': '○',
+ 'efs.state.error.default.title': 'Load failed',
+ 'efs.state.error.default.message': 'The request did not succeed. Please try again later.',
+ 'efs.state.error.default.icon': '!',
+ 'efs.state.error.resource.title': 'Load failed',
+ 'efs.state.error.resource.icon': '!',
+ 'efs.state.error.report.title': 'Report failed to load',
+ 'efs.state.error.report.icon': '!',
+ 'columns.code': 'Code',
+ 'columns.name': 'Name',
+ 'columns.status': 'Status',
+ 'columns.state': 'State',
+ 'columns.industry': 'Industry',
+ 'columns.tags': 'Tags',
+ 'columns.type': 'Type',
+ 'columns.category': 'Category',
+ 'columns.createdAt': 'Created at',
+ 'columns.updatedAt': 'Updated at',
+ 'fields.code': 'Code',
+ 'fields.name': 'Name',
+ 'fields.status': 'Status',
+ 'fields.state': 'State',
+ 'fields.industry': 'Industry',
+ 'fields.tags': 'Tags',
+ 'fields.type': 'Type',
+ 'fields.category': 'Category',
+ 'fields.createdAt': 'Created at',
+ 'fields.updatedAt': 'Updated at',
+ 'resourceCrud.actions.create': 'Create',
+ 'resourceCrud.actions.edit': 'Edit',
+ 'resourceCrud.actions.update': 'Edit',
+ 'resourceCrud.actions.delete': 'Delete',
+ 'resourceCrud.actions.remove': 'Delete',
+ 'resourceCrud.actions.refresh': 'Refresh',
+ 'resourceCrud.actions.export': 'Export',
+ 'resourceCrud.actions.enable': 'Enable',
+ 'resourceCrud.actions.disable': 'Disable',
+ 'actions.create': 'Create',
+ 'actions.edit': 'Edit',
+ 'actions.update': 'Edit',
+ 'actions.delete': 'Delete',
+ 'actions.remove': 'Delete',
+ 'actions.refresh': 'Refresh',
+ 'actions.export': 'Export',
+ 'actions.enable': 'Enable',
+ 'actions.disable': 'Disable',
+}
+
 export function resolveLabel({ key, overrides = {}, instance, namespaces = ['columns', 'fields'] }: LabelResolverOptions) {
  if (overrides[key]) return overrides[key]
 
- const translator = getTranslator(instance)
- if (translator) {
+ const context = getI18nContext(instance)
+ if (context.translator) {
   for (const candidate of buildCandidates(key, namespaces)) {
-   const translated = translator(candidate)
+   const translated = context.translator(candidate)
    if (typeof translated === 'string' && translated && translated !== candidate) {
     return translated
    }
   }
  }
 
- const builtin = resolveBuiltinLabel(key, namespaces)
+ const builtin = resolveBuiltinLabel(key, namespaces, context.locale)
  if (builtin) return builtin
 
  return humanizeKey(fallbackKey(key))
@@ -128,17 +230,17 @@ export function resolveLabel({ key, overrides = {}, instance, namespaces = ['col
 export function resolveOptionalLabel({ key, overrides = {}, instance, namespaces = ['columns', 'fields'] }: LabelResolverOptions) {
  if (overrides[key]) return overrides[key]
 
- const translator = getTranslator(instance)
- if (translator) {
+ const context = getI18nContext(instance)
+ if (context.translator) {
   for (const candidate of buildCandidates(key, namespaces)) {
-   const translated = translator(candidate)
+   const translated = context.translator(candidate)
    if (typeof translated === 'string' && translated && translated !== candidate) {
     return translated
    }
   }
  }
 
- const builtin = resolveBuiltinLabel(key, namespaces)
+ const builtin = resolveBuiltinLabel(key, namespaces, context.locale)
  if (builtin) return builtin
 
  return ''
@@ -158,9 +260,10 @@ function buildCandidates(key: string, namespaces: string[]) {
  ]
 }
 
-function resolveBuiltinLabel(key: string, namespaces: string[]) {
+function resolveBuiltinLabel(key: string, namespaces: string[], locale?: string) {
+ const labels = locale?.toLowerCase().startsWith('en') ? BUILTIN_EN_LABELS : BUILTIN_ZH_LABELS
  for (const candidate of buildCandidates(key, namespaces)) {
-  if (BUILTIN_ZH_LABELS[candidate]) return BUILTIN_ZH_LABELS[candidate]
+  if (labels[candidate]) return labels[candidate]
  }
  return ''
 }
@@ -169,20 +272,35 @@ function fallbackKey(value: string) {
  return value.includes('.') ? value.split('.').filter(Boolean).pop() ?? value : value
 }
 
-function getTranslator(instance?: ComponentInternalInstance | null): Translator {
+function getI18nContext(instance?: ComponentInternalInstance | null): ResolvedI18nContext {
  const provides = (instance as { provides?: Record<PropertyKey, unknown> } | null | undefined)?.provides
- const efsI18n = provides?.[EFS_I18N_CONTEXT as symbol] as { translate?: (key: string) => string; config?: { value?: unknown } } | undefined
+ const efsI18n = provides?.[EFS_I18N_CONTEXT as symbol] as { translate?: (key: string) => string; config?: { value?: { locale?: string } } } | undefined
+ const config = efsI18n?.config?.value
+ const locale = config?.locale
  if (efsI18n?.translate) {
-  return (key: string) => efsI18n.translate(key)
+  return {
+   translator: (key: string) => efsI18n.translate(key),
+   locale,
+   config,
+  }
  }
 
  const maybeTranslator = instance?.appContext.config.globalProperties?.$t
- if (typeof maybeTranslator === 'function') return maybeTranslator
-
- const config = efsI18n?.config?.value
- if (config) {
-  return (key: string) => resolveEfsI18nLabel({ key, config: config as never })
+ if (typeof maybeTranslator === 'function') {
+  return {
+   translator: maybeTranslator,
+   locale,
+   config,
+  }
  }
 
- return undefined
+ if (config) {
+  return {
+   translator: (key: string) => resolveEfsI18nLabel({ key, config: config as never }),
+   locale,
+   config,
+  }
+ }
+
+ return { translator: undefined, locale: undefined, config: undefined }
 }

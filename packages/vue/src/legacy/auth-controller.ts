@@ -20,4 +20,6 @@ export interface LegacyAuthController {
   getOrgs?: () => readonly AuthOption[] | Promise<readonly AuthOption[]>
   getCurrentOrgCode?: () => string | undefined
   setCurrentOrgCode?: (orgCode: string) => void | Promise<void>
+  getCurrentAccessToken?: () => string | undefined
+  setCurrentAccessToken?: (token?: string) => void | Promise<void>
 }

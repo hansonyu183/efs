@@ -151,11 +151,16 @@ function buildAuthAdapter(
     },
     logout: auth?.logout
       ? async () => {
-          await requestJson(fetcher, baseUrl, transport, auth.logout!, {
-            json: { orgCode: getCurrentOrgCode() },
-            accessToken: getCurrentAccessToken(),
-          })
-          setCurrentAccessToken(undefined)
+          try {
+            await requestJson(fetcher, baseUrl, transport, auth.logout!, {
+              json: getCurrentOrgCode() ? { orgCode: getCurrentOrgCode() } : undefined,
+              accessToken: getCurrentAccessToken(),
+            })
+          } finally {
+            setCurrentAccessToken(undefined)
+            setCurrentOrgCode(undefined)
+            setCachedOrgs([])
+          }
         }
       : undefined,
     getOrgs: auth?.orgs
@@ -171,6 +176,10 @@ function buildAuthAdapter(
     getCurrentOrgCode,
     setCurrentOrgCode(orgCode) {
       setCurrentOrgCode(orgCode)
+    },
+    getCurrentAccessToken,
+    setCurrentAccessToken(token) {
+      setCurrentAccessToken(token)
     },
   }
 }

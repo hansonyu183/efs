@@ -109,6 +109,7 @@ interface ReportViewProps {
  columns?: ReportViewResultColumn[]
  controller?: ReportViewController
  pageSizeOptions?: number[]
+ storageKey?: string
 }
 
 const instance = getCurrentInstance()
@@ -119,6 +120,7 @@ const props = withDefaults(defineProps<ReportViewProps>(), {
  columns: () => [],
  controller: undefined,
  pageSizeOptions: () => [10, 20, 50],
+ storageKey: '',
 })
 
 const localQueryValues = ref<Record<string, string>>({})
@@ -130,6 +132,8 @@ const localSummary = ref<ReportViewSummaryMetric[]>([])
 const localBusy = ref(false)
 const localError = ref('')
 const visibleColumnKeys = ref<string[]>([])
+const restoredFromSession = ref(false)
+const storageReady = ref(false)
 
 const normalizedQueryFields = computed(() => props.queryFields.map((field) => ({
  key: field.key,
@@ -161,6 +165,7 @@ const resolvedFiltersSummaryLabel = computed(() => resolveOptionalLabel({ key: '
 const resolvedTotalLabel = computed(() => resolveOptionalLabel({ key: 'totalLabel', instance, namespaces: ['efs.reportView'] }) || '总数')
 const querySummaryText = computed(() => normalizedQueryFields.value.length > 0 ? `${resolvedFiltersSummaryLabel.value}：${normalizedQueryFields.value.length}` : '')
 const resultCountText = computed(() => `${resolvedTotalLabel.value}：${resolvedTotal.value}`)
+const stateStorageKey = computed(() => props.storageKey ? `efs:view-state:report:${props.storageKey}` : '')
 
 const resultRows = computed(() => resolvedItems.value.map((item, index) => ({
  __reportRowKey: String(index + 1),
@@ -190,8 +195,15 @@ watch(() => props.controller?.state, () => {
  syncFromControllerState()
 }, { immediate: true, deep: true })
 
+watch([localQueryValues, localPage, localPageSize, localItems, localTotal, localSummary], () => {
+ if (!storageReady.value) return
+ persistSessionState()
+}, { deep: true })
+
 onMounted(() => {
- if (props.controller?.handlers?.query) runQuery()
+ hydrateSessionState()
+ storageReady.value = true
+ if (props.controller?.handlers?.query && !restoredFromSession.value) runQuery()
 })
 
 function syncFromControllerState() {
@@ -205,6 +217,57 @@ function syncFromControllerState() {
  localSummary.value = state.summary ?? []
  localBusy.value = state.busy ?? false
  localError.value = state.error ?? ''
+}
+
+function hydrateSessionState() {
+ if (typeof window === 'undefined' || !stateStorageKey.value || typeof window.localStorage === 'undefined') return
+ try {
+  const raw = window.localStorage.getItem(stateStorageKey.value)
+  if (!raw) return
+  const parsed = JSON.parse(raw) as {
+   queryValues?: Record<string, string>
+   page?: number
+   pageSize?: number
+   items?: Record<string, unknown>[]
+   total?: number
+   summary?: ReportViewSummaryMetric[]
+  }
+  localQueryValues.value = { ...buildDefaultQueryValues(), ...(parsed.queryValues ?? {}) }
+  localPage.value = typeof parsed.page === 'number' && parsed.page > 0 ? parsed.page : localPage.value
+  localPageSize.value = typeof parsed.pageSize === 'number' && parsed.pageSize > 0 ? parsed.pageSize : localPageSize.value
+  localItems.value = Array.isArray(parsed.items) ? [...parsed.items] : []
+  localTotal.value = typeof parsed.total === 'number' ? parsed.total : localItems.value.length
+  localSummary.value = Array.isArray(parsed.summary) ? [...parsed.summary] : []
+  setControllerState({
+   queryValues: { ...localQueryValues.value },
+   page: localPage.value,
+   pageSize: localPageSize.value,
+   items: [...localItems.value],
+   total: localTotal.value,
+   summary: [...localSummary.value],
+   busy: false,
+   error: '',
+  })
+  restoredFromSession.value = true
+ } catch {
+  restoredFromSession.value = false
+ }
+}
+
+function persistSessionState() {
+ if (typeof window === 'undefined' || !stateStorageKey.value || typeof window.localStorage === 'undefined') return
+ try {
+  window.localStorage.setItem(stateStorageKey.value, JSON.stringify({
+   queryValues: localQueryValues.value,
+   page: localPage.value,
+   pageSize: localPageSize.value,
+   items: localItems.value,
+   total: localTotal.value,
+   summary: localSummary.value,
+  }))
+ } catch {
+  // ignore storage failures
+ }
 }
 
 function buildDefaultQueryValues() {

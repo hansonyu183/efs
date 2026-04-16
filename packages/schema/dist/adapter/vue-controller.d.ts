@@ -37,6 +37,8 @@ export interface SchemaAuthAdapter {
     }[];
     getCurrentOrgCode?: () => string | undefined;
     setCurrentOrgCode?: (orgCode: string) => Promise<void> | void;
+    getCurrentAccessToken?: () => string | undefined;
+    setCurrentAccessToken?: (token?: string) => Promise<void> | void;
 }
 export interface SchemaResourceAdapterContext {
     queryValues: Record<string, string>;
@@ -124,6 +126,8 @@ export declare function adaptAppSchemaToVueController(options: AdaptAppSchemaToV
         }[];
         getCurrentOrgCode: () => string | undefined;
         setCurrentOrgCode: (orgCode: string) => Promise<void> | void;
+        getCurrentAccessToken: () => string | undefined;
+        setCurrentAccessToken: (token?: string) => Promise<void> | void;
     };
     main: {
         kind: "main";

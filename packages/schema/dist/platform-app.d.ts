@@ -45,6 +45,8 @@ export declare function createPlatformAppFromSchema(schema: EfsAppSchema, option
         }[];
         getCurrentOrgCode: () => string | undefined;
         setCurrentOrgCode: (orgCode: string) => Promise<void> | void;
+        getCurrentAccessToken: () => string | undefined;
+        setCurrentAccessToken: (token?: string) => Promise<void> | void;
     };
     main: {
         kind: "main";
