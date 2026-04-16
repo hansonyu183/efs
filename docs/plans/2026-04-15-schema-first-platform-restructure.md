@@ -379,12 +379,7 @@ The current contents of `packages/vue/src/controller`, `pages`, `views`, `panels
 ```text
 packages/cli/
 ├── bin/
-│   ├── efs-schema-validate.mjs
-│   ├── efs-schema-compile.mjs
-│   ├── efs-dev.mjs
-│   ├── efs-run-services.mjs
-│   ├── efs-scaffold.mjs        # retained, but schema-aware
-│   └── efs-governance.mjs
+│   └── efs-lint.mjs
 └── package.json
 ```
 

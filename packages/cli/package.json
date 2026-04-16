@@ -5,17 +5,12 @@
  "private": false,
  "description": "CLI tooling for the EFS enterprise management frontend platform.",
  "bin": {
-  "efs-lint": "./bin/efs-lint.mjs",
-  "efs-lint-ast": "./bin/efs-lint-ast.mjs",
-  "efs-governance": "./bin/efs-governance.mjs",
-  "efs-scaffold": "./bin/efs-scaffold.mjs"
+  "efs-lint": "./bin/efs-lint.mjs"
  },
  "files": [
-  "bin"
+  "bin/efs-lint.mjs"
  ],
  "dependencies": {
-  "@efs/presets": "file:../presets",
-  "@efs/vue": "file:../vue",
   "@babel/parser": "^7.28.4",
   "@vue/compiler-dom": "^3.5.13",
   "@vue/compiler-sfc": "^3.5.13"
