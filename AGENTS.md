@@ -4,7 +4,8 @@
 These instructions apply to this repository.
 
 ## Runtime and naming conventions
-- The primary runtime integration target is schema-first `apps/<app-name>/schemas/app.schema.ts` -> `createPlatformAppFromSchema(...)` -> `EfsApp`; `useApp()`/controller tree remains a legacy compatibility shape.
+- The only external contract is schema-first `apps/<app-name>/schemas/app.schema.ts` plus the schema-check CLI `efs-lint`.
+- Internal runtime wiring may still mount the Vue shell, but `packages/vue` is not a public package contract.
 - Resource structure uses two levels: `domain/res`.
 - Do not add a `Resource` suffix to resource names.
 
@@ -21,6 +22,6 @@ These instructions apply to this repository.
 - On small screens, large auxiliary panels should default to hidden and be entered via `More` or explicit toggles instead of staying permanently expanded.
 
 ## Public surface
-- Root entry exports only `EfsApp`.
-- Legacy compatibility types/helpers live under the deliberate `@efs/vue/legacy` subpath.
-- Do not expose raw component subpaths as package API.
+- Public package contract: `@efs/schema` only.
+- Public CLI contract: `efs-lint` only.
+- `packages/vue`, `packages/presets`, controller/shared subpaths, and raw component paths are internal-only.

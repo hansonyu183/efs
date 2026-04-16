@@ -2,24 +2,10 @@
  "name": "@efs/vue",
  "version": "0.4.0",
  "type": "module",
- "private": false,
- "description": "Vue application shell and resource runtimes for the EFS enterprise management frontend platform.",
+ "private": true,
+ "description": "Internal Vue application shell and resource runtimes for the EFS enterprise management frontend platform.",
  "scripts": {
   "build": "node ./build.mjs"
- },
- "exports": {
-  ".": {
-   "types": "./dist/index.d.ts",
-   "default": "./dist/index.js"
-  },
-  "./legacy": {
-   "types": "./dist/legacy/index.d.ts",
-   "default": "./dist/legacy/index.js"
-  },
-  "./shared/navigation-menu": {
-   "types": "./dist/shared/navigation-menu.d.ts",
-   "default": "./dist/shared/navigation-menu.js"
-  }
  },
  "files": [
   "dist"

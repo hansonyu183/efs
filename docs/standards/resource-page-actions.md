@@ -219,7 +219,7 @@ ui: {
 }
 ```
 
-### 8.2 legacy runtime 兼容层
+### 8.2 runtime 兼容层
 当前 adapter 仍会把这些 action 继续桥接到旧 runtime 可消费的位置，但那已经是实现细节，不是业务首选 authoring 面。
 
 ---

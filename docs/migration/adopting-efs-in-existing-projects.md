@@ -18,7 +18,7 @@
 优先补齐：
 - `apps/<app-name>/schemas/app.schema.ts`
 - `defineAppSchema(...)`
-- `createPlatformAppFromSchema(...)`
+- `createAppFromSchema(...)`
 - `EfsApp`
 
 最小目标：
@@ -104,7 +104,7 @@
 1. 入口已经切到 `apps/<app-name>/schemas/app.schema.ts`
 2. 资源业务能力主要通过 `fields + operations` 表达
 3. 页面通过 EFS 的标准 Page / View / Panel / App Shell 运行
-4. 用户不再自己写根组件与 controller 入口，legacy controller 只留在平台 compat 边界
+4. 用户不再自己写根组件与 controller 入口，runtime controller 只留在平台 compat 边界
 5. lint / governance / 规范检查可通过
 
 ---
@@ -133,7 +133,7 @@
 - 受影响项目清单
 - 升级步骤
 
-如果变更发生在 legacy controller 兼容层，也要明确说明：
+如果变更发生在 runtime controller 兼容层，也要明确说明：
 - 这是不是兼容层调整
 - schema-first 主路径是否受影响
 - 历史项目如何平滑过渡

@@ -1,6 +1,6 @@
 # 资源 CRUD 输入瘦身设计
 
-> 状态：本文已按 **schema-first** 口径更新。当前 EFS 不再把 `EntityListView` 当成业务侧主要 authoring 面；业务侧优先维护 `apps/<app-name>/schemas/app.schema.ts`，由 runtime inference + adapter 生成当前 CRUD view 所需输入。旧的 `queryFields / columns / formSections / detailFields / controller.handlers.*` 只作为 legacy/runtime 兼容层讨论对象。
+> 状态：本文已按 **schema-first** 口径更新。当前 EFS 不再把 `EntityListView` 当成业务侧主要 authoring 面；业务侧优先维护 `apps/<app-name>/schemas/app.schema.ts`，由 runtime inference + adapter 生成当前 CRUD view 所需输入。旧的 `queryFields / columns / formSections / detailFields / controller.handlers.*` 只作为 runtime 兼容层讨论对象。
 
 本文用于收敛 CRUD 资源页输入项，减少把运行时内部实现细节重新暴露给业务页面的情况。
 
@@ -79,7 +79,7 @@
 
 ---
 
-## 3. 哪些旧输入应视为 legacy compat
+## 3. 哪些旧输入应视为 internal compat
 
 下面这些能力不是“永远不能存在”，但已经不应作为对外推荐的主 authoring 面：
 
@@ -90,7 +90,7 @@
 - `detailFields`
 
 口径：
-- 在 legacy runtime/controller 层仍然存在
+- 在 runtime/controller 层仍然存在
 - 但它们应越来越多地由 schema inference + adapter 生成
 - 新文档不再把它们当成业务首要输入
 
@@ -121,7 +121,7 @@
 
 ## 4. 应继续内收的实现细节
 
-下面这些即使在 legacy runtime 层，也应优先视为内部实现细节，而不是业务建模入口：
+下面这些即使在 runtime 层，也应优先视为内部实现细节，而不是业务建模入口：
 
 ### 4.1 文案覆盖项
 例如：
@@ -195,7 +195,7 @@
 1. 这是不是资源 schema 本身就能表达？
 2. 这是不是 `ui` 最小 override 就能表达？
 3. 这是不是 adapter/runtime 应该自动推导？
-4. 如果还需要显式输入，它是否只是 legacy compat，而不是新的公开 authoring 面？
+4. 如果还需要显式输入，它是否只是 internal compat，而不是新的公开 authoring 面？
 
 一句话：
 

@@ -1,6 +1,8 @@
 # AgentOS 接入 EFS 规范
 
-本文定义 AgentOS 当前采用 EFS 的正式接入方式，后续项目默认参考同一模式。**主线是 schema-first**：业务仓库优先维护 `apps/<app-name>/schemas/app.schema.ts`，平台固定入口直接加载，不再要求业务自己写根组件。
+本文定义 AgentOS 当前采用 EFS 的正式接入方式。
+
+结论先说：**外部接入只面向 schema contract，不面向 runtime package contract。**
 
 ## 当前正式接法
 
@@ -20,22 +22,17 @@ third_party/efs
 	url = https://github.com/hansonyu183/efs.git
 ```
 
-这使业务项目能够锁定 EFS 的具体 commit，而不是漂移地跟随最新主分支。
-
-### 2. 通过 Vite alias 指向 EFS 源码入口
+### 2. 公开 alias 只指向 `@efs/schema`
 
 标准写法：
 
 ```ts
 alias: {
-  '@efs/vue': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/index.ts'),
-  '@efs/vue/legacy': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/legacy/index.ts'),
-  '@efs/vue/shared': path.resolve(__dirname, '../../third_party/efs/packages/vue/src/shared'),
   '@efs/schema': path.resolve(__dirname, '../../third_party/efs/packages/schema/src/index.ts'),
 }
 ```
 
-如果后续消费 runtime / 规范 / presets，也应增加对应 alias，而不是在业务项目内复制实现。
+`packages/vue`、internal、shared helper 等路径都属于平台内部实现，不再作为业务侧公开 alias contract。
 
 ### 3. 业务模块优先维护 `apps/<app-name>/schemas/app.schema.ts`
 
@@ -74,39 +71,26 @@ export const appSchema = defineAppSchema({
 })
 ```
 
-### 4. 用平台入口直接挂到现有 Vue runtime
+### 4. 用 `efs-lint` 检查 schema 应用目录
 
-标准写法：
-
-```ts
-import { createApp } from 'vue'
-import { createPlatformEfsAppPropsFromSchema } from '@efs/schema'
-import { EfsApp } from '@efs/vue'
-import { appSchema } from '../schemas/app.schema'
-
-createApp(EfsApp, createPlatformEfsAppPropsFromSchema(appSchema)).mount('#app')
+```bash
+efs-lint apps/agentos
 ```
 
-业务侧应优先消费稳定入口：根入口只用于 `EfsApp`；schema authoring / adapter 从 `@efs/schema` 引入；运行时 helper 仅在确有需要时从文档约定的 `controller`、`shared` 子路径导入；不要直接依赖 `pages/*`、`panels/*`、`controls/*` 这类原始源码路径。
+### 5. runtime 入口由平台内部维护
+
+`src/main.ts`、运行时壳、页面装配、导航 helper 等仍可能存在，
+但它们都属于平台内部 wiring，不再视为业务侧公开 contract。
 
 ## 为什么当前采用这种接法
 
-- schema-first 让业务侧只维护应用/资源/operations 描述，而不是手写整棵 controller tree
+- schema-first 让业务侧只维护应用/资源/operations 描述
 - EFS 可以基于 schema 自动推导 view mode、默认 actions 与基础字段展示规则
-- EFS 仍在高频调整，暂不要求先正式发布 registry 包
+- 平台内部 runtime 可以继续演进，而不把业务方锁死在 runtime 目录和 helper 子路径上
 - submodule 可以固定版本，降低标准库漂移风险
-- alias 可直接消费最新源码，便于联调
 
 ## 当前阶段的版本建议
 
 - 业务仓库锁定 EFS submodule commit
 - 升级 EFS 时显式更新 submodule 指针
-- 不建议直接让业务项目跟随 EFS `main` 漂移
-
-## 后续演进方向
-
-当 EFS 经过多轮真实项目验证后，再逐步演进到：
-
-- package / workspace 级引用
-- 私有 registry 或 GitHub Packages
-- 版本化升级与 changelog 驱动接入
+- 业务侧只承诺 schema 与 schema lint 能持续兼容

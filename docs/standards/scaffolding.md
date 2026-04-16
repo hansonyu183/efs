@@ -1,32 +1,12 @@
-# Schema-First 脚手架规则
+# Schema Scaffolding
 
-当前 EFS 的脚手架主线已经切到 **schema-first 服务平台**。
+> 状态：**internal-only**。
+>
+> 脚手架实现仍可存在于仓库内部，但它已经不属于 EFS 正式对外契约。
+> 对外唯一正式 contract 仍然只有：
+>
+> - `@efs/schema`
+> - `efs-lint`
 
-## 命令
-
-```bash
-node packages/cli/bin/efs-scaffold.mjs --preset crud --name CustomerApp --out ./generated/schema-app
-```
-
-可用 preset：
-- `crud`
-- `report`
-- `workbench`
-
-## 输出内容
-
-每次 scaffold 至少生成：
-
-- `apps/<app-name>/schemas/app.schema.ts`
-- `src/main.ts`
-
-## 约束
-
-1. 用户 schema 固定放在 `apps/<app-name>/schemas/app.schema.ts`。
-2. 子目录名必须与 `app.name` 一致。
-3. `src/main.ts` 由平台入口直接 `createPlatformEfsAppPropsFromSchema(...)` + `EfsApp` 挂载，并自动接住 schema 里的 i18n。
-4. 不再需要用户自己写根组件。
-
-一句话：
-
-> **用户写 app schema 目录，平台写入口与服务接线。**
+如果后续继续保留 scaffold，它也只能被视为平台内部效率工具，
+不能再被文档表述成业务侧必须依赖的公开 CLI。 

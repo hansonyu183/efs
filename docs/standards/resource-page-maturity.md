@@ -34,7 +34,7 @@
 |---|---|---|---|---|
 | `apps/<app-name>/schemas/app.schema.ts` + `defineAppSchema(...)` | P0 | 已成为正式 authoring 主入口 | 是 | 继续补更多标准示例与校验 |
 | `inferResourceRuntime(...)` | P0 | 已能推导 CRUD/Report mode 与默认 actions | 是 | 继续补细粒度 field / action 推导 |
-| `createPlatformAppFromSchema(...)` | P0 | 已能把 schema 接到当前 Vue runtime | 是 | 继续缩小 legacy bridge 面积 |
+| `createAppFromSchema(...)` | P0 | 已能把 schema 接到当前 Vue runtime | 是 | 继续缩小 runtime bridge 面积 |
 | 查询区 | P0 | 已具备标准查询头部和扩展位 | 是 | 继续补查询字段组合标准写法 |
 | EntityListTable | P0 | 已具备列设置、分页、移动端卡片 fallback、tableKey 等能力 | 是 | 继续补真实资源列表用例 |
 | EntityListView | P0 | 已把 EntityListTable / DetailPanel / CrudDialog 收敛成标准 CRUD View，并由 schema-first runtime 提供主输入 | 是 | 继续补移动端批量交互与更细的操作权限语义 |
@@ -71,7 +71,7 @@
 ### P1
 1. 为 CrudDialog / ReportPanel 增加真实标准页落地
 2. 继续补图表、confirm、loading、异步状态语义
-3. 继续减少业务直接接触 legacy controller 结构的场景
+3. 继续减少业务直接接触 runtime controller 结构的场景
 
 ### P2
 1. 为登录页、列表页、详情页、主从页补更完整 preset

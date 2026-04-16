@@ -53,7 +53,7 @@ apps/<app-name>/schemas/app.schema.ts
 
 例如：
 - `inferResourceRuntime(...)`
-- `createPlatformAppFromSchema(...)`
+- `createAppFromSchema(...)`
 - `EfsApp`
 - 各类内部 CRUD / Report runtime
 
@@ -93,7 +93,7 @@ apps/<app-name>/schemas/app.schema.ts
 - `operations` 是资源后端能力定义
 - `ui.actions` 是动作入口 UI override
 - `inferResourceRuntime(...)` 负责 runtime 推导
-- `createPlatformAppFromSchema(...)` 负责接到当前 Vue runtime
+- `createAppFromSchema(...)` 负责接到当前 Vue runtime
 
 ### 不推荐说法
 - 先写一套 business schema，再默认还要手写一套完整 controller tree
@@ -124,10 +124,10 @@ apps/<app-name>/schemas/app.schema.ts
 - 默认 `create/update/remove/export/filter/refresh` 行为
 - 字段在列表/查询/表单/详情中的默认参与方式
 
-### 5.4 legacy compat 定义
+### 5.4 internal compat 定义
 下面这些仍可能存在于兼容层，但不再是公开主入口：
-- `LegacyAppController`
-- `LegacyResController`
+- `PlatformApp`
+- `PlatformResource`
 - `queryFields`
 - `columns`
 - `formSections`
@@ -157,7 +157,7 @@ apps/<app-name>/schemas/app.schema.ts
 
 - 这是 business schema 还是 UI override？
 - 这件事是否应该由 runtime 自动推导？
-- 这是不是只是 legacy compat，而不该继续扩大成公开 authoring 面？
+- 这是不是只是 internal compat，而不该继续扩大成公开 authoring 面？
 
 一句话：
 

@@ -1,48 +1,56 @@
 # Schema-First Authoring
 
-本文定义 EFS 当前**正式对外**的接入主线。
+本文定义 EFS 当前**唯一正式对外**的接入主线。
 
 结论先说：
 
-- 业务侧优先维护 `apps/<app-name>/schemas/app.schema.ts`
-- business schema 只描述应用、认证、服务、资源 fields 与 operations
-- 页面 mode、默认 actions、基础字段展示规则优先由 EFS runtime 推导
-- 如需少量前端覆盖，只在 `ui` 层写最小 override
-- 当前 Vue runtime 仍通过 adapter 落到 legacy controller 结构，但那已经是**内部兼容层**，不是推荐的业务建模入口
+- 业务侧只需要维护 `apps/<app-name>/schemas/app.schema.ts`
+- 业务侧唯一正式公共包入口是 `@efs/schema`
+- 对 schema 的官方检查入口只有 `efs-lint`
+- 运行时壳、页面实现、导航/helper、controller 结构都属于平台内部实现，不属于外部契约
 
 ---
 
 ## 1. 公开入口
 
-当前推荐使用的公开入口：
+当前唯一推荐使用的公开入口：
 
 - `@efs/schema`
   - `defineAppSchema(...)`
-  - `createPlatformAppFromSchema(...)`
-  - `createPlatformEfsAppPropsFromSchema(...)`
+  - `createAppFromSchema(...)`
+  - `createAppPropsFromSchema(...)`
   - `inferResourceRuntime(...)`
-- `@efs/vue`
-  - `EfsApp`
 
-`@efs/vue/legacy`、`@efs/vue/shared/*` 仅在确有 runtime/helper 需求时按文档约定使用，不作为首选业务建模入口。
+当前唯一推荐使用的公开 CLI：
+
+- `efs-lint <app-root>`
+
+不再属于外部契约的内容：
+
+- `@efs/vue`
+- `@efs/vue` 内部 runtime 路径
+- `@efs/vue/shared/*`
+- `@efs/presets`
+- controller / runtime helper 子路径
 
 ---
 
 ## 2. 标准文件形态
 
-标准 demo 已切到下面这条主路径：
+标准接入主路径：
 
 ```text
 apps/<app-name>/schemas/app.schema.ts
   -> defineAppSchema(...)
-  -> createPlatformEfsAppPropsFromSchema(...)
-  -> EfsApp
+  -> createAppFromSchema(...)
+  -> internal platform runtime
 ```
 
 参考文件：
 
 - `apps/standard-demo/schemas/app.schema.ts`
-- `apps/standard-demo/src/main.ts`
+
+`src/main.ts` 之类的 runtime 入口文件仍然存在，但它们由平台内部维护，不作为业务侧公开 authoring contract。
 
 ---
 
@@ -103,29 +111,6 @@ interface EfsResourceOperationsSchema {
 - `api`：把一个 UI action 绑定到 `operations.<name>`
 - `runtime`：绑定到平台内建前端动作，比如 `filter`、`refresh`
 
-示意：
-
-```ts
-ui: {
-  domains: {
-    crm: {
-      resources: {
-        customer: {
-          view: { mode: 'crud' },
-          fields: {
-            createdAt: { hidden: true },
-          },
-          actions: {
-            export: { api: 'export', placement: 'page' },
-            filter: { runtime: 'filter' },
-          },
-        },
-      },
-    },
-  },
-}
-```
-
 原则是：**平台优先推导，业务只在必要处覆盖。**
 
 ---
@@ -149,49 +134,27 @@ ui: {
 
 ---
 
-## 6. 如何接到平台 runtime
+## 6. 对旧 controller/internal 的定位
 
-当前做法不是让业务手写 controller tree，也不再要求业务自己写根组件，而是由平台固定入口直接加载 schema：
+旧 controller tree、runtime shape、shared helper 路径仍可能存在于仓库内部，
+但它们都只是**平台内部实现细节**：
 
-```ts
-import { createApp } from 'vue'
-import { createPlatformEfsAppPropsFromSchema } from '@efs/schema'
-import { EfsApp } from '@efs/vue'
-import { appSchema } from '../schemas/app.schema'
+- 不作为业务侧公开建模入口
+- 不作为正式 package contract
+- 不作为对外文档推荐 import path
 
-createApp(EfsApp, createPlatformEfsAppPropsFromSchema(appSchema)).mount('#app')
-```
-
-平台会根据 schema 中声明的 `services + operations` 自动生成默认 HTTP 接线，并把 schema 里的 `i18n` 一并装配到 `EfsApp`；业务主 authoring 面就是 schema 目录本身。
+以后如果文档需要提到它们，必须明确标注为 **internal-only**。
 
 ---
 
-## 7. 对 controller-first 的定位
-
-当前 controller-first 仍然存在，但定位已经改变：
-
-- 可作为 runtime 内部兼容层
-- 可作为 adapter 输出形状
-- 可用于历史项目迁移过渡
-- **不再作为 EFS 对外主文档与首选接入方式**
-
-因此：
-
-- 新文档优先讲 schema-first
-- 新 demo 优先走 schema-first
-- controller contract 文档保留，但应明确标注 legacy
-
----
-
-## 8. 最小接入清单
+## 7. 最小接入清单
 
 一个新项目至少要有：
 
 1. `apps/<app-name>/schemas/app.schema.ts`
-2. schema -> runtime adapter 文件（如 `app-from-schema.ts`）
-3. 平台直接挂载 `EfsApp`
-4. 对应 API/service 配置
-5. 少量必要的 `ui` override（如确实推导不够）
+2. 对应 API/service 配置
+3. `efs-lint` 校验流程
+4. 少量必要的 `ui` override（如确实推导不够）
 
 如果某个页面必须写很多 query/form/detail 布局细节，优先先反问：
 

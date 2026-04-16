@@ -5,56 +5,34 @@ import path from 'node:path'
 
 const repoRoot = path.resolve(new URL('..', import.meta.url).pathname)
 
-const packageFiles = [
- path.join(repoRoot, 'packages/schema/package.json'),
- path.join(repoRoot, 'packages/presets/package.json'),
- path.join(repoRoot, 'packages/vue/package.json'),
- path.join(repoRoot, 'packages/cli/package.json')
-]
-
 function readPackage(relativePath) {
  return JSON.parse(fs.readFileSync(path.join(repoRoot, relativePath), 'utf8'))
 }
 
-test('publishable package manifests expose name and exports/bin', () => {
- for (const file of packageFiles) {
-  const pkg = JSON.parse(fs.readFileSync(file, 'utf8'))
-  assert.ok(pkg.name)
-  assert.ok(pkg.exports || pkg.bin)
- }
-})
-
-test('publishable package manifests export built dist entries instead of src entries', () => {
+test('public package manifests are limited to schema plus schema lint CLI', () => {
  const schemaPkg = readPackage('packages/schema/package.json')
+ const cliPkg = readPackage('packages/cli/package.json')
+ const vuePkg = readPackage('packages/vue/package.json')
+ const presetsPkg = readPackage('packages/presets/package.json')
+
+ assert.equal(schemaPkg.private, false)
  assert.equal(schemaPkg.exports['.'].default, './dist/index.js')
  assert.equal(schemaPkg.exports['.'].types, './dist/index.d.ts')
  assert.deepEqual(schemaPkg.files, ['dist'])
 
- const presetsPkg = readPackage('packages/presets/package.json')
+ assert.equal(cliPkg.private, false)
+ assert.deepEqual(Object.keys(cliPkg.bin).sort(), ['efs-lint'])
+ assert.deepEqual(cliPkg.files, ['bin/efs-lint.mjs'])
+ assert.ok(!('@efs/vue' in (cliPkg.dependencies || {})))
+ assert.ok(!('@efs/presets' in (cliPkg.dependencies || {})))
+
+ assert.equal(vuePkg.private, true)
+ assert.ok(!('exports' in vuePkg))
+ assert.deepEqual(vuePkg.files, ['dist'])
+
+ assert.equal(presetsPkg.private, true)
  assert.equal(presetsPkg.exports['.'].default, './dist/index.js')
  assert.equal(presetsPkg.exports['.'].types, './dist/index.d.ts')
- assert.deepEqual(presetsPkg.files, ['dist'])
-
- const vuePkg = readPackage('packages/vue/package.json')
- assert.equal(vuePkg.exports['.'].default, './dist/index.js')
- assert.equal(vuePkg.exports['.'].types, './dist/index.d.ts')
- assert.ok(!('./types' in vuePkg.exports))
- assert.ok(!('./components/*' in vuePkg.exports))
- assert.equal(vuePkg.exports['./legacy'].default, './dist/legacy/index.js')
- assert.equal(vuePkg.exports['./legacy'].types, './dist/legacy/index.d.ts')
- assert.ok(!('./legacy/*' in vuePkg.exports))
- assert.ok(!('./shared/*' in vuePkg.exports))
- assert.equal(vuePkg.exports['./shared/navigation-menu'].default, './dist/shared/navigation-menu.js')
- assert.equal(vuePkg.exports['./shared/navigation-menu'].types, './dist/shared/navigation-menu.d.ts')
- assert.equal(vuePkg.peerDependencies.vue, '^3.5.13')
- assert.ok(!('vue-router' in vuePkg.peerDependencies))
- assert.deepEqual(vuePkg.files, ['dist'])
-})
-
-test('cli package consumes publishable package entrypoints instead of sibling src paths', () => {
- const scaffoldSource = fs.readFileSync(path.join(repoRoot, 'packages/cli/bin/efs-scaffold.mjs'), 'utf8')
- assert.match(scaffoldSource, /from '@efs\/presets'/)
- assert.doesNotMatch(scaffoldSource, /\.\.\/\.\.\/presets\/src\/index\.mjs/)
 })
 
 test('source packages do not keep duplicate runtime .mjs copies beside ts source', () => {
