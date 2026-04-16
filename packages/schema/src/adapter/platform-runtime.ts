@@ -96,6 +96,16 @@ export function createRuntimeFromSchema(options: CreateRuntimeFromSchemaOptions)
   }
 }
 
+type InferredRuntime = ReturnType<typeof inferResourceRuntime>
+
+type SchemaResourceRuntimeBridge = {
+  domainKey: string
+  resource: EfsResourceSchema
+  handlers?: SchemaOperationAdapterMap
+  inferred: InferredRuntime
+  fieldDefs: ReturnType<typeof adaptFields>
+}
+
 function adaptResourceToVueController(
   schema: EfsAppSchema,
   domainKey: string,
@@ -104,39 +114,40 @@ function adaptResourceToVueController(
 ) {
   const resourceUi = schema.ui?.domains?.[domainKey]?.resources?.[resource.key]
   const inferred = inferResourceRuntime(resource, resourceUi)
-  const fieldDefs = adaptFields(resource, inferred.mode, resourceUi)
+  const bridge: SchemaResourceRuntimeBridge = {
+    domainKey,
+    resource,
+    handlers,
+    inferred,
+    fieldDefs: adaptFields(resource, inferred.mode, resourceUi),
+  }
 
   return {
     kind: 'res' as const,
-    domain: domainKey,
-    res: resource.key,
-    title: resource.title,
-    runtimeKind: inferred.mode === 'report' ? 'report' as const : 'crud' as const,
-    fields: fieldDefs,
-    query: adaptQueryHandler(resource, handlers, inferred.mode),
-    edit: inferred.mode === 'crud' ? adaptEditHandler(handlers) : undefined,
-    save: inferred.mode === 'crud' ? adaptSaveHandler(handlers) : undefined,
-    remove: inferred.mode === 'crud' ? adaptRemoveHandler(handlers) : undefined,
-    export: inferred.mode === 'report' ? adaptReportExportHandler(handlers) : undefined,
-    actions: inferred.mode === 'report'
-      ? buildReportActions(inferred, handlers)
-      : buildCrudActions(inferred, handlers),
+    domain: bridge.domainKey,
+    res: bridge.resource.key,
+    title: bridge.resource.title,
+    runtimeKind: bridge.inferred.mode === 'report' ? 'report' as const : 'crud' as const,
+    fields: bridge.fieldDefs,
+    query: adaptQueryHandler(bridge),
+    edit: bridge.inferred.mode === 'crud' ? adaptEditHandler(bridge.handlers) : undefined,
+    save: bridge.inferred.mode === 'crud' ? adaptSaveHandler(bridge.handlers) : undefined,
+    remove: bridge.inferred.mode === 'crud' ? adaptRemoveHandler(bridge.handlers) : undefined,
+    export: bridge.inferred.mode === 'report' ? adaptReportExportHandler(bridge.handlers) : undefined,
+    actions: buildRuntimeActions(bridge),
   }
 }
 
-function adaptQueryHandler(resource: EfsResourceSchema, handlers: SchemaOperationAdapterMap | undefined, mode: 'crud' | 'report' | 'workspace' | 'custom') {
-  const operationKey = mode === 'report' ? 'query' : resource.operations?.list ? 'list' : resource.operations?.query ? 'query' : undefined
+function adaptQueryHandler(bridge: SchemaResourceRuntimeBridge) {
+  const operationKey = bridge.inferred.mode === 'report'
+    ? 'query'
+    : bridge.resource.operations?.list ? 'list' : bridge.resource.operations?.query ? 'query' : undefined
   if (!operationKey) return undefined
-  const handler = handlers?.[operationKey]
+  const handler = bridge.handlers?.[operationKey]
   if (!handler) return undefined
   return async ({ queryValues, page, pageSize }: { queryValues: Record<string, string>; page: number; pageSize: number }) => {
     const result = await handler({ queryValues, page, pageSize })
-    return {
-      items: result?.items ?? [],
-      total: result?.total,
-      activeItem: result?.activeItem,
-      summary: result?.summary,
-    }
+    return normalizeQueryResult(result)
   }
 }
 
@@ -182,36 +193,60 @@ function adaptReportExportHandler(handlers?: SchemaOperationAdapterMap) {
   }
 }
 
-function buildCrudActions(inferred: ReturnType<typeof inferResourceRuntime>, handlers?: SchemaOperationAdapterMap) {
+function buildRuntimeActions(bridge: SchemaResourceRuntimeBridge) {
+  const actionState = buildActionState(bridge.inferred, bridge.handlers)
+  if (bridge.inferred.mode === 'report') {
+    return {
+      report: actionState.report,
+      custom: actionState.custom,
+    }
+  }
+  return {
+    page: actionState.page,
+    row: actionState.row,
+    custom: actionState.custom,
+  }
+}
+
+function buildActionState(inferred: InferredRuntime, handlers?: SchemaOperationAdapterMap) {
   const page = [] as Array<{ key: string }>
   const row = [] as Array<{ key: string }>
+  const report = [] as Array<{ key: string }>
   const custom: Record<string, (payload: any) => Promise<void> | void> = {}
 
   for (const action of inferred.actions) {
     if (action.hidden) continue
     if (action.kind === 'runtime') {
-      if (action.key === 'refresh') {
+      if (action.key === 'refresh' && inferred.mode !== 'report') {
         page.push({ key: action.key })
       }
       continue
     }
 
-    if (action.api === 'create') {
+    if (action.api === 'create' && inferred.mode !== 'report') {
       page.push({ key: 'create' })
       continue
     }
-    if (action.api === 'update') {
+    if (action.api === 'update' && inferred.mode !== 'report') {
       row.push({ key: 'update' })
       continue
     }
-    if (action.api === 'remove' || action.api === 'delete') {
+    if ((action.api === 'remove' || action.api === 'delete') && inferred.mode !== 'report') {
       row.push({ key: 'remove' })
+      continue
+    }
+    if (action.api === 'export' && inferred.mode === 'report') {
       continue
     }
 
     if (action.api && handlers?.[action.api]) {
-      if (action.placement === 'row') row.push({ key: action.key })
-      else page.push({ key: action.key })
+      if (inferred.mode === 'report') {
+        report.push({ key: action.key })
+      } else if (action.placement === 'row') {
+        row.push({ key: action.key })
+      } else {
+        page.push({ key: action.key })
+      }
       custom[action.key] = async (payload) => {
         await handlers[action.api]?.(payload)
       }
@@ -221,33 +256,23 @@ function buildCrudActions(inferred: ReturnType<typeof inferResourceRuntime>, han
   return {
     page,
     row,
+    report,
     custom,
   }
 }
 
-function buildReportActions(inferred: ReturnType<typeof inferResourceRuntime>, handlers?: SchemaOperationAdapterMap) {
-  const report = [] as Array<{ key: string }>
-  const custom: Record<string, (payload: any) => Promise<void> | void> = {}
-
-  for (const action of inferred.actions) {
-    if (action.hidden) continue
-    if (action.kind === 'runtime') {
-      continue
-    }
-    if (action.api === 'export') {
-      continue
-    }
-    if (action.api && handlers?.[action.api]) {
-      report.push({ key: action.key })
-      custom[action.key] = async (payload) => {
-        await handlers[action.api]?.(payload)
-      }
+function normalizeQueryResult(result: SchemaQueryResult | Record<string, unknown>[] | null | undefined): SchemaQueryResult {
+  if (Array.isArray(result)) {
+    return {
+      items: result,
+      total: result.length,
     }
   }
-
   return {
-    report,
-    custom,
+    items: result?.items ?? [],
+    total: result?.total ?? (Array.isArray(result?.items) ? result.items.length : 0),
+    activeItem: result?.activeItem,
+    summary: result?.summary,
   }
 }
 

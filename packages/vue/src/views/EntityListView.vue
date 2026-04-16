@@ -993,8 +993,7 @@ const collapsedPermissionDomains = computed(() => {
 
 watch(() => permissionDialogState.open, (open) => {
  if (open) return
- permissionDialogState.keyword = ''
- permissionDialogState.manualCollapsedDomains = {}
+ resetPermissionDialogState()
 })
 
 const defaultActions = computed<ResourceCrudAction[]>(() => {
@@ -1247,6 +1246,12 @@ async function openPermissionDialog(field: { key: string }) {
 
 function closePermissionDialog() {
  permissionDialogState.open = false
+}
+
+function resetPermissionDialogState() {
+ permissionDialogState.fieldKey = 'permissions'
+ permissionDialogState.keyword = ''
+ permissionDialogState.manualCollapsedDomains = {}
 }
 
 function isPermissionDomainCollapsed(key: string) {

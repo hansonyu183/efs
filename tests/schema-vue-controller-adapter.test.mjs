@@ -220,3 +220,37 @@ test('createRuntimeFromSchema maps delete operation aliases onto CRUD remove han
  await user.remove({ id: 1 })
  assert.deepEqual(calls.map((entry) => entry[0]), ['delete'])
 })
+
+test('createRuntimeFromSchema normalizes array query results into list metadata', async () => {
+ const app = createRuntimeFromSchema({
+  schema: {
+   schemaVersion: 'v1',
+   app: { key: 'demo', name: 'demo', title: 'Demo' },
+   auth: { login: { path: '/login', method: 'POST' } },
+   domains: [{
+    key: 'crm',
+    title: 'CRM',
+    resources: [{
+     key: 'customer',
+     title: '客户',
+     fields: [{ key: 'id', title: 'ID', type: 'string', identity: 'id' }],
+     operations: { list: { path: '/customers', method: 'GET' } },
+    }],
+   }],
+  },
+  auth: { async login() { return { accessToken: 'demo' } } },
+  resources: {
+   'crm/customer': {
+    async list() {
+     return [{ id: 'C-001' }, { id: 'C-002' }]
+    },
+   },
+  },
+ })
+
+ const customer = app.main.domains[0].items[0]
+ const result = await customer.query({ queryValues: {}, page: 1, pageSize: 10 })
+ assert.deepEqual(result.items, [{ id: 'C-001' }, { id: 'C-002' }])
+ assert.equal(result.total, 2)
+ assert.equal(result.activeItem, undefined)
+})
