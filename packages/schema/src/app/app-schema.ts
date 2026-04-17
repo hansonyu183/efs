@@ -1,7 +1,7 @@
-import type { EfsAuthSchema } from './auth-schema.js'
-import type { EfsServiceSchema } from './service-schema.js'
-import type { EfsDomainSchema } from '../resource/resource-schema.js'
-import type { EfsAppUiSchema } from '../resource/ui-schema.js'
+import type { EfsAuthSchema } from './auth-schema.ts'
+import type { EfsServiceSchema } from './service-schema.ts'
+import type { EfsDomainSchema } from '../resource/resource-schema.ts'
+import type { EfsAppUiSchema } from '../resource/ui-schema.ts'
 
 export type EfsAppI18nMessages = {
   [key: string]: string | EfsAppI18nMessages

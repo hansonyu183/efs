@@ -3,19 +3,17 @@
  "version": "0.4.0",
  "private": true,
  "type": "module",
- "description": "Standardized enterprise management frontend platform runtime.",
+ "description": "Source-first enterprise management frontend service workspace.",
  "workspaces": [
   "packages/*",
   "apps/*"
  ],
  "scripts": {
-  "build": "npm run build --workspace @efs/schema && npm run build --workspace @efs/presets && npm run build --workspace @efs/vue",
-  "test": "npm run build && node --test",
-  "check:public-surface": "npm run build && node --test tests/packaging.test.mjs tests/public-surface.test.mjs",
-  "lint:standard": "npm run build && node packages/cli/bin/efs-lint.mjs apps/standard-demo",
-  "demo:build": "npm run build && vite build --config apps/standard-demo/vite.config.mjs",
-  "pack:check": "npm run build && npm pack --dry-run --workspace @efs/schema && npm pack --dry-run --workspace @efs/cli",
-  "ci": "npm run test && npm run check:public-surface && npm run lint:standard && npm run demo:build && npm run pack:check"
+  "build": "vite build --config apps/agentos/vite.config.mjs",
+  "check:authoring": "node ./node_modules/typescript/bin/tsc -p tsconfig.json",
+  "lint:schema": "node packages/cli/bin/efs-lint.mjs apps/agentos",
+  "test": "node --test",
+  "ci": "npm run check:authoring && npm run lint:schema && npm run test && npm run build"
  },
  "engines": {
   "node": ">=20"

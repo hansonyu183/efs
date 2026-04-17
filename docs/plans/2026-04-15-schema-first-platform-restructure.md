@@ -1,5 +1,7 @@
 # EFS Schema-First Platform Restructure Plan
 
+> Historical note: this plan reflects an earlier phase before the repository converged on `apps/agentos` and source-first internal modules as the active baseline.
+
 > **For Hermes:** Use subagent-driven-development skill to execute this plan task-by-task after the structure is approved.
 
 **Goal:** Reposition EFS from a controller-first frontend runtime into a schema-first enterprise management frontend platform where enterprises provide app/resource/api descriptions and EFS owns app shell, auth, routing, runtime generation, and local dev/service orchestration.
@@ -18,7 +20,7 @@ Current repo structure still reflects a transitional shape:
 - `packages/presets` still assumes page preset scaffolding as a primary entrypoint.
 - `packages/cli` is oriented around page manifests / lint / governance, not full platform app schemas.
 - `docs/standards/app-controller-contract.md` and surrounding docs still describe a controller-first integration story.
-- `standard-app` and `apps/standard-demo` are examples of using EFS, but not yet examples of an enterprise handing EFS a single app schema.
+- The old demo app examples predate the current source-first baseline and are not yet examples of an enterprise handing EFS a single app schema.
 
 This makes the repo harder to evolve toward the stated target: enterprises should eventually provide one app schema (first as `app.schema.ts`, later optionally plus pure data formats or API descriptions), and EFS should handle app shell, auth, routing, runtime assembly, and service startup.
 
@@ -29,7 +31,7 @@ This makes the repo harder to evolve toward the stated target: enterprises shoul
 ```text
 efs/
 ├── apps/
-│   ├── standard-demo/                 # demo app consumed by tests; migrates to schema-first example
+│   ├── active-app/                    # active app example consumed by tests
 │   └── playground/                    # optional future interactive schema playground
 ├── docs/
 │   ├── architecture/
@@ -276,8 +278,8 @@ Do the restructure in clear stages, but target a direct schema-first architectur
 - `EfsApp` accepts schema-derived runtime input
 - controller-first code is rewritten or deleted instead of preserved as a public mode
 
-### Phase C — CLI and demo become schema-first
-- `apps/standard-demo` driven by `app.schema.ts`
+### Phase C — CLI and app examples become schema-first
+- the active example app is driven by `app.schema.ts`
 - new CLI commands use app schema as canonical input
 
 ### Phase D — remove controller-first public surface
@@ -451,11 +453,11 @@ packages/cli/
 3. Update package build + exports
 4. Fix all tests
 
-### Stage 4 — Schema-first demo
-**Objective:** Make `apps/standard-demo` the first app-schema-driven example.
+### Stage 4 — Schema-first app example
+**Objective:** Make the active app example the first app-schema-driven example.
 
 **Tasks:**
-1. Add `apps/standard-demo/app.schema.ts`
+1. Add `app.schema.ts` to the active example app
 2. Compile schema to runtime input
 3. Stop hand-authoring app controller tree in demo
 4. Update public-surface tests

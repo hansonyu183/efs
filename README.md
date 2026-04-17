@@ -1,17 +1,18 @@
 # efs
 
-标准化企业管理平台前端仓库。
+标准化企业管理平台前端服务仓库。
 
-EFS 当前**唯一正式对外契约**只有两项：
+EFS 当前按**源码优先（source-first）**方式运行：
 
-1. `@efs/schema` —— 业务侧唯一需要直接依赖的 authoring contract
-2. `efs-lint` —— 用来检查 `apps/<app-name>/schemas/app.schema.ts` 的 schema 检查 CLI
+1. 仓库内统一通过 `@efs/schema` alias 维护 schema authoring
+2. `efs-lint` 用来检查 `apps/<app-name>/schemas/app.schema.ts`
 
 除此之外：
 
-- `packages/vue` 是**内部运行时实现**，不再作为外部包契约
-- `packages/presets` 是**内部脚手架/模板实现**，不再作为外部包契约
-- controller/shared 内部子路径都不再属于外部接入面
+- `packages/vue` 是内部运行时源码，不作为发布包契约
+- `packages/presets` 是内部脚手架源码，不作为发布包契约
+- `dist` 只允许作为本地临时构建产物存在，不是仓库真源
+- controller/shared 内部子路径都不属于稳定接入面
 
 ## 平台定位
 
@@ -22,12 +23,12 @@ EFS 当前**唯一正式对外契约**只有两项：
 
 ## 仓库内容
 
-- `packages/schema`：唯一正式对外的 schema authoring contract
-- `packages/cli`：唯一正式对外的 schema 检查 CLI（当前只保留 `efs-lint`）
-- `packages/vue`：内部 Vue runtime
-- `packages/presets`：内部 preset / scaffold 实现
-- `apps/standard-demo`：schema-first 标准演示应用
-- `tests/`：schema、runtime、打包与内部回归测试
+- `packages/schema`：内部 schema authoring 源码
+- `packages/cli`：本地 schema 检查 CLI（当前只保留 `efs-lint`）
+- `packages/vue`：内部 Vue runtime 源码
+- `packages/presets`：内部 preset / scaffold 源码
+- `apps/agentos`：当前活动应用
+- `tests/`：schema、runtime 与内部回归测试
 
 ## 正式接入文档
 
@@ -39,10 +40,10 @@ EFS 当前**唯一正式对外契约**只有两项：
 
 ```bash
 npm install
+npm run lint:schema
+npm run check:authoring
 npm run test
-npm run lint:standard
-npm run demo:build
-npm run pack:check
+npm run build
 npm run ci
 ```
 
@@ -53,4 +54,4 @@ npm run ci
 - schema lint CLI
 - 内部 Vue app shell / 资源页 / 报表页 runtime
 - 内部 preset / scaffold 实现
-- 打包与 CI 校验
+- 源码优先的构建与 CI 校验

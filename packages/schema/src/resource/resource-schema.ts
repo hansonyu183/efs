@@ -1,4 +1,4 @@
-import type { EfsFieldSchema } from './field-schema.js'
+import type { EfsFieldSchema } from './field-schema.ts'
 
 export interface EfsDomainSchema {
   key: string

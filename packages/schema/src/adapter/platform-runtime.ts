@@ -1,7 +1,7 @@
-import { inferResourceRuntime } from '../inference/resource-runtime.js'
-import type { EfsAppSchema } from '../app/app-schema.js'
-import type { EfsResourceSchema } from '../resource/resource-schema.js'
-import type { EfsResourceUiSchema } from '../resource/ui-schema.js'
+import { inferResourceRuntime } from '../inference/resource-runtime.ts'
+import type { EfsAppSchema } from '../app/app-schema.ts'
+import type { EfsResourceSchema } from '../resource/resource-schema.ts'
+import type { EfsResourceUiSchema } from '../resource/ui-schema.ts'
 
 /**
  * Bridge schema-first app/resource input into the current Vue runtime
@@ -127,7 +127,7 @@ function adaptResourceToVueController(
     domain: bridge.domainKey,
     res: bridge.resource.key,
     title: bridge.resource.title,
-    runtimeKind: bridge.inferred.mode === 'report' ? 'report' as const : 'crud' as const,
+    viewKind: bridge.inferred.mode === 'report' ? 'report' as const : 'crud' as const,
     fields: bridge.fieldDefs,
     query: adaptQueryHandler(bridge),
     edit: bridge.inferred.mode === 'crud' ? adaptEditHandler(bridge.handlers) : undefined,

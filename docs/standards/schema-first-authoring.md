@@ -1,19 +1,19 @@
 # Schema-First Authoring
 
-本文定义 EFS 当前**唯一正式对外**的接入主线。
+本文定义 EFS 当前**源码优先**的标准接入主线。
 
 结论先说：
 
 - 业务侧只需要维护 `apps/<app-name>/schemas/app.schema.ts`
-- 业务侧唯一正式公共包入口是 `@efs/schema`
-- 对 schema 的官方检查入口只有 `efs-lint`
-- 运行时壳、页面实现、导航/helper、controller 结构都属于平台内部实现，不属于外部契约
+- 仓库内统一 alias 入口是 `@efs/schema`
+- 对 schema 的标准检查入口只有 `efs-lint`
+- 运行时壳、页面实现、导航/helper、controller 结构都属于平台内部源码，不属于稳定发布契约
 
 ---
 
-## 1. 公开入口
+## 1. 标准入口
 
-当前唯一推荐使用的公开入口：
+当前唯一推荐使用的 schema 入口：
 
 - `@efs/schema`
   - `defineAppSchema(...)`
@@ -21,11 +21,11 @@
   - `createAppPropsFromSchema(...)`
   - `inferResourceRuntime(...)`
 
-当前唯一推荐使用的公开 CLI：
+当前唯一推荐使用的 CLI：
 
 - `efs-lint <app-root>`
 
-不再属于外部契约的内容：
+不再属于稳定契约的内容：
 
 - `@efs/vue`
 - `@efs/vue` 内部 runtime 路径
@@ -48,7 +48,7 @@ apps/<app-name>/schemas/app.schema.ts
 
 参考文件：
 
-- `apps/standard-demo/schemas/app.schema.ts`
+- `apps/agentos/schemas/app.schema.ts`
 
 `src/main.ts` 之类的 runtime 入口文件仍然存在，但它们由平台内部维护，不作为业务侧公开 authoring contract。
 
@@ -140,7 +140,7 @@ interface EfsResourceOperationsSchema {
 但它们都只是**平台内部实现细节**：
 
 - 不作为业务侧公开建模入口
-- 不作为正式 package contract
+- 不作为正式发布 package contract
 - 不作为对外文档推荐 import path
 
 以后如果文档需要提到它们，必须明确标注为 **internal-only**。

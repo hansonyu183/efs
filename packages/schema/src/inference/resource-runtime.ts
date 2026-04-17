@@ -1,5 +1,5 @@
-import type { EfsResourceSchema } from '../resource/resource-schema.js'
-import type { EfsResourceUiSchema, EfsRuntimeActionKey } from '../resource/ui-schema.js'
+import type { EfsResourceSchema } from '../resource/resource-schema.ts'
+import type { EfsResourceUiSchema, EfsRuntimeActionKey } from '../resource/ui-schema.ts'
 
 export type InferredResourceViewMode = 'crud' | 'report' | 'workspace' | 'custom'
 

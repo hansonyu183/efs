@@ -1,8 +1,8 @@
 # AgentOS 接入 EFS 规范
 
-本文定义 AgentOS 当前采用 EFS 的正式接入方式。
+本文定义 AgentOS 当前采用 EFS 的源码优先接入方式。
 
-结论先说：**外部接入只面向 schema contract，不面向 runtime package contract。**
+结论先说：**仓库内接入统一面向 schema 源码 contract，不面向 committed dist 或 runtime package contract。**
 
 ## 当前正式接法
 
@@ -32,7 +32,7 @@ alias: {
 }
 ```
 
-`packages/vue`、internal、shared helper 等路径都属于平台内部实现，不再作为业务侧公开 alias contract。
+`packages/vue`、internal、shared helper 等路径都属于平台内部源码实现，不再作为业务侧公开 alias contract。
 
 ### 3. 业务模块优先维护 `apps/<app-name>/schemas/app.schema.ts`
 
@@ -81,6 +81,8 @@ efs-lint apps/agentos
 
 `src/main.ts`、运行时壳、页面装配、导航 helper 等仍可能存在，
 但它们都属于平台内部 wiring，不再视为业务侧公开 contract。
+
+当前仓库不提交 `dist` 作为真源；服务运行和验证均直接围绕源码进行。
 
 ## 为什么当前采用这种接法
 

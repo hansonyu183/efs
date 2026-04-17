@@ -2,19 +2,13 @@
  "name": "@efs/schema",
  "version": "0.4.0",
  "type": "module",
- "private": false,
- "description": "Schema authoring contracts for the EFS enterprise management frontend platform.",
+ "private": true,
+ "description": "Internal schema authoring source for the EFS enterprise management frontend workspace.",
  "scripts": {
   "build": "node ./build.mjs"
  },
  "exports": {
-  ".": {
-   "types": "./dist/index.d.ts",
-   "default": "./dist/index.js"
-  }
+  ".": "./src/index.ts"
  },
- "files": [
-  "dist"
- ],
  "sideEffects": false
 }

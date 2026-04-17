@@ -1,7 +1,8 @@
-import type { EfsAppI18nSchema, EfsAppSchema } from './app/app-schema.js'
-import type { EfsServiceSchema } from './app/service-schema.js'
-import type { EfsEndpointSchema, EfsResourceSchema } from './resource/resource-schema.js'
-import { createRuntimeFromSchema, type SchemaAuthAdapter, type SchemaOperationAdapterMap, type SchemaResourceAdapters } from './adapter/platform-runtime.js'
+import type { EfsAppI18nSchema, EfsAppSchema } from './app/app-schema.ts'
+import type { EfsServiceSchema } from './app/service-schema.ts'
+import type { EfsResourceSchema } from './resource/resource-schema.ts'
+import { createRuntimeFromSchema, type SchemaAuthAdapter, type SchemaOperationAdapterMap, type SchemaResourceAdapters } from './adapter/platform-runtime.ts'
+import { requestJson, type HttpTransportOptions } from '../../src/http/index.ts'
 
 export interface CreateAppFromSchemaOptions {
   fetcher?: typeof fetch
@@ -14,13 +15,6 @@ export interface EfsAppProps {
   brandIcon?: string
   theme?: 'light' | 'dark'
   i18n?: EfsAppI18nSchema
-}
-
-type TransportOptions = {
-  requestDataKey?: string
-  responseDataKey?: string
-  authHeader?: string
-  authScheme?: string
 }
 
 export function createAppFromSchema(schema: EfsAppSchema, options: CreateAppFromSchemaOptions = {}) {
@@ -94,7 +88,7 @@ function resolvePlatformI18n(schema: EfsAppSchema): EfsAppI18nSchema | undefined
   }
 }
 
-function resolveTransportOptions(service?: EfsServiceSchema): TransportOptions {
+function resolveTransportOptions(service?: EfsServiceSchema): HttpTransportOptions {
   return {
     requestDataKey: service?.transport?.requestDataKey,
     responseDataKey: service?.transport?.responseDataKey,
@@ -106,7 +100,7 @@ function resolveTransportOptions(service?: EfsServiceSchema): TransportOptions {
 function buildAuthAdapter(
   schema: EfsAppSchema,
   baseUrl: string,
-  transport: TransportOptions,
+  transport: HttpTransportOptions,
   fetcher: typeof fetch,
   getCurrentOrgCode: () => string | undefined,
   setCurrentOrgCode: (orgCode: string | undefined) => void,
@@ -187,7 +181,7 @@ function buildAuthAdapter(
 function buildResourceAdapters(
   schema: EfsAppSchema,
   baseUrl: string,
-  transport: TransportOptions,
+  transport: HttpTransportOptions,
   fetcher: typeof fetch,
   getCurrentAccessToken: () => string | undefined,
 ): SchemaResourceAdapters {
@@ -203,7 +197,7 @@ function buildResourceAdapters(
 function buildOperationAdapterMap(
   resource: EfsResourceSchema,
   baseUrl: string,
-  transport: TransportOptions,
+  transport: HttpTransportOptions,
   fetcher: typeof fetch,
   getCurrentAccessToken: () => string | undefined,
 ): SchemaOperationAdapterMap {
@@ -254,114 +248,6 @@ function normalizeOperationResult(operationKey: string, response: any) {
   }
 
   return response
-}
-
-async function requestJson(
-  fetcher: typeof fetch,
-  baseUrl: string,
-  transport: TransportOptions,
-  endpoint: EfsEndpointSchema,
-  options: { json?: unknown; context?: any; accessToken?: string },
-) {
-  const method = endpoint.method || 'GET'
-  const { url, body } = buildRequest(baseUrl, transport, endpoint, options.context, options.json)
-  const headers: Record<string, string> = {}
-  if (body != null) headers['content-type'] = 'application/json'
-  if (options.accessToken) headers[transport.authHeader || 'Authorization'] = `${transport.authScheme || 'Bearer'} ${options.accessToken}`
-  const response = await fetcher(url, {
-    method,
-    headers: Object.keys(headers).length > 0 ? headers : undefined,
-    body: body == null ? undefined : JSON.stringify(body),
-  })
-  const text = await response.text()
-  let data: any = undefined
-  if (text) {
-    try {
-      data = JSON.parse(text)
-    } catch {
-      data = text
-    }
-  }
-  const unwrapped = unwrapResponseData(data, transport)
-  const isOk = typeof response.ok === 'boolean' ? response.ok : true
-  if (!isOk) {
-    const message = asOptionalString(data?.message ?? unwrapped?.message) || `${response.status} ${response.statusText}`
-    throw new Error(message)
-  }
-  return unwrapped
-}
-
-function buildRequest(
-  baseUrl: string,
-  transport: TransportOptions,
-  endpoint: EfsEndpointSchema,
-  context: any,
-  explicitJson: unknown,
-) {
-  const method = endpoint.method || 'GET'
-  const path = interpolatePath(endpoint.path, context)
-  const url = buildUrl(baseUrl, path)
-
-  if (method === 'GET') {
-    const target = new URL(url)
-    const queryValues = context?.queryValues && typeof context.queryValues === 'object' ? context.queryValues : {}
-    for (const [key, value] of Object.entries(queryValues)) {
-      if (value == null || value === '') continue
-      target.searchParams.set(key, String(value))
-    }
-    if (typeof context?.page === 'number') target.searchParams.set('page', String(context.page))
-    if (typeof context?.pageSize === 'number') target.searchParams.set('pageSize', String(context.pageSize))
-    return { url: target.toString(), body: undefined }
-  }
-
-  const payload = explicitJson !== undefined
-    ? explicitJson
-    : context?.item && typeof context.item === 'object'
-      ? context.item
-      : context
-
-  return { url, body: wrapRequestData(payload, transport) }
-}
-
-function interpolatePath(path: string, context: any) {
-  const item = context?.item && typeof context.item === 'object' ? context.item : undefined
-  return path.replace(/:([A-Za-z0-9_]+)/g, (_, key) => {
-    const value = context?.[key] ?? item?.[key] ?? item?.id
-    return encodeURIComponent(String(value ?? key))
-  })
-}
-
-function buildUrl(baseUrl: string, path: string) {
-  if (/^https?:\/\//i.test(path)) return path
-  const resolvedBase = resolveBaseUrl(baseUrl)
-  const normalizedBase = resolvedBase.replace(/\/+$/, '')
-  const normalizedPath = String(path || '').replace(/^\/+/, '')
-  return normalizedPath ? `${normalizedBase}/${normalizedPath}` : normalizedBase
-}
-
-function resolveBaseUrl(baseUrl: string) {
-  if (!baseUrl) {
-    if (typeof window !== 'undefined' && window.location?.origin) return window.location.origin
-    return 'http://127.0.0.1'
-  }
-  if (/^https?:\/\//i.test(baseUrl)) return baseUrl
-  if (typeof window !== 'undefined' && window.location?.origin) {
-    return `${window.location.origin}${baseUrl.startsWith('/') ? baseUrl : `/${baseUrl}`}`
-  }
-  return `http://127.0.0.1${baseUrl.startsWith('/') ? baseUrl : `/${baseUrl}`}`
-}
-
-function wrapRequestData(payload: unknown, transport: TransportOptions) {
-  if (!transport.requestDataKey) return payload
-  return {
-    [transport.requestDataKey]: payload,
-  }
-}
-
-function unwrapResponseData(data: any, transport: TransportOptions) {
-  if (!transport.responseDataKey) return data
-  if (data && typeof data === 'object' && transport.responseDataKey in data) return data[transport.responseDataKey]
-  return data
 }
 
 function readPath(value: any, path: string) {
