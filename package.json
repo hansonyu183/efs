@@ -4,16 +4,11 @@
  "private": true,
  "type": "module",
  "description": "Source-first enterprise management frontend service workspace.",
- "workspaces": [
-  "packages/*",
-  "apps/*"
- ],
  "scripts": {
   "build": "vite build --config apps/agentos/vite.config.mjs",
   "check:authoring": "node ./node_modules/typescript/bin/tsc -p tsconfig.json",
-  "lint:schema": "node packages/cli/bin/efs-lint.mjs apps/agentos",
   "test": "node --test",
-  "ci": "npm run check:authoring && npm run lint:schema && npm run test && npm run build"
+  "ci": "npm run check:authoring && npm run test && npm run build"
  },
  "engines": {
   "node": ">=20"

@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@efs/schema': resolve(rootDir, '../../packages/schema/src/index.ts'),
+      '@efs': resolve(rootDir, '../../src'),
     },
   },
   build: {

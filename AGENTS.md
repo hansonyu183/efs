@@ -4,8 +4,8 @@
 These instructions apply to this repository.
 
 ## Runtime and naming conventions
-- The only external contract is schema-first `apps/<app-name>/schemas/app.schema.ts` plus the schema-check CLI `efs-lint`.
-- Internal runtime wiring may still mount the Vue shell, but `packages/vue` is not a public package contract.
+- The only external contract is schema-first `apps/<app-name>/schemas/app.schema.ts`.
+- Internal runtime wiring may still mount the Vue shell, but `src/vue` is not a public package contract.
 - Resource structure uses two levels: `domain/res`.
 - Do not add a `Resource` suffix to resource names.
 
@@ -22,6 +22,5 @@ These instructions apply to this repository.
 - On small screens, large auxiliary panels should default to hidden and be entered via `More` or explicit toggles instead of staying permanently expanded.
 
 ## Public surface
-- Public package contract: `@efs/schema` only.
-- Public CLI contract: `efs-lint` only.
-- `packages/vue`, `packages/presets`, controller/shared subpaths, and raw component paths are internal-only.
+- There is no standalone public package contract.
+- `src/vue`, controller/shared subpaths, and raw component paths are internal-only.

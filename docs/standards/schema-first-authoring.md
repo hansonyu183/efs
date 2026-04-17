@@ -5,8 +5,7 @@
 结论先说：
 
 - 业务侧只需要维护 `apps/<app-name>/schemas/app.schema.ts`
-- 仓库内统一 alias 入口是 `@efs/schema`
-- 对 schema 的标准检查入口只有 `efs-lint`
+- 仓库内统一源码入口是 `@efs -> /src`
 - 运行时壳、页面实现、导航/helper、controller 结构都属于平台内部源码，不属于稳定发布契约
 
 ---
@@ -15,22 +14,15 @@
 
 当前唯一推荐使用的 schema 入口：
 
-- `@efs/schema`
-  - `defineAppSchema(...)`
+- `@efs/schema/index.ts`
   - `createAppFromSchema(...)`
   - `createAppPropsFromSchema(...)`
-  - `inferResourceRuntime(...)`
-
-当前唯一推荐使用的 CLI：
-
-- `efs-lint <app-root>`
 
 不再属于稳定契约的内容：
 
 - `@efs/vue`
 - `@efs/vue` 内部 runtime 路径
 - `@efs/vue/shared/*`
-- `@efs/presets`
 - controller / runtime helper 子路径
 
 ---
@@ -41,7 +33,7 @@
 
 ```text
 apps/<app-name>/schemas/app.schema.ts
-  -> defineAppSchema(...)
+  -> composeAppSchema(...)
   -> createAppFromSchema(...)
   -> internal platform runtime
 ```
@@ -96,45 +88,20 @@ interface EfsResourceOperationsSchema {
 
 ---
 
-## 4. UI schema 只做最小 override
+## 4. schema 直接承载页面结构
+资源页面结构直接写在 schema 内：
 
-`ui` 层不重新定义业务，不发明第二套页面 DSL。
-
-当前建议只放：
-
-- `view.mode`
-- `fields.<field>.hidden / label`
-- `actions.<action>.hidden / placement / label / api / runtime`
-
-其中：
-
-- `api`：把一个 UI action 绑定到 `operations.<name>`
-- `runtime`：绑定到平台内建前端动作，比如 `filter`、`refresh`
-
-原则是：**平台优先推导，业务只在必要处覆盖。**
+- `view`
+- `queryFields`
+- `columns`
+- `formSections`
+- `detailFields`
+- `summary`
+- `actions`
 
 ---
 
-## 5. runtime 推导规则（当前版本）
-
-`inferResourceRuntime(...)` 当前会基于 resource schema + ui override 推导：
-
-- view mode
-- 默认 actions
-- 基础 field 行为
-
-当前主要规则：
-
-- 有 `list/create/update/remove` 时默认推导为 `crud`
-- 有 `query` 时默认推导为 `report`
-- 表格型资源默认具备 `filter` / `refresh` 一类 runtime action
-- `create/update/remove/export` 等 operation 可自动生成默认 action 展示位
-
-如果推导不够，再由 `ui` 层做最小 override。
-
----
-
-## 6. 对旧 controller/internal 的定位
+## 5. 对旧 controller/internal 的定位
 
 旧 controller tree、runtime shape、shared helper 路径仍可能存在于仓库内部，
 但它们都只是**平台内部实现细节**：
@@ -147,16 +114,15 @@ interface EfsResourceOperationsSchema {
 
 ---
 
-## 7. 最小接入清单
+## 6. 最小接入清单
 
 一个新项目至少要有：
 
 1. `apps/<app-name>/schemas/app.schema.ts`
 2. 对应 API/service 配置
-3. `efs-lint` 校验流程
-4. 少量必要的 `ui` override（如确实推导不够）
+3. 必要的 baseline / patch 组合
 
 如果某个页面必须写很多 query/form/detail 布局细节，优先先反问：
 
-- 这是不是平台推导还不够？
-- 这是不是应该补进 EFS runtime，而不是回退成业务页手写配置？
+- 这是不是可以直接稳定成 schema 结构？
+- 这是不是应该补进 EFS runtime，而不是回退成业务页手写逻辑？

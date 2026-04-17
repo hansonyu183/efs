@@ -22,62 +22,30 @@ third_party/efs
 	url = https://github.com/hansonyu183/efs.git
 ```
 
-### 2. 公开 alias 只指向 `@efs/schema`
+### 2. 公开 alias 只指向 `@efs -> /src`
 
 标准写法：
 
 ```ts
 alias: {
-  '@efs/schema': path.resolve(__dirname, '../../third_party/efs/packages/schema/src/index.ts'),
+  '@efs': path.resolve(__dirname, '../../third_party/efs/src'),
 }
 ```
 
-`packages/vue`、internal、shared helper 等路径都属于平台内部源码实现，不再作为业务侧公开 alias contract。
+`src/vue`、internal、shared helper 等路径都属于平台内部源码实现，不再作为业务侧公开 alias contract。
 
 ### 3. 业务模块优先维护 `apps/<app-name>/schemas/app.schema.ts`
 
 标准写法：
 
 ```ts
-import { defineAppSchema } from '@efs/schema'
+import { baselineSchema, composeAppSchema } from '@efs/schema/index.ts'
+import { appPatch } from './patch'
 
-export const appSchema = defineAppSchema({
-  schemaVersion: 'v1',
-  app: { id: 'agentos', name: 'agentos', title: 'AgentOS' },
-  domains: [
-    {
-      key: 'crm',
-      title: '客户中心',
-      resources: [
-        {
-          key: 'customer',
-          title: '客户管理',
-          fields: [
-            { key: 'id', title: '编号', type: 'string', identity: 'id', readonly: true },
-            { key: 'name', title: '名称', type: 'string', identity: 'title' },
-          ],
-          operations: {
-            list: { path: '/api/crm/customers', method: 'GET' },
-            get: { path: '/api/crm/customers/:id', method: 'GET' },
-            create: { path: '/api/crm/customers', method: 'POST' },
-            update: { path: '/api/crm/customers/:id', method: 'PUT' },
-            remove: { path: '/api/crm/customers/:id', method: 'DELETE' },
-            export: { path: '/api/crm/customers/export', method: 'POST' },
-          },
-        },
-      ],
-    },
-  ],
-})
+export const appSchema = composeAppSchema(baselineSchema, appPatch)
 ```
 
-### 4. 用 `efs-lint` 检查 schema 应用目录
-
-```bash
-efs-lint apps/agentos
-```
-
-### 5. runtime 入口由平台内部维护
+### 4. runtime 入口由平台内部维护
 
 `src/main.ts`、运行时壳、页面装配、导航 helper 等仍可能存在，
 但它们都属于平台内部 wiring，不再视为业务侧公开 contract。

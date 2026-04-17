@@ -6,8 +6,6 @@
 > EFS 当前唯一正式对外接入主线是：
 >
 > - `apps/<app-name>/schemas/app.schema.ts`
-> - `@efs/schema`
-> - `efs-lint`
 
 旧 controller tree、runtime shape、shared helper、兼容层适配结构，
 都只作为平台内部运行时参考，不再作为业务侧公开 authoring contract。

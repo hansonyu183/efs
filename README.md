@@ -4,13 +4,11 @@
 
 EFS 当前按**源码优先（source-first）**方式运行：
 
-1. 仓库内统一通过 `@efs/schema` alias 维护 schema authoring
-2. `efs-lint` 用来检查 `apps/<app-name>/schemas/app.schema.ts`
+1. 仓库内统一通过 `@efs -> /src` alias 维护 schema authoring
 
 除此之外：
 
-- `packages/vue` 是内部运行时源码，不作为发布包契约
-- `packages/presets` 是内部脚手架源码，不作为发布包契约
+- `src/vue` 是内部运行时源码，不作为发布包契约
 - `dist` 只允许作为本地临时构建产物存在，不是仓库真源
 - controller/shared 内部子路径都不属于稳定接入面
 
@@ -23,10 +21,7 @@ EFS 当前按**源码优先（source-first）**方式运行：
 
 ## 仓库内容
 
-- `packages/schema`：内部 schema authoring 源码
-- `packages/cli`：本地 schema 检查 CLI（当前只保留 `efs-lint`）
-- `packages/vue`：内部 Vue runtime 源码
-- `packages/presets`：内部 preset / scaffold 源码
+- `src/vue`：内部 Vue runtime 源码
 - `apps/agentos`：当前活动应用
 - `tests/`：schema、runtime 与内部回归测试
 
@@ -40,7 +35,6 @@ EFS 当前按**源码优先（source-first）**方式运行：
 
 ```bash
 npm install
-npm run lint:schema
 npm run check:authoring
 npm run test
 npm run build
@@ -51,7 +45,5 @@ npm run ci
 
 - schema-first app authoring
 - schema -> platform runtime adapter
-- schema lint CLI
 - 内部 Vue app shell / 资源页 / 报表页 runtime
-- 内部 preset / scaffold 实现
 - 源码优先的构建与 CI 校验

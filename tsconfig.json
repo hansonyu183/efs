@@ -5,8 +5,7 @@
     "moduleResolution": "Bundler",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "paths": {
-      "@efs/schema": ["./packages/schema/src/index.ts"],
-      "@efs/schema/*": ["./packages/schema/src/*"]
+      "@efs/*": ["./src/*"]
     },
     "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,
@@ -16,7 +15,7 @@
   },
   "include": [
     "apps/**/*.ts",
-    "packages/**/*.ts",
-    "packages/**/*.d.ts"
+    "src/**/*.ts",
+    "src/**/*.d.ts"
   ]
 }
