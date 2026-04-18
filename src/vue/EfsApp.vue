@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watchEffect } from 'vue'
+import { computed, defineAsyncComponent, watchEffect } from 'vue'
 import type { PropType } from 'vue'
 import { useTheme } from 'vuetify'
 import { type EfsAppSchema } from '../schema/index.ts'
@@ -45,10 +45,11 @@ import { splitResPath } from '../model/app/navigation-paths'
 import type { EfsI18nConfig } from './i18n'
 import { syncSchemaI18n, useT } from './i18n'
 import ErrorState from './feedback/ErrorState.vue'
-import AuthPage from './pages/AuthPage.vue'
-import MainPage from './pages/MainPage.vue'
 import EfsSidebarNav from './pages/EfsSidebarNav.vue'
-import ResolvedResPage from './pages/ResolvedResPage.vue'
+
+const AuthPage = defineAsyncComponent(() => import('./pages/AuthPage.vue'))
+const MainPage = defineAsyncComponent(() => import('./pages/MainPage.vue'))
+const ResolvedResPage = defineAsyncComponent(() => import('./pages/ResolvedResPage.vue'))
 
 defineOptions({ name: 'EfsApp' })
 

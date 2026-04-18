@@ -1,5 +1,6 @@
 <template>
- <VIcon class="efs-semantic-icon" :class="sizeClass" :icon="glyph" :aria-label="label" role="img" />
+ <VIcon v-if="glyph" class="efs-semantic-icon" :class="sizeClass" :icon="glyph" :aria-label="label" role="img" />
+ <span v-else class="efs-semantic-icon efs-semantic-icon--fallback" :class="sizeClass" :aria-label="label" role="img">{{ fallbackText }}</span>
 </template>
 
 <script setup lang="ts">
@@ -18,12 +19,13 @@ interface SemanticIconProps {
 
 const props = withDefaults(defineProps<SemanticIconProps>(), {
  name: '',
- fallback: 'mdi-circle-medium',
+ fallback: '•',
  label: '',
  size: 'md',
 })
 
-const glyph = computed(() => resolveSemanticIcon(props.name, props.fallback))
+const glyph = computed(() => resolveSemanticIcon(props.name))
+const fallbackText = computed(() => props.fallback)
 const sizeClass = computed(() => `efs-semantic-icon--${props.size}`)
 </script>
 
@@ -33,6 +35,10 @@ const sizeClass = computed(() => `efs-semantic-icon--${props.size}`)
  align-items: center;
  justify-content: center;
  flex-shrink: 0;
+}
+
+.efs-semantic-icon--fallback {
+ line-height: 1;
 }
 
 .efs-semantic-icon--sm {

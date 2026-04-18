@@ -17,6 +17,16 @@ export default defineConfig({
   build: {
     outDir: resolve(rootDir, 'dist'),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined
+          if (id.includes('vuetify')) return 'vuetify'
+          if (id.includes('vue-i18n') || id.includes('@vueuse') || id.includes('/vue/')) return 'vue-vendor'
+          return 'vendor'
+        },
+      },
+    },
   },
   server: {
     allowedHosts: ['agentos.bytesucceed.com'],
