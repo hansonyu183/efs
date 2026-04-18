@@ -826,7 +826,9 @@ const resolvedError = computed(() => runtimeState.error)
 const resolvedBusy = computed(() => runtimeState.busy)
 const resolvedDirty = computed(() => runtimeState.dirty)
 const resolvedActiveItem = computed(() => viewState.activeItem)
-const resolvedErrorMessage = computed(() => typeof resolvedError.value === 'string' && resolvedError.value ? resolvedError.value : '资源列表加载异常，请稍后重试。')
+const resolvedErrorMessage = computed(() => typeof resolvedError.value === 'string' && resolvedError.value
+ ? resolvedError.value
+ : resolveOptionalLabel({ key: 'resourceErrorMessage', instance, namespaces: ['efs.resourceCrud', 'efs.state.error'] }) || '资源列表加载异常，请稍后重试。')
 const resolvedSelectedCount = computed(() => props.selectableRows ? viewState.selectedRowKeys.length : 0)
 const activeQueryCount = computed(() => Object.values(viewState.queryValues).filter((value) => stringValue(value).trim().length > 0).length)
 const activeQuerySummaries = computed(() => normalizedQueryFields.value
@@ -851,45 +853,64 @@ const resolvedSelectedLabel = computed(() => resolveOptionalLabel({ key: 'select
 const resolvedClearSelectionLabel = computed(() => resolveOptionalLabel({ key: 'clearSelectionLabel', instance, namespaces: ['efs.resourceCrud'] }) || '清空选择')
 const resolvedCloseLabel = computed(() => resolveOptionalLabel({ key: 'closeLabel', instance, namespaces: ['efs.resourceCrud'] }) || '关闭')
 const resolvedDoneLabel = computed(() => resolveOptionalLabel({ key: 'doneLabel', instance, namespaces: ['efs.resourceCrud'] }) || '完成')
-const resolvedClientFilterLabel = computed(() => '滤')
-const resolvedClientFilterTitle = computed(() => '本地过滤')
-const resolvedClientFilterKeywordLabel = computed(() => '关键词')
-const resolvedClientFilterScopeLabel = computed(() => '过滤范围')
-const resolvedClientFilterAllLabel = computed(() => '全部')
-const resolvedClientFilterPlaceholder = computed(() => '在当前结果中过滤')
+const resolvedClientFilterLabel = computed(() => resolveOptionalLabel({ key: 'clientFilterLabel', instance, namespaces: ['efs.resourceCrud'] }) || '滤')
+const resolvedClientFilterTitle = computed(() => resolveOptionalLabel({ key: 'clientFilterTitle', instance, namespaces: ['efs.resourceCrud'] }) || '本地过滤')
+const resolvedClientFilterKeywordLabel = computed(() => resolveOptionalLabel({ key: 'clientFilterKeywordLabel', instance, namespaces: ['efs.resourceCrud'] }) || '关键词')
+const resolvedClientFilterScopeLabel = computed(() => resolveOptionalLabel({ key: 'clientFilterScopeLabel', instance, namespaces: ['efs.resourceCrud'] }) || '过滤范围')
+const resolvedClientFilterAllLabel = computed(() => resolveOptionalLabel({ key: 'clientFilterAllLabel', instance, namespaces: ['efs.resourceCrud'] }) || '全部')
+const resolvedClientFilterPlaceholder = computed(() => resolveOptionalLabel({ key: 'clientFilterPlaceholder', instance, namespaces: ['efs.resourceCrud'] }) || '在当前结果中过滤')
 const hasClientFilter = computed(() => normalizedFilterKeyword.value.length > 0)
 const canResetClientFilter = computed(() => normalizedFilterKeyword.value.length > 0 || clientFilterState.scope !== 'all')
-const resolvedClientFilterSummary = computed(() => hasClientFilter.value ? `当前结果 ${resolvedItems.value.length} 项` : '')
+const resolvedClientFilterSummary = computed(() => hasClientFilter.value
+ ? formatLabel(resolveOptionalLabel({ key: 'clientFilterSummary', instance, namespaces: ['efs.resourceCrud'] }) || '当前结果 {count} 项', {
+   count: resolvedItems.value.length,
+  })
+ : '')
 const resolvedDetailTitle = computed(() => resolveOptionalLabel({ key: 'detailTitle', instance, namespaces: ['efs.resourceCrud'] }) || '详情信息')
 const resolvedResourceLabel = computed(() => {
  const rawTitle = props.title.trim()
- if (!rawTitle) return '资源'
+ if (!rawTitle) return resolveOptionalLabel({ key: 'resourceFallbackLabel', instance, namespaces: ['efs.resourceCrud'] }) || '资源'
  return rawTitle.replace(/(列表|管理|台账|维护)$/u, '') || rawTitle
 })
-const resolvedFormTitle = computed(() => `${dialogState.mode === 'edit' ? '编辑' : '新增'}${resolvedResourceLabel.value}`)
+const resolvedFormTitle = computed(() => formatLabel(resolveOptionalLabel({
+ key: dialogState.mode === 'edit' ? 'formTitleEdit' : 'formTitleCreate',
+ instance,
+ namespaces: ['efs.resourceCrud'],
+}) || `${dialogState.mode === 'edit' ? '编辑' : '新增'}{resource}`, {
+ resource: resolvedResourceLabel.value,
+}))
 const resolvedPrimaryFormTitlePlaceholder = computed(() => resolveOptionalLabel({ key: 'primaryFormTitlePlaceholder', instance, namespaces: ['efs.resourceCrud'] }) || '请输入标题')
 const resolvedDirtyLabel = computed(() => resolveOptionalLabel({ key: 'dirtyLabel', instance, namespaces: ['efs.resourceCrud'] }) || '存在未保存修改')
 const resolvedSaveLabel = computed(() => resolveOptionalLabel({ key: 'saveLabel', instance, namespaces: ['efs.resourceCrud'] }) || '保存')
-const resolvedPreviousLabel = computed(() => '上一项')
-const resolvedNextLabel = computed(() => '下一项')
-const resolvedPrintLabel = computed(() => '打印')
-const resolvedBackToTopLabel = computed(() => '回到顶部')
-const resolvedMoreActionsLabel = computed(() => '更多操作')
-const resolvedDeleteConfirmLabel = computed(() => '确认删除当前记录吗？')
-const resolvedPermissionManageLabel = computed(() => '管理权限')
-const resolvedPermissionDialogTitle = computed(() => '权限设置')
-const resolvedPermissionDialogSubtitle = computed(() => '按领域勾选当前角色可用的权限。')
-const resolvedPermissionSearchLabel = computed(() => '筛选权限')
-const resolvedPermissionSearchPlaceholder = computed(() => '搜索领域、资源、操作或权限标识')
-const resolvedPermissionLoadingLabel = computed(() => '正在加载权限目录…')
-const resolvedPermissionEmptyLabel = computed(() => '暂无可选权限')
-const resolvedPermissionSelectDomainLabel = computed(() => '全选本组')
-const resolvedPermissionClearDomainLabel = computed(() => '清空本组')
-const resolvedPermissionSelectResourceLabel = computed(() => '全选本资源')
-const resolvedPermissionClearResourceLabel = computed(() => '清空本资源')
+const resolvedPreviousLabel = computed(() => resolveOptionalLabel({ key: 'previousLabel', instance, namespaces: ['efs.resourceCrud'] }) || '上一项')
+const resolvedNextLabel = computed(() => resolveOptionalLabel({ key: 'nextLabel', instance, namespaces: ['efs.resourceCrud'] }) || '下一项')
+const resolvedPrintLabel = computed(() => resolveOptionalLabel({ key: 'printLabel', instance, namespaces: ['efs.resourceCrud'] }) || '打印')
+const resolvedBackToTopLabel = computed(() => resolveOptionalLabel({ key: 'backToTopLabel', instance, namespaces: ['efs.resourceCrud'] }) || '回到顶部')
+const resolvedMoreActionsLabel = computed(() => resolveOptionalLabel({ key: 'moreActionsLabel', instance, namespaces: ['efs.resourceCrud'] }) || '更多操作')
+const resolvedDeleteConfirmLabel = computed(() => resolveOptionalLabel({ key: 'deleteConfirmLabel', instance, namespaces: ['efs.resourceCrud'] }) || '确认删除当前记录吗？')
+const resolvedPermissionManageLabel = computed(() => resolveOptionalLabel({ key: 'permissionManageLabel', instance, namespaces: ['efs.resourceCrud'] }) || '管理权限')
+const resolvedPermissionDialogTitle = computed(() => resolveOptionalLabel({ key: 'permissionDialogTitle', instance, namespaces: ['efs.resourceCrud'] }) || '权限设置')
+const resolvedPermissionDialogSubtitle = computed(() => resolveOptionalLabel({ key: 'permissionDialogSubtitle', instance, namespaces: ['efs.resourceCrud'] }) || '按领域勾选当前角色可用的权限。')
+const resolvedPermissionSearchLabel = computed(() => resolveOptionalLabel({ key: 'permissionSearchLabel', instance, namespaces: ['efs.resourceCrud'] }) || '筛选权限')
+const resolvedPermissionSearchPlaceholder = computed(() => resolveOptionalLabel({ key: 'permissionSearchPlaceholder', instance, namespaces: ['efs.resourceCrud'] }) || '搜索领域、资源、操作或权限标识')
+const resolvedPermissionLoadingLabel = computed(() => resolveOptionalLabel({ key: 'permissionLoadingLabel', instance, namespaces: ['efs.resourceCrud'] }) || '正在加载权限目录…')
+const resolvedPermissionEmptyLabel = computed(() => resolveOptionalLabel({ key: 'permissionEmptyLabel', instance, namespaces: ['efs.resourceCrud'] }) || '暂无可选权限')
+const resolvedPermissionSelectDomainLabel = computed(() => resolveOptionalLabel({ key: 'permissionSelectDomainLabel', instance, namespaces: ['efs.resourceCrud'] }) || '全选本组')
+const resolvedPermissionClearDomainLabel = computed(() => resolveOptionalLabel({ key: 'permissionClearDomainLabel', instance, namespaces: ['efs.resourceCrud'] }) || '清空本组')
+const resolvedPermissionSelectResourceLabel = computed(() => resolveOptionalLabel({ key: 'permissionSelectResourceLabel', instance, namespaces: ['efs.resourceCrud'] }) || '全选本资源')
+const resolvedPermissionClearResourceLabel = computed(() => resolveOptionalLabel({ key: 'permissionClearResourceLabel', instance, namespaces: ['efs.resourceCrud'] }) || '清空本资源')
 const resolvedTotalSummary = computed(() => hasClientFilter.value
- ? `滤 ${resolvedItems.value.length}/${viewState.items.length} · 第 ${viewState.page}/${resolvedPageCount.value} 页`
- : `${resolvedTotal.value} 条数据 · 第 ${viewState.page}/${resolvedPageCount.value} 页`)
+ ? formatLabel(resolveOptionalLabel({ key: 'filteredTotalSummary', instance, namespaces: ['efs.resourceCrud'] }) || '滤 {filtered}/{total} · 第 {page}/{pageCount} 页', {
+   filtered: resolvedItems.value.length,
+   total: viewState.items.length,
+   page: viewState.page,
+   pageCount: resolvedPageCount.value,
+  })
+ : formatLabel(resolveOptionalLabel({ key: 'totalSummary', instance, namespaces: ['efs.resourceCrud'] }) || '{total} 条数据 · 第 {page}/{pageCount} 页', {
+   total: resolvedTotal.value,
+   page: viewState.page,
+   pageCount: resolvedPageCount.value,
+  }))
 const mobileQuerySummaryTitle = computed(() => activeQueryCount.value > 0 ? `${resolvedFilteredSummaryPrefix.value} ${activeQueryCount.value} ${resolvedFilteredSummarySuffix.value}` : resolvedAllDataLabel.value)
 const mobileQuerySummaryText = computed(() => activeQueryCount.value > 0 ? activeQuerySummaries.value.join(' · ') : resolvedSetFiltersLabel.value)
 const showBatchBar = computed(() => resolvedSelectedCount.value > 0 || (!isMobile.value && visibleBatchActions.value.length > 0))
@@ -1106,6 +1127,10 @@ function ensureActiveItem() {
 
 function stringValue(value: unknown) {
  return typeof value === 'string' ? value : String(value ?? '')
+}
+
+function formatLabel(template: string, params: Record<string, string | number>) {
+ return Object.entries(params).reduce((result, [key, value]) => result.replaceAll(`{${key}}`, String(value)), template)
 }
 
 function displayCellValue(row: Record<string, unknown> | null | undefined, key: string) {
