@@ -1,8 +1,7 @@
 import { createI18n, useI18n } from 'vue-i18n'
+import { defaultEfsMessages, type EfsI18nMessages } from './default-messages'
 
-export type EfsI18nMessages = {
-  [key: string]: string | EfsI18nMessages
-}
+export type { EfsI18nMessages } from './default-messages'
 
 export interface EfsI18nConfig {
   locale?: string
@@ -14,7 +13,7 @@ export const efsI18n = createI18n({
   legacy: false,
   locale: 'zh-CN',
   fallbackLocale: 'zh-CN',
-  messages: {},
+  messages: defaultEfsMessages,
 })
 
 export function useGlobalEfsI18n() {
@@ -22,10 +21,11 @@ export function useGlobalEfsI18n() {
 }
 
 export function useT() {
-  const { t } = useGlobalEfsI18n()
+  const { t, te } = useGlobalEfsI18n()
   return (key: string, fallback = '') => {
+    if (!te(key)) return fallback
     const resolved = t(key)
-    return typeof resolved === 'string' && resolved && resolved !== key ? resolved : fallback
+    return typeof resolved === 'string' && resolved ? resolved : fallback
   }
 }
 
@@ -36,7 +36,7 @@ export function syncSchemaI18n(config?: EfsI18nConfig, locale?: string) {
   const messages = normalizeMessages(config?.messages, nextLocale)
 
   for (const [localeKey, bundle] of Object.entries(messages)) {
-    global.setLocaleMessage(localeKey, bundle)
+    global.mergeLocaleMessage(localeKey, bundle)
   }
 
   global.fallbackLocale.value = fallbackLocale
