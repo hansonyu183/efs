@@ -20,11 +20,16 @@
 - `src/schema/baseline.ts`
 - `apps/<app-name>/schemas/patch.ts`
 - `composeAppSchema(...)`
-- `EfsApp`
+- 平台 bootstrap 对 `EfsApp` 的挂载
 
 最小目标：
 - 应用、认证、服务、domain/resource 信息进入 schema
 - 项目先跑通 `apps/<app-name>/schemas/app.schema.ts -> platform entry -> EfsApp`
+
+注意：
+- `EfsApp` 属于平台 runtime
+- 迁移文档提到它，是为了说明平台最终如何承接 schema
+- 这不表示业务侧应把 `@efs/vue/*` 当作稳定 authoring import path
 
 原因：
 - 先统一入口，后续页面与组件迁移才不会反复返工

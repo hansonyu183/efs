@@ -17,13 +17,20 @@
 - `@efs/schema/index.ts`
   - `baselineSchema`
   - `composeAppSchema(...)`
+  - `EfsAppSchemaPatch` / `EfsAppSchema`
 
 不再属于稳定契约的内容：
 
 - `@efs/vue`
-- `@efs/vue` 内部 runtime 路径
+- `@efs/vue/*` 内部 runtime 路径
 - `@efs/vue/shared/*`
 - controller / runtime helper 子路径
+
+补充说明：
+
+- `apps/<app-name>/src/main.ts` 这类平台 bootstrap 文件当前可能会 import `@efs/vue/*`
+- 这类 import 仅代表平台内部装配需要，不代表业务 authoring contract 对外扩张到 runtime 路径
+- 业务建模和迁移文档仍应优先围绕 schema 入口表述
 
 ---
 
@@ -43,6 +50,8 @@ apps/<app-name>/schemas/app.schema.ts
 - `apps/agentos/schemas/app.schema.ts`
 
 `src/main.ts` 之类的 runtime 入口文件仍然存在，但它们由平台内部维护，不作为业务侧公开 authoring contract。
+
+换句话说，业务项目可以运行平台提供的 bootstrap，但不应该把 bootstrap 依赖的 `@efs/vue/*` import 反向视作自己的稳定接入面。
 
 ---
 
@@ -115,6 +124,7 @@ interface EfsResourceOperationsSchema {
 - 不作为业务侧公开建模入口
 - 不作为正式发布 package contract
 - 不作为对外文档推荐 import path
+- 即使当前被平台 bootstrap 使用，也仍然按 internal-only 处理
 
 以后如果文档需要提到它们，必须明确标注为 **internal-only**。
 
