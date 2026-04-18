@@ -1,9 +1,38 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createI18n } from 'vue-i18n'
 import AuthPage from '@efs/vue/pages/AuthPage.vue'
-import { efsI18n } from '@efs/vue/i18n.ts'
+import { defaultEfsMessages } from '@efs/vue/default-messages.ts'
 import { vuetify } from '@efs/vue/vuetify.ts'
 import { createTestSchema } from './fixtures/schema'
+
+const localeCases = [
+  {
+    locale: 'zh-CN',
+    title: '登录到 EFS',
+    subtitle: '请输入账号凭证继续访问平台。',
+    username: '用户名',
+    password: '密码',
+    submit: '登录',
+  },
+  {
+    locale: 'en-US',
+    title: 'Sign in to EFS',
+    subtitle: 'Enter your credentials to continue.',
+    username: 'Username',
+    password: 'Password',
+    submit: 'Sign in',
+  },
+] as const
+
+function createI18nFor(locale: 'zh-CN' | 'en-US') {
+  return createI18n({
+    legacy: false,
+    locale,
+    fallbackLocale: 'zh-CN',
+    messages: defaultEfsMessages,
+  })
+}
 
 describe('AuthPage', () => {
   beforeEach(() => {
@@ -14,7 +43,7 @@ describe('AuthPage', () => {
     vi.unstubAllGlobals()
   })
 
-  it('默认显示中文登录文案并提交成功', async () => {
+  it.each(localeCases)('渲染 $locale 登录文案并提交成功', async ({ locale, title, subtitle, username, password, submit }) => {
     vi.mocked(globalThis.fetch).mockResolvedValue({
       ok: true,
       status: 200,
@@ -25,15 +54,19 @@ describe('AuthPage', () => {
     const wrapper = mount(AuthPage, {
       props: {
         schema: createTestSchema(),
-        locale: 'zh-CN',
+        locale,
         theme: 'dark',
       },
       global: {
-        plugins: [efsI18n, vuetify],
+        plugins: [createI18nFor(locale), vuetify],
       },
     })
 
-    expect(wrapper.text()).toContain('登录')
+    expect(wrapper.text()).toContain(title)
+    expect(wrapper.text()).toContain(subtitle)
+    expect(wrapper.text()).toContain(username)
+    expect(wrapper.text()).toContain(password)
+    expect(wrapper.text()).toContain(submit)
 
     const inputs = wrapper.findAll('input')
     await inputs[0]?.setValue('demo')
@@ -61,7 +94,7 @@ describe('AuthPage', () => {
         theme: 'dark',
       },
       global: {
-        plugins: [efsI18n, vuetify],
+        plugins: [createI18nFor('zh-CN'), vuetify],
       },
     })
 
