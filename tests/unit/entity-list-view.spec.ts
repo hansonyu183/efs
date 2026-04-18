@@ -47,6 +47,8 @@ function createI18nFor(locale: 'zh-CN' | 'en-US') {
     locale,
     fallbackLocale: 'zh-CN',
     messages: defaultEfsMessages,
+    missingWarn: false,
+    fallbackWarn: false,
   })
 }
 
