@@ -1,16 +1,15 @@
 <template>
  <div class="efs-datatable">
-  <table class="efs-datatable__table">
+  <VTable class="efs-datatable__table">
    <thead>
     <tr>
      <th v-if="props.selectable" class="efs-datatable__selection-header">
-      <input
-       type="checkbox"
-       :checked="allRowsSelected"
+      <VCheckboxBtn
+       :model-value="allRowsSelected"
        :indeterminate="someRowsSelected && !allRowsSelected"
        :aria-label="resolvedSelectionLabel"
-       @change="toggleSelectAll"
-      >
+       @update:model-value="toggleSelectAll"
+      />
      </th>
      <th v-for="column in normalizedColumns" :key="column.key" :class="column.meta.cellClass">{{ column.title }}</th>
      <th v-if="props.rowActions.length > 0" class="efs-datatable__actions-header">{{ resolvedActionsLabel }}</th>
@@ -27,12 +26,11 @@
      @click="props.clickable && emit('row-click', row)"
     >
      <td v-if="props.selectable" class="efs-datatable__selection-cell" @click.stop>
-      <input
-       type="checkbox"
-       :checked="isSelected(row, rowIndex)"
+      <VCheckboxBtn
+       :model-value="isSelected(row, rowIndex)"
        :aria-label="`${resolvedSelectionLabel} ${resolveRowKey(row, rowIndex)}`"
-       @change="toggleRowSelection(row, rowIndex)"
-      >
+       @update:model-value="toggleRowSelection(row, rowIndex)"
+      />
      </td>
      <td v-for="column in normalizedColumns" :key="column.key" :class="column.meta.cellClass">
       <template v-if="column.render === 'status'">
@@ -58,36 +56,34 @@
      </td>
      <td v-if="props.rowActions.length > 0" class="efs-datatable__actions-cell" @click.stop>
       <div class="efs-datatable__actionlist">
-       <button
+       <AppButton
         v-for="action in standardActions(row)"
         :key="action.key"
-        type="button"
-        class="efs-datatable__actionbutton"
-        :class="`efs-datatable__actionbutton--${action.variant ?? 'default'}`"
-        @click="action.onClick(row)"
+        size="sm"
+        :variant="action.variant ?? 'default'"
+        @click.stop="action.onClick(row)"
        >
         {{ action.label }}
-       </button>
+       </AppButton>
        <details v-if="overflowActions(row).length > 0" class="efs-datatable__moremenu">
         <summary class="efs-datatable__morebutton" :aria-label="resolvedMoreLabel" :title="resolvedMoreLabel">…</summary>
         <div class="efs-datatable__morepanel">
-         <button
+         <AppButton
           v-for="action in overflowActions(row)"
           :key="action.key"
-          type="button"
-          class="efs-datatable__moreitem"
-          :class="`efs-datatable__moreitem--${action.variant ?? 'default'}`"
-          @click="action.onClick(row)"
+          size="sm"
+          :variant="action.variant ?? 'default'"
+          @click.stop="action.onClick(row)"
          >
           {{ action.label }}
-         </button>
+         </AppButton>
         </div>
        </details>
       </div>
      </td>
     </tr>
    </tbody>
-  </table>
+  </VTable>
   <footer v-if="$slots.footer" class="efs-datatable__footer">
    <slot name="footer" />
   </footer>
@@ -96,6 +92,8 @@
 
 <script setup lang="ts">
 import { computed, getCurrentInstance } from 'vue'
+import { VCheckboxBtn, VTable } from 'vuetify/components'
+import AppButton from '../controls/AppButton.vue'
 import AppTag from './AppTag.vue'
 import StatusChip from './StatusChip.vue'
 import { resolveLabel, resolveOptionalLabel } from '../../model/resource/label-resolver'

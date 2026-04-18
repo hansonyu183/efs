@@ -1,24 +1,20 @@
 <template>
- <section class="efs-reportshell">
-  <header class="efs-reportshell__header">
-   <div>
-    <h3 class="efs-reportshell__title">{{ props.title }}</h3>
-    <p v-if="props.subtitle" class="efs-reportshell__subtitle">{{ props.subtitle }}</p>
-    <p v-if="props.description" class="efs-reportshell__description">{{ props.description }}</p>
-   </div>
+ <AppPanel class="efs-reportshell" :title="props.title" :subtitle="props.subtitle">
+  <template #actions>
    <div class="efs-reportshell__actions">
     <slot name="header-actions" />
-    <button
+    <AppButton
      v-if="props.exportable"
-     type="button"
-     class="efs-reportshell__button"
+     variant="primary"
      :disabled="props.busy"
      @click="emit('export')"
     >
      {{ resolvedExportLabel }}
-    </button>
+    </AppButton>
    </div>
-  </header>
+  </template>
+
+  <p v-if="props.description" class="efs-reportshell__description">{{ props.description }}</p>
 
   <section v-if="$slots.query || resolvedQuery.summary" class="efs-reportshell__query">
    <div class="efs-reportshell__query-header">
@@ -50,11 +46,13 @@
   <footer v-if="$slots.footer" class="efs-reportshell__footer">
    <slot name="footer" />
   </footer>
- </section>
+ </AppPanel>
 </template>
 
 <script setup lang="ts">
 import { computed, getCurrentInstance } from 'vue'
+import AppButton from '../controls/AppButton.vue'
+import AppPanel from '../controls/AppPanel.vue'
 import { resolveOptionalLabel } from '../../model/resource/label-resolver'
 
 defineOptions({ name: 'ReportPanel' })
@@ -107,16 +105,6 @@ const resolvedResult = computed(() => ({
 </script>
 
 <style scoped>
-.efs-reportshell {
- padding: 20px;
- border-radius: 20px;
- border: 1px solid var(--efs-border, #dbe3ef);
- background: var(--efs-surface, #fff);
- box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
- display: grid;
- gap: 16px;
-}
-
 .efs-reportshell__header,
 .efs-reportshell__query-header,
 .efs-reportshell__result-header {
@@ -125,11 +113,6 @@ const resolvedResult = computed(() => ({
  align-items: start;
  gap: 12px;
  flex-wrap: wrap;
-}
-
-.efs-reportshell__title {
- margin: 0;
- font-size: 1.05rem;
 }
 
 .efs-reportshell__subtitle,
@@ -155,21 +138,11 @@ const resolvedResult = computed(() => ({
 
 .efs-reportshell__query,
 .efs-reportshell__result {
- border: 1px solid var(--efs-border, #dbe3ef);
  border-radius: 16px;
- background: var(--efs-surface-soft, #f8fafc);
+ background: color-mix(in srgb, var(--v-theme-surface) 86%, transparent);
  padding: 16px;
  display: grid;
  gap: 12px;
-}
-
-.efs-reportshell__button {
- min-height: 40px;
- border-radius: 10px;
- border: 1px solid var(--efs-border, #dbe3ef);
- background: var(--efs-surface, #fff);
- padding: 0 14px;
- cursor: pointer;
 }
 
 .efs-reportshell__result-body,

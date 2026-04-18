@@ -1,8 +1,8 @@
 <template>
- <button
-  type="button"
+ <VBtn
   class="efs-themeswitcher"
   :class="{ 'efs-themeswitcher--menu': props.mode === 'menu' }"
+  variant="outlined"
   :aria-label="resolvedLabel"
   :title="resolvedLabel"
   @click="cycleTheme"
@@ -12,13 +12,14 @@
    <span v-if="props.mode === 'menu'" class="efs-themeswitcher__label">{{ resolvedLabel }}</span>
   </span>
   <span v-if="props.mode !== 'icon'" class="efs-themeswitcher__value">{{ currentLabel }}</span>
- </button>
+ </VBtn>
 </template>
 
 <script setup lang="ts">
-import { computed, inject } from 'vue'
+import { computed } from 'vue'
+import { VBtn } from 'vuetify/components'
 import SemanticIcon from './SemanticIcon.vue'
-import { EFS_I18N_CONTEXT } from '../../model/app/i18n'
+import { useT } from '../i18n'
 
 defineOptions({ name: 'ThemeSwitcher' })
 
@@ -42,11 +43,11 @@ const emit = defineEmits<{
  (e: 'update:modelValue', value: string): void
 }>()
 
-const i18nContext = inject(EFS_I18N_CONTEXT, null)
-const resolvedLabel = computed(() => resolveCopy('efs.shell.themeLabel', '主题'))
+const t = useT()
+const resolvedLabel = computed(() => t('efs.shell.themeLabel', '主题'))
 const resolvedOptions = computed<ThemeOption[]>(() => [
- { label: resolveCopy('efs.themeOptions.light', '明'), value: 'light' },
- { label: resolveCopy('efs.themeOptions.dark', '暗'), value: 'dark' },
+ { label: t('efs.themeOptions.light', '明'), value: 'light' },
+ { label: t('efs.themeOptions.dark', '暗'), value: 'dark' },
 ])
 
 const currentLabel = computed(() => {
@@ -63,39 +64,9 @@ function cycleTheme() {
  const nextValue = resolvedOptions.value[nextIndex]?.value ?? props.modelValue
  emit('update:modelValue', nextValue)
 }
-
-function resolveCopy(key: string, fallback: string) {
- return i18nContext?.translate(key) || fallback
-}
 </script>
 
 <style scoped>
-.efs-themeswitcher {
- min-height: 38px;
- min-width: 38px;
- border: 1px solid var(--efs-border, #dbe3ef);
- border-radius: 999px;
- background: color-mix(in srgb, var(--efs-surface, #ffffff) 94%, transparent);
- color: var(--efs-text, #172033);
- padding: 0 12px;
- display: inline-flex;
- align-items: center;
- justify-content: center;
- gap: 8px;
- cursor: pointer;
-}
-
-.efs-themeswitcher:hover {
- background: var(--efs-surface, #ffffff);
-}
-
-.efs-themeswitcher--menu {
- width: 100%;
- min-height: 40px;
- border-radius: 10px;
- justify-content: space-between;
-}
-
 .efs-themeswitcher__lead {
  display: inline-flex;
  align-items: center;
@@ -110,9 +81,5 @@ function resolveCopy(key: string, fallback: string) {
 
 .efs-themeswitcher__label {
  font-weight: 600;
-}
-
-.efs-themeswitcher__value {
- color: var(--efs-text-muted, #64748b);
 }
 </style>

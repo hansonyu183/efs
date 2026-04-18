@@ -1,6 +1,12 @@
 import { baselineSchema } from './baseline.ts'
 
-export type EfsAppSchema = typeof baselineSchema
+type BaselineDerivedSchema = typeof baselineSchema
+
+export type EfsAppSchema = Omit<BaselineDerivedSchema, 'app'> & {
+  app: BaselineDerivedSchema['app'] & {
+    name?: string
+  }
+}
 
 export type EfsDeepPartial<T> =
   T extends (...args: never[]) => unknown
@@ -13,12 +19,8 @@ export type EfsDeepPartial<T> =
 
 export type EfsAppSchemaPatch = EfsDeepPartial<EfsAppSchema>
 
-export function defineAppSchemaPatch<const TPatch extends EfsAppSchemaPatch>(patch: TPatch): TPatch {
-  return patch
-}
-
-export function composeAppSchema<TSchema extends EfsAppSchema>(base: TSchema, patch: EfsAppSchemaPatch): TSchema {
-  return mergeSchemaValue(base, patch) as TSchema
+export function composeAppSchema(base: EfsAppSchema, patch: EfsAppSchemaPatch): EfsAppSchema {
+  return mergeSchemaValue(base, patch) as EfsAppSchema
 }
 
 function mergeSchemaValue(base: unknown, patch: unknown): unknown {
@@ -34,9 +36,11 @@ function mergeSchemaArray(base: readonly unknown[], patch: readonly unknown[]) {
     return patch.map((item) => cloneSchemaValue(item))
   }
 
+  const baseItems = base.filter(hasNonEmptyStringKey)
+  const patchItems = patch.filter(hasNonEmptyStringKey)
   const merged = new Map<string, unknown>()
-  for (const item of base) merged.set(item.key, cloneSchemaValue(item))
-  for (const item of patch) {
+  for (const item of baseItems) merged.set(item.key, cloneSchemaValue(item))
+  for (const item of patchItems) {
     const existing = merged.get(item.key)
     merged.set(item.key, mergeSchemaValue(existing, item))
   }
@@ -66,4 +70,8 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 function hasStringKey(value: unknown): value is { key: string } {
   return isPlainObject(value) && typeof value.key === 'string'
+}
+
+function hasNonEmptyStringKey(value: unknown): value is { key: string } {
+  return hasStringKey(value) && value.key.length > 0
 }

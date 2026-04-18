@@ -1,16 +1,13 @@
 <template>
- <section class="efs-detailshell">
-  <header class="efs-detailshell__header">
-   <div class="efs-detailshell__heading">
-    <h3 class="efs-detailshell__title">{{ props.title }}</h3>
-    <p v-if="props.subtitle" class="efs-detailshell__subtitle">{{ props.subtitle }}</p>
-    <p v-if="props.description" class="efs-detailshell__description">{{ props.description }}</p>
-   </div>
+ <AppPanel class="efs-detailshell" :title="props.title" :subtitle="props.subtitle">
+  <template #actions>
    <div class="efs-detailshell__meta">
     <span>{{ resolvedFieldsLabel }} {{ normalizedFields.length }}</span>
     <slot name="actions" />
    </div>
-  </header>
+  </template>
+
+  <p v-if="props.description" class="efs-detailshell__description">{{ props.description }}</p>
 
   <div v-if="$slots.default" class="efs-detailshell__custom">
    <slot />
@@ -29,11 +26,12 @@
   <footer v-if="$slots.footer" class="efs-detailshell__footer">
    <slot name="footer" />
   </footer>
- </section>
+ </AppPanel>
 </template>
 
 <script setup lang="ts">
 import { computed, getCurrentInstance } from 'vue'
+import AppPanel from '../controls/AppPanel.vue'
 import { resolveLabel, resolveOptionalLabel } from '../../model/resource/label-resolver'
 
 defineOptions({ name: 'DetailPanel' })
@@ -84,33 +82,6 @@ const gridStyle = computed(() => ({
 </script>
 
 <style scoped>
-.efs-detailshell {
- padding: 20px;
- border-radius: 20px;
- border: 1px solid var(--efs-border, #dbe3ef);
- background: var(--efs-surface, #fff);
- box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
- display: grid;
- gap: 16px;
-}
-
-.efs-detailshell__header {
- display: flex;
- justify-content: space-between;
- gap: 12px;
- align-items: start;
- flex-wrap: wrap;
-}
-
-.efs-detailshell__heading {
- min-width: 0;
-}
-
-.efs-detailshell__title {
- margin: 0;
- font-size: 1.05rem;
-}
-
 .efs-detailshell__subtitle,
 .efs-detailshell__meta,
 .efs-detailshell__description,

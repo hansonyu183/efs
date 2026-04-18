@@ -567,7 +567,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, getCurrentInstance, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, getCurrentInstance, onMounted, reactive, ref, watch } from 'vue'
+import { useEventListener } from '@vueuse/core'
 import AppButton from '../controls/AppButton.vue'
 import AppField from '../controls/AppField.vue'
 import AppInput from '../controls/AppInput.vue'
@@ -1067,13 +1068,14 @@ const resolvedRowActions = computed(() => {
 })
 const resolvedDialogTitle = computed(() => resolvedFormTitle.value)
 
+useEventListener(typeof window !== 'undefined' ? window : undefined, 'resize', syncViewport)
+useEventListener(typeof window !== 'undefined' ? window : undefined, 'scroll', syncScrollState, { passive: true })
+
 onMounted(async () => {
  syncViewport()
  syncScrollState()
  hydrateSessionState()
  storageReady.value = true
- if (typeof window !== 'undefined') window.addEventListener('resize', syncViewport)
- if (typeof window !== 'undefined') window.addEventListener('scroll', syncScrollState, { passive: true })
  if (props.controller?.handlers?.query) {
   if (shouldRunInitialQuery()) {
    await runQuery()
@@ -1083,15 +1085,6 @@ onMounted(async () => {
   return
  }
  ensureActiveItem()
-})
-
-function shouldRunInitialQuery() {
- return !restoredFromSession.value || viewState.items.length === 0
-}
-
-onBeforeUnmount(() => {
- if (typeof window !== 'undefined') window.removeEventListener('resize', syncViewport)
- if (typeof window !== 'undefined') window.removeEventListener('scroll', syncScrollState)
 })
 
 function syncViewport() {
@@ -1290,6 +1283,10 @@ async function loadPermissionCatalogFromServer() {
  ) as Record<string, any>
  const items = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : []
  return items.map((item) => normalizePermissionCatalogItem(item)).filter((item): item is PermissionCatalogItem => Boolean(item))
+}
+
+function shouldRunInitialQuery() {
+ return !restoredFromSession.value || viewState.items.length === 0
 }
 
 function normalizePermissionCatalogItem(item: unknown) {

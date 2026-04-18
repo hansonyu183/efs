@@ -2,50 +2,18 @@
 <div class="efs-app-shell" :data-theme="theme">
  <AuthPage
   v-if="showAuthPage"
-  :app-name="props.app.title || props.app.name || resolvedBrandTitle"
-  :logo-src="props.app.brandIcon || ''"
-  :logo-alt="props.app.title || props.app.name || resolvedBrandTitle"
+  :schema="props"
   :locale="locale"
   :theme="theme"
+  @login-success="handleLoginSuccess"
   @update:locale="handleLocaleUpdate"
   @update:theme="handleThemeUpdate"
- >
-  <template #header>
-   <div class="efs-auth-layout__title">{{ resolvedLoginTitle }}</div>
-   <div v-if="resolvedLoginSubtitle" class="efs-auth-layout__subtitle">{{ resolvedLoginSubtitle }}</div>
-  </template>
-  <form class="efs-app__login-form" @submit.prevent="handleLogin">
-   <AppField :label="resolvedLoginNameLabel">
-    <AppInput
-     :model-value="loginName"
-     :placeholder="resolvedLoginNamePlaceholder"
-     autocomplete="username"
-     @update:model-value="loginName = $event"
-    />
-   </AppField>
-   <AppField :label="resolvedLoginPasswordLabel">
-    <AppInput
-     :model-value="loginPwd"
-     :placeholder="resolvedLoginPasswordPlaceholder"
-     type="password"
-     autocomplete="current-password"
-     @update:model-value="loginPwd = $event"
-    />
-   </AppField>
-<p v-if="authError" class="efs-app__auth-error">{{ authError }}</p>
-   <AppButton variant="primary" type="submit" block :disabled="authBusy">
-    {{ authBusy ? resolvedLoginSubmittingLabel : resolvedLoginSubmitLabel }}
-   </AppButton>
-  </form>
- </AuthPage>
+ />
 
  <MainPage
   v-else
-  :brand-icon="props.app.brandIcon || ''"
+  :schema="props"
   :title="resolvedMainTitle"
-  :app-name="props.app.title || props.app.name || ''"
-  :brand-title="resolvedBrandTitle"
-  :brand-subtitle="resolvedBrandSubtitle"
   :locale="locale"
   :theme="theme"
   @update:locale="handleLocaleUpdate"
@@ -68,14 +36,14 @@
 </template>
 
 <script setup lang="ts">
-import { provide } from 'vue'
+import { computed, watchEffect } from 'vue'
 import type { PropType } from 'vue'
+import { useTheme } from 'vuetify'
 import { type EfsAppSchema } from '../schema/index.ts'
-import { EFS_I18N_CONTEXT, resolveEfsI18nLabel } from '../model/app/i18n'
 import { useEfsAppModel } from '../model/app/efs-app'
-import AppButton from './controls/AppButton.vue'
-import AppField from './controls/AppField.vue'
-import AppInput from './controls/AppInput.vue'
+import { splitResPath } from '../model/app/navigation-paths'
+import type { EfsI18nConfig } from './i18n'
+import { syncSchemaI18n, useT } from './i18n'
 import ErrorState from './feedback/ErrorState.vue'
 import AuthPage from './pages/AuthPage.vue'
 import MainPage from './pages/MainPage.vue'
@@ -85,10 +53,6 @@ import ResolvedResPage from './pages/ResolvedResPage.vue'
 defineOptions({ name: 'EfsApp' })
 
 const props = defineProps({
- schemaVersion: {
-  type: String,
-  required: true,
- },
  app: {
   type: Object as PropType<EfsAppSchema['app']>,
   required: true,
@@ -111,40 +75,36 @@ const props = defineProps({
  },
 }) as Readonly<EfsAppSchema>
 const {
- mergedI18n,
  locale,
  theme,
- loginName,
- loginPwd,
- authBusy,
- authError,
  sidebarMenus,
  currentPath,
  resourceModel,
- resolvedBrandTitle,
- resolvedBrandSubtitle,
- resolvedEmptyTitle,
- resolvedEmptySubtitle,
- resolvedLoginTitle,
- resolvedLoginSubtitle,
- resolvedLoginNameLabel,
- resolvedLoginNamePlaceholder,
- resolvedLoginPasswordLabel,
- resolvedLoginPasswordPlaceholder,
- resolvedLoginSubmitLabel,
- resolvedLoginSubmittingLabel,
- resolvedMainTitle,
  showAuthPage,
  handleLocaleUpdate,
  handleThemeUpdate,
  handleNavigate,
- handleLogin,
+ handleLoginSuccess,
  handleLogout,
 } = useEfsAppModel(props)
 
-provide(EFS_I18N_CONTEXT, {
- config: mergedI18n,
- translate: (key: string) => resolveEfsI18nLabel({ key, config: mergedI18n.value }),
+const t = useT()
+const vuetifyTheme = useTheme()
+const resolvedEmptyTitle = computed(() => t('efs.runtime.emptyTitle', '资源不存在'))
+const resolvedEmptySubtitle = computed(() => t('efs.runtime.emptySubtitle', '当前 path 未注册对应资源。'))
+const resolvedMainTitle = computed(() => {
+ const parsed = splitResPath(currentPath.value)
+ const fallback = resourceModel.value?.title || resolvedEmptyTitle.value
+ if (!parsed) return fallback
+ return t(`efs.resources.${parsed.domain}.${parsed.res}.title`, fallback)
+})
+
+watchEffect(() => {
+ syncSchemaI18n(props.i18n as EfsI18nConfig | undefined, locale.value)
+})
+
+watchEffect(() => {
+ vuetifyTheme.global.name.value = theme.value === 'light' ? 'efsLight' : 'efsDark'
 })
 </script>
 
@@ -182,16 +142,4 @@ provide(EFS_I18N_CONTEXT, {
  box-sizing: border-box;
 }
 
-.efs-app__login-form {
- display: grid;
- gap: 16px;
- width: 100%;
-}
-
-.efs-app__auth-error {
- margin: 0;
- color: var(--efs-danger);
- font-size: 0.95rem;
- line-height: 1.5;
-}
 </style>

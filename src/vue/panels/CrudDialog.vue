@@ -1,25 +1,19 @@
 <template>
- <div v-if="props.modelValue" class="efs-cruddialogshell" @click.self="handleBackdropClose">
-  <section class="efs-cruddialogshell__dialog" :class="sizeClass" role="dialog" aria-modal="true">
-   <header class="efs-cruddialogshell__header">
-    <div>
-     <h3 class="efs-cruddialogshell__title">{{ props.title }}</h3>
-     <p v-if="props.subtitle" class="efs-cruddialogshell__subtitle">{{ props.subtitle }}</p>
-    </div>
-    <div class="efs-cruddialogshell__header-actions">
-     <slot name="header-actions" />
-     <button
+ <VDialog :model-value="props.modelValue" :max-width="dialogWidth" @click:outside="handleBackdropClose" @update:model-value="(value) => !value && emitClose()">
+  <AppPanel class="efs-cruddialogshell__dialog" :title="props.title" :subtitle="props.subtitle">
+   <template #actions>
+    <slot name="header-actions" />
+    <AppButton
      v-if="props.showClose"
-     type="button"
-     class="efs-cruddialogshell__icon-button"
+     variant="ghost"
+     size="sm"
      :aria-label="resolvedCloseLabel"
      :title="resolvedCloseLabel"
      @click="emitClose"
-     >
-      ×
-     </button>
-    </div>
-   </header>
+    >
+     <template #leading>×</template>
+    </AppButton>
+   </template>
 
    <div v-if="$slots.summary || props.summary" class="efs-cruddialogshell__summary">
     <slot name="summary">
@@ -37,33 +31,34 @@
       <span v-if="props.dirty" class="efs-cruddialogshell__dirty">{{ resolvedFooter.dirtyLabel }}</span>
      </div>
      <div class="efs-cruddialogshell__footer-actions">
-      <button
+      <AppButton
        v-if="resolvedFooter.showActions"
-       type="button"
-       class="efs-cruddialogshell__button"
        :disabled="props.busy"
        @click="emitCancel"
       >
        {{ resolvedFooter.cancelLabel }}
-      </button>
-      <button
+      </AppButton>
+      <AppButton
        v-if="resolvedFooter.showActions"
-       type="button"
-       class="efs-cruddialogshell__button efs-cruddialogshell__button--primary"
+       variant="primary"
        :disabled="props.busy"
+       :loading="props.busy"
        @click="emitSubmit"
       >
        {{ props.busy ? resolvedFooter.savingLabel : resolvedFooter.submitLabel }}
-      </button>
+      </AppButton>
      </div>
     </slot>
    </footer>
-  </section>
- </div>
+  </AppPanel>
+ </VDialog>
 </template>
 
 <script setup lang="ts">
 import { computed, getCurrentInstance } from 'vue'
+import { VDialog } from 'vuetify/components'
+import AppButton from '../controls/AppButton.vue'
+import AppPanel from '../controls/AppPanel.vue'
 import { resolveOptionalLabel } from '../../model/resource/label-resolver'
 
 defineOptions({ name: 'CrudDialog' })
@@ -110,6 +105,11 @@ const emit = defineEmits<{
 
 const instance = getCurrentInstance()
 const sizeClass = computed(() => `efs-cruddialogshell__dialog--${props.size}`)
+const dialogWidth = computed(() => {
+ if (props.size === 'sm') return 420
+ if (props.size === 'lg') return 840
+ return 640
+})
 const resolvedCloseLabel = computed(() => resolveOptionalLabel({ key: 'closeLabel', instance, namespaces: ['efs.crudDialog'] }) || '关闭')
 const resolvedFooter = computed(() => ({
  showActions: props.footer?.showActions ?? true,
@@ -152,34 +152,13 @@ function handleBackdropClose() {
 </script>
 
 <style scoped>
-.efs-cruddialogshell {
- position: fixed;
- inset: 0;
- background: rgba(15, 23, 42, 0.4);
- display: grid;
- place-items: center;
- padding: 24px;
- z-index: 50;
-}
-
 .efs-cruddialogshell__dialog {
- width: min(100%, 640px);
  max-height: min(88vh, 900px);
  overflow: auto;
- border-radius: 20px;
- border: 1px solid var(--efs-border, #dbe3ef);
- background: var(--efs-surface, #fff);
- box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
  display: grid;
  gap: 16px;
- padding: 20px;
 }
 
-.efs-cruddialogshell__dialog--sm { width: min(100%, 420px); }
-.efs-cruddialogshell__dialog--md { width: min(100%, 640px); }
-.efs-cruddialogshell__dialog--lg { width: min(100%, 840px); }
-
-.efs-cruddialogshell__header,
 .efs-cruddialogshell__footer {
  display: flex;
  justify-content: space-between;
@@ -187,38 +166,15 @@ function handleBackdropClose() {
  gap: 12px;
  flex-wrap: wrap;
 }
-
-.efs-cruddialogshell__title {
- margin: 0;
- font-size: 1.05rem;
-}
-
-.efs-cruddialogshell__subtitle,
 .efs-cruddialogshell__summary,
 .efs-cruddialogshell__footer-meta {
  color: var(--efs-text-muted, #64748b);
 }
-
-.efs-cruddialogshell__subtitle {
- margin: 6px 0 0;
-}
-
-.efs-cruddialogshell__header-actions,
 .efs-cruddialogshell__footer-actions {
  display: flex;
  align-items: center;
  gap: 12px;
  flex-wrap: wrap;
-}
-
-.efs-cruddialogshell__icon-button,
-.efs-cruddialogshell__button {
- min-height: 40px;
- border-radius: 10px;
- border: 1px solid var(--efs-border, #dbe3ef);
- background: var(--efs-surface, #fff);
- padding: 0 14px;
- cursor: pointer;
 }
 
 .efs-cruddialogshell__icon-button {

@@ -1,18 +1,25 @@
 <template>
- <label class="efs-appfield">
-  <span v-if="props.label || $slots.label" class="efs-appfield__header">
-   <span class="efs-appfield__label">
+ <div class="efs-appfield">
+  <div v-if="props.label || $slots.label" class="efs-appfield__header">
+   <VLabel class="efs-appfield__label">
     <slot name="label">{{ props.label }}</slot>
-   </span>
+   </VLabel>
    <span v-if="props.required" class="efs-appfield__required">*</span>
-  </span>
+  </div>
   <slot />
-  <span v-if="props.error" class="efs-appfield__feedback efs-appfield__feedback--error">{{ props.error }}</span>
-  <span v-else-if="props.hint" class="efs-appfield__feedback">{{ props.hint }}</span>
- </label>
+  <VMessages
+   v-if="props.error || props.hint"
+   class="efs-appfield__messages"
+   :active="true"
+   :color="props.error ? 'error' : undefined"
+   :messages="[props.error || props.hint]"
+  />
+ </div>
 </template>
 
 <script setup lang="ts">
+import { VLabel, VMessages } from 'vuetify/components'
+
 defineOptions({ name: 'AppField' })
 
 interface AppFieldProps {
@@ -43,7 +50,6 @@ const props = withDefaults(defineProps<AppFieldProps>(), {
 }
 
 .efs-appfield__label {
- color: var(--efs-text, #172033);
  font-weight: 600;
 }
 
@@ -51,12 +57,7 @@ const props = withDefaults(defineProps<AppFieldProps>(), {
  color: var(--efs-danger, #dc2626);
 }
 
-.efs-appfield__feedback {
- color: var(--efs-text-muted, #64748b);
+.efs-appfield__messages :deep(.v-messages__message) {
  font-size: 0.875rem;
-}
-
-.efs-appfield__feedback--error {
- color: var(--efs-danger, #dc2626);
 }
 </style>

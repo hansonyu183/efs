@@ -1,11 +1,10 @@
 <template>
- <span class="efs-semantic-icon" :class="sizeClass" :aria-label="label" role="img">
-  {{ glyph }}
- </span>
+ <VIcon class="efs-semantic-icon" :class="sizeClass" :icon="glyph" :aria-label="label" role="img" />
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { VIcon } from 'vuetify/components'
 import { resolveSemanticIcon } from '../../model/app/semantic-icons'
 
 defineOptions({ name: 'SemanticIcon' })
@@ -19,7 +18,7 @@ interface SemanticIconProps {
 
 const props = withDefaults(defineProps<SemanticIconProps>(), {
  name: '',
- fallback: '•',
+ fallback: 'mdi-circle-medium',
  label: '',
  size: 'md',
 })
@@ -33,27 +32,18 @@ const sizeClass = computed(() => `efs-semantic-icon--${props.size}`)
  display: inline-flex;
  align-items: center;
  justify-content: center;
- width: 1.25rem;
- height: 1.25rem;
- line-height: 1;
- font-style: normal;
- font-weight: 700;
  flex-shrink: 0;
 }
 
 .efs-semantic-icon--sm {
- width: 1rem;
- height: 1rem;
- font-size: 0.85rem;
+ font-size: 16px;
 }
 
 .efs-semantic-icon--md {
- font-size: 1rem;
+ font-size: 20px;
 }
 
 .efs-semantic-icon--lg {
- width: 1.5rem;
- height: 1.5rem;
- font-size: 1.15rem;
+ font-size: 24px;
 }
 </style>

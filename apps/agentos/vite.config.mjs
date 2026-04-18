@@ -2,12 +2,13 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
+import vuetify from 'vite-plugin-vuetify'
 
 const rootDir = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   root: rootDir,
-  plugins: [vue()],
+  plugins: [vue(), vuetify({ autoImport: true })],
   resolve: {
     alias: {
       '@efs': resolve(rootDir, '../../src'),

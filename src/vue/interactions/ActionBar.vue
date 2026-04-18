@@ -5,17 +5,16 @@
   </div>
 
   <div v-if="visibleActions.length > 0" class="efs-actionbar__actions">
-   <button
+   <AppButton
     v-for="action in visibleActions"
     :key="action.key"
-    type="button"
-    class="efs-actionbar__button"
-    :class="`efs-actionbar__button--${action.variant ?? 'default'}`"
+    :variant="action.variant ?? 'default'"
+    size="sm"
     :disabled="props.busy || action.disabled"
     @click="action.onClick?.()"
    >
     {{ action.label }}
-   </button>
+   </AppButton>
   </div>
 
   <div v-if="$slots.default" class="efs-actionbar__custom">
@@ -26,6 +25,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AppButton from '../controls/AppButton.vue'
 
 defineOptions({ name: 'ActionBar' })
 
@@ -82,36 +82,5 @@ const visibleActions = computed(() => props.actions.filter((action) => action.vi
  display: flex;
  gap: 10px;
  flex-wrap: wrap;
-}
-
-.efs-actionbar__button {
- min-height: 36px;
- padding: 0 12px;
- border-radius: 10px;
- border: 1px solid var(--efs-border, #dbe3ef);
- background: var(--efs-surface, #fff);
- color: var(--efs-text, #172033);
- cursor: pointer;
-}
-
-.efs-actionbar__button:disabled {
- opacity: 0.65;
- cursor: not-allowed;
-}
-
-.efs-actionbar__button--primary {
- background: var(--efs-primary, #2563eb);
- border-color: var(--efs-primary, #2563eb);
- color: #fff;
-}
-
-.efs-actionbar__button--danger {
- background: var(--efs-danger, #dc2626);
- border-color: var(--efs-danger, #dc2626);
- color: #fff;
-}
-
-.efs-actionbar__button--ghost {
- background: transparent;
 }
 </style>

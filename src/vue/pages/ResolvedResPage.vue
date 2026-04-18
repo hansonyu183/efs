@@ -36,12 +36,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject } from 'vue'
+import { computed } from 'vue'
 import type { ResModel } from '../../model/types/resource-model'
 import PagePanel from '../panels/PagePanel.vue'
 import EntityListView from '../views/EntityListView.vue'
 import ReportView from '../views/ReportView.vue'
-import { EFS_I18N_CONTEXT } from '../../model/app/i18n'
+import { useT } from '../i18n'
 
 defineOptions({ name: 'ResolvedResPage' })
 
@@ -55,17 +55,11 @@ const props = withDefaults(defineProps<ResolvedResPageProps>(), {
  path: '',
 })
 
-const i18nContext = inject(EFS_I18N_CONTEXT, null)
+const t = useT()
 const crudModel = computed(() => props.resourceModel?.view.kind === 'crud' ? props.resourceModel : null)
 const reportModel = computed(() => props.resourceModel?.view.kind === 'report' ? props.resourceModel : null)
-const resolvedCrudSubtitle = computed(() => resolveCopy('efs.runtime.crudSubtitle', '基于平台 resource model 的最小资源页'))
-const resolvedReportSubtitle = computed(() => resolveCopy('efs.runtime.reportSubtitle', '基于平台 resource model 的最小报表页'))
-const resolvedEmptyTitle = computed(() => resolveCopy('efs.runtime.emptyTitle', '资源不存在'))
-const resolvedEmptySubtitle = computed(() => resolveCopy('efs.runtime.emptySubtitle', '当前 path 未在 app.main.domains 中注册对应资源 view model。'))
-
-function resolveCopy(key: string, fallback: string) {
- return i18nContext?.translate(key) || fallback
-}
+const resolvedEmptyTitle = computed(() => t('efs.runtime.emptyTitle', '资源不存在'))
+const resolvedEmptySubtitle = computed(() => t('efs.runtime.emptySubtitle', '当前 path 未注册对应资源。'))
 </script>
 
 <style scoped>

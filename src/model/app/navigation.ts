@@ -1,4 +1,5 @@
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useEventListener } from '@vueuse/core'
 
 export function normalizeEfsPath(path?: string | null) {
  const normalized = `/${String(path || '/').replace(/^\/+|\/+$/g, '')}`.replace(/\/+/g, '/')
@@ -30,14 +31,8 @@ export function useEfsNavigation(options: { initialPath?: string; loginPath?: st
   if (typeof window !== 'undefined') window.history.pushState({}, '', next)
  }
 
- onMounted(() => {
-  syncFromLocation()
-  if (typeof window !== 'undefined') window.addEventListener('popstate', syncFromLocation)
- })
-
- onBeforeUnmount(() => {
-  if (typeof window !== 'undefined') window.removeEventListener('popstate', syncFromLocation)
- })
+ if (typeof window !== 'undefined') syncFromLocation()
+ useEventListener(typeof window !== 'undefined' ? window : undefined, 'popstate', syncFromLocation)
 
  const normalizedPath = computed(() => currentPath.value.replace(/^\/+|\/+$/g, ''))
  const isLoginRoute = computed(() => currentPath.value === loginPath)

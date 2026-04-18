@@ -16,8 +16,8 @@ EFS 当前阶段采用：
 ```text
 apps/<app-name>/schemas/app.schema.ts
   -> business schema
-  -> ui overrides
-  -> runtime inference / adapter
+  -> app patch
+  -> runtime inference / model runtime
   -> actual page runtime
 ```
 
@@ -38,24 +38,24 @@ apps/<app-name>/schemas/app.schema.ts
 
 这是企业侧主要 authoring 面。
 
-### 2.2 UI override 层
-定义“前端展示上哪些地方需要少量覆盖”。
+### 2.2 app patch 层
+定义“业务 app 相对 baseline 的实例化覆盖”。
 
 例如：
-- `view.mode`
-- `fields.<field>.hidden / label`
-- `actions.<action>.hidden / placement / label / api / runtime`
+- `app.id / name / title / brandIcon`
+- `services.api.baseUrl / port`
+- `i18n`
+- 少量资源级 key-based 覆盖
 
-这层不是第二套业务建模语言，而是最小 override。
+这层不是第二套业务建模语言，而是对通用 baseline 的最小实例 patch。
 
 ### 2.3 runtime / adapter 层
 负责真正把 schema 推导和渲染出来。
 
 例如：
-- `inferResourceRuntime(...)`
-- `createAppFromSchema(...)`
+- `composeAppSchema(...)`
 - `EfsApp`
-- 各类内部 CRUD / Report runtime
+- 各类内部 CRUD / Report model runtime
 
 这层回答：
 - 页面 mode 是什么
@@ -92,8 +92,8 @@ apps/<app-name>/schemas/app.schema.ts
 - `fields` 是资源字段业务定义
 - `operations` 是资源后端能力定义
 - `ui.actions` 是动作入口 UI override
-- `inferResourceRuntime(...)` 负责 runtime 推导
-- `createAppFromSchema(...)` 负责接到当前 Vue runtime
+- `composeAppSchema(...)` 负责合成最终 app schema
+- model runtime 负责接到当前 Vue runtime
 
 ### 不推荐说法
 - 先写一套 business schema，再默认还要手写一套完整 controller tree
@@ -161,4 +161,4 @@ apps/<app-name>/schemas/app.schema.ts
 
 一句话：
 
-> **EFS 当前的“标准定义”不再是手写一大套页面配置，而是 schema-first 输入加 runtime 推导规则。**
+> **EFS 当前的“标准定义”不再是手写一大套页面配置，而是 baseline + patch 合成 schema，再由 model runtime 兑现。**

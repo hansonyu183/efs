@@ -1,31 +1,29 @@
 <template>
- <button
+ <VBtn
   :type="props.type"
   class="efs-appbutton"
-  :class="[
-   `efs-appbutton--${props.variant}`,
-   `efs-appbutton--${props.size}`,
-   {
-    'efs-appbutton--block': props.block,
-    'is-loading': props.loading,
-   },
-  ]"
-  :disabled="props.disabled || props.loading"
-  :aria-busy="props.loading ? 'true' : undefined"
+  :class="[`efs-appbutton--${props.size}`]"
+  :variant="resolvedVariant"
+  :color="resolvedColor"
+  :disabled="props.disabled"
+  :loading="props.loading"
+  :block="props.block"
+  :size="resolvedSize"
  >
-  <span v-if="$slots.leading" class="efs-appbutton__icon efs-appbutton__icon--leading">
+  <template v-if="$slots.leading" #prepend>
    <slot name="leading" />
-  </span>
-  <span class="efs-appbutton__label">
-   <slot />
-  </span>
-  <span v-if="$slots.trailing" class="efs-appbutton__icon efs-appbutton__icon--trailing">
+  </template>
+  <slot />
+  <template v-if="$slots.trailing" #append>
    <slot name="trailing" />
-  </span>
- </button>
+  </template>
+ </VBtn>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { VBtn } from 'vuetify/components'
+
 defineOptions({ name: 'AppButton' })
 
 interface AppButtonProps {
@@ -45,70 +43,32 @@ const props = withDefaults(defineProps<AppButtonProps>(), {
  loading: false,
  block: false,
 })
+
+const resolvedVariant = computed(() => {
+ if (props.variant === 'ghost') return 'text'
+ if (props.variant === 'default') return 'outlined'
+ return 'flat'
+})
+
+const resolvedColor = computed(() => {
+ if (props.variant === 'primary') return 'primary'
+ if (props.variant === 'danger') return 'error'
+ return undefined
+})
+
+const resolvedSize = computed(() => {
+ if (props.size === 'sm') return 'small'
+ if (props.size === 'lg') return 'large'
+ return 'default'
+})
 </script>
 
 <style scoped>
-.efs-appbutton {
- display: inline-flex;
- align-items: center;
- justify-content: center;
- gap: 8px;
- min-height: 42px;
- padding: 0 16px;
- box-sizing: border-box;
- border-radius: 12px;
- border: 1px solid var(--efs-border, #dbe3ef);
- background: var(--efs-surface, #fff);
- color: var(--efs-text, #172033);
- cursor: pointer;
- transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
-}
-
-.efs-appbutton:disabled {
- opacity: 0.65;
- cursor: not-allowed;
-}
-
 .efs-appbutton--sm {
- min-height: 36px;
- padding: 0 12px;
- border-radius: 10px;
+ --v-btn-height: 36px;
 }
 
 .efs-appbutton--lg {
- min-height: 48px;
- padding: 0 20px;
- border-radius: 14px;
-}
-
-.efs-appbutton--block {
- width: 100%;
-}
-
-.efs-appbutton--primary {
- background: var(--efs-primary, #2563eb);
- border-color: var(--efs-primary, #2563eb);
- color: #fff;
-}
-
-.efs-appbutton--danger {
- background: var(--efs-danger, #dc2626);
- border-color: var(--efs-danger, #dc2626);
- color: #fff;
-}
-
-.efs-appbutton--ghost {
- background: transparent;
- border-color: transparent;
-}
-
-.efs-appbutton__icon {
- display: inline-flex;
- align-items: center;
-}
-
-.efs-appbutton__label {
- display: inline-flex;
- align-items: center;
+ --v-btn-height: 48px;
 }
 </style>

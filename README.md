@@ -15,7 +15,7 @@ EFS 当前按**源码优先（source-first）**方式运行：
 ## 平台定位
 
 - **不是普通组件库**：业务侧不应把 EFS 当作散装组件包消费
-- **企业只维护 schema**：主入口是 `apps/<app-name>/schemas/app.schema.ts`
+- **企业只维护 schema**：主入口是 `apps/<app-name>/schemas/app.schema.ts`，由 baseline + patch 合成
 - **平台内部负责运行时装配**：应用壳、导航、资源页、报表页、认证壳等都由平台内部 runtime 接住
 - **业务接入先看 schema，而不是 runtime 细节**
 
@@ -44,6 +44,6 @@ npm run ci
 ## 当前已实现
 
 - schema-first app authoring
-- schema -> platform runtime adapter
+- baseline + patch -> app schema
 - 内部 Vue app shell / 资源页 / 报表页 runtime
 - 源码优先的构建与 CI 校验

@@ -73,7 +73,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, getCurrentInstance, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, getCurrentInstance, ref, watch } from 'vue'
+import { useStorage, useWindowSize } from '@vueuse/core'
 import AppTag from '../interactions/AppTag.vue'
 import ColumnSettings from '../interactions/ColumnSettings.vue'
 import Pagination from '../interactions/Pagination.vue'
@@ -143,6 +144,7 @@ const emit = defineEmits<{
 const instance = getCurrentInstance()
 const visibleColumnKeys = ref<string[]>([])
 const isMobile = ref(false)
+const { width } = useWindowSize()
 
 const businessColumnPriority = ['name', 'title', 'code', 'status', 'type', 'category', 'remark', 'description'] as const
 
@@ -178,6 +180,7 @@ const storageKey = computed(() => {
  const pathPart = typeof window === 'undefined' ? 'server' : window.location.pathname.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'root'
  return `efs.table.columns.${pathPart}.${base || 'table'}`
 })
+const storedVisibleColumnKeys = useStorage<string[]>(storageKey, [])
 
 const enableColumnSettings = computed(() => normalizedColumns.value.length > 0)
 
@@ -337,38 +340,29 @@ function syncViewport() {
 }
 
 function syncVisibleColumns() {
- try {
-  const raw = localStorage.getItem(storageKey.value)
-  if (!raw) {
-   visibleColumnKeys.value = defaultVisibleKeys.value
-   return
-  }
-  const parsed = JSON.parse(raw)
-  const keys = Array.isArray(parsed) ? parsed.map((item) => String(item)) : defaultVisibleKeys.value
-  visibleColumnKeys.value = normalizedColumns.value
-   .filter((column) => column.visible && keys.includes(column.key))
-   .map((column) => column.key)
-  if (visibleColumnKeys.value.length === 0) visibleColumnKeys.value = defaultVisibleKeys.value
- } catch {
-  visibleColumnKeys.value = defaultVisibleKeys.value
- }
+ const keys = Array.isArray(storedVisibleColumnKeys.value)
+  ? storedVisibleColumnKeys.value.map((item) => String(item))
+  : defaultVisibleKeys.value
+ visibleColumnKeys.value = normalizedColumns.value
+  .filter((column) => column.visible && keys.includes(column.key))
+  .map((column) => column.key)
+ if (visibleColumnKeys.value.length === 0) visibleColumnKeys.value = defaultVisibleKeys.value
 }
-
-onMounted(() => {
- syncViewport()
- if (typeof window !== 'undefined') window.addEventListener('resize', syncViewport)
-})
-
-onBeforeUnmount(() => {
- if (typeof window !== 'undefined') window.removeEventListener('resize', syncViewport)
-})
 
 watch(normalizedColumns, () => {
  syncVisibleColumns()
 }, { immediate: true, deep: true })
 
+watch(width, () => {
+ syncViewport()
+}, { immediate: true })
+
+watch(storageKey, () => {
+ syncVisibleColumns()
+})
+
 watch(visibleColumnKeys, (value) => {
- localStorage.setItem(storageKey.value, JSON.stringify(value))
+ storedVisibleColumnKeys.value = [...value]
 }, { deep: true })
 
 function onVisibleKeysChange(value: string[]) {
@@ -379,7 +373,7 @@ function onVisibleKeysChange(value: string[]) {
 
 function resetColumns() {
  visibleColumnKeys.value = defaultVisibleKeys.value
- localStorage.removeItem(storageKey.value)
+ storedVisibleColumnKeys.value = []
 }
 
 function showAllColumns() {

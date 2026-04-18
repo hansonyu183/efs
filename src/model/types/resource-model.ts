@@ -17,7 +17,6 @@ import type {
 export type DomainKey = string
 export type ResKey = string
 export type DomainResPath<D extends string = string, R extends string = string> = `${D}/${R}`
-export type EfsI18nConfig = import('../app/i18n').EfsI18nConfig
 export type MenuOrder = number
 
 export type ResFieldOption = {

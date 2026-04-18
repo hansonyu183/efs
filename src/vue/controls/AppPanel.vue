@@ -1,19 +1,29 @@
 <template>
- <section class="efs-apppanel" :class="{ 'efs-apppanel--borderless': props.borderless, 'efs-apppanel--unpadded': !props.padded }">
-  <header v-if="props.title || props.subtitle || $slots.actions" class="efs-apppanel__header">
-   <div class="efs-apppanel__heading">
-    <h3 v-if="props.title" class="efs-apppanel__title">{{ props.title }}</h3>
-    <p v-if="props.subtitle" class="efs-apppanel__subtitle">{{ props.subtitle }}</p>
-   </div>
-   <div v-if="$slots.actions" class="efs-apppanel__actions">
-    <slot name="actions" />
-   </div>
-  </header>
-  <slot />
- </section>
+ <VCard class="efs-apppanel" :class="{ 'efs-apppanel--borderless': props.borderless }" :flat="props.borderless">
+  <template v-if="props.title || props.subtitle || $slots.actions">
+   <VCardItem class="efs-apppanel__header">
+    <template #title>
+     <div v-if="props.title" class="efs-apppanel__title">{{ props.title }}</div>
+    </template>
+    <template #subtitle>
+     <div v-if="props.subtitle" class="efs-apppanel__subtitle">{{ props.subtitle }}</div>
+    </template>
+    <template v-if="$slots.actions" #append>
+     <div class="efs-apppanel__actions">
+      <slot name="actions" />
+     </div>
+    </template>
+   </VCardItem>
+  </template>
+  <VCardText :class="{ 'efs-apppanel__content--unpadded': !props.padded }">
+   <slot />
+  </VCardText>
+ </VCard>
 </template>
 
 <script setup lang="ts">
+import { VCard, VCardItem, VCardText } from 'vuetify/components'
+
 defineOptions({ name: 'AppPanel' })
 
 interface AppPanelProps {
@@ -32,43 +42,16 @@ const props = withDefaults(defineProps<AppPanelProps>(), {
 </script>
 
 <style scoped>
-.efs-apppanel {
- padding: 24px;
- border-radius: 24px;
- background: var(--efs-surface, #fff);
- border: 1px solid var(--efs-border, #dbe3ef);
- box-shadow: var(--efs-shadow, 0 18px 40px rgba(15, 23, 42, 0.08));
-}
-
-.efs-apppanel--unpadded {
- padding: 0;
-}
-
 .efs-apppanel--borderless {
- border-color: transparent;
  box-shadow: none;
 }
 
-.efs-apppanel__header {
- display: flex;
- align-items: flex-start;
- justify-content: space-between;
- gap: 16px;
- margin-bottom: 18px;
-}
-
-.efs-apppanel__heading {
- min-width: 0;
-}
-
-.efs-apppanel__title {
- margin: 0;
- font-size: 1.35rem;
+.efs-apppanel__content--unpadded {
+ padding: 0 !important;
 }
 
 .efs-apppanel__subtitle {
- margin: 8px 0 0;
- color: var(--efs-text-muted, #64748b);
+ opacity: 0.8;
 }
 
 .efs-apppanel__actions {

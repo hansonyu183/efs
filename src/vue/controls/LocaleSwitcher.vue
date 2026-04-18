@@ -1,8 +1,8 @@
 <template>
- <button
-  type="button"
+ <VBtn
   class="efs-localeswitcher"
   :class="{ 'efs-localeswitcher--menu': props.mode === 'menu' }"
+  variant="outlined"
   :aria-label="resolvedLabel"
   :title="resolvedLabel"
   @click="cycleLocale"
@@ -12,12 +12,13 @@
    <span v-if="props.mode === 'menu'" class="efs-localeswitcher__label">{{ resolvedLabel }}</span>
   </span>
   <span v-if="props.mode !== 'icon'" class="efs-localeswitcher__value">{{ currentLabel }}</span>
- </button>
+ </VBtn>
 </template>
 
 <script setup lang="ts">
-import { computed, inject } from 'vue'
-import { EFS_I18N_CONTEXT } from '../../model/app/i18n'
+import { computed } from 'vue'
+import { VBtn } from 'vuetify/components'
+import { useT } from '../i18n'
 
 defineOptions({ name: 'LocaleSwitcher' })
 
@@ -41,11 +42,11 @@ const emit = defineEmits<{
  (e: 'update:modelValue', value: string): void
 }>()
 
-const i18nContext = inject(EFS_I18N_CONTEXT, null)
-const resolvedLabel = computed(() => resolveCopy('efs.shell.localeLabel', '语言'))
+const t = useT()
+const resolvedLabel = computed(() => t('efs.shell.localeLabel', '语言'))
 const resolvedOptions = computed<LocaleOption[]>(() => [
- { label: resolveCopy('efs.localeOptions.zh-CN', '中'), value: 'zh-CN' },
- { label: resolveCopy('efs.localeOptions.en-US', 'EN'), value: 'en-US' },
+ { label: t('efs.localeOptions.zh-CN', '中'), value: 'zh-CN' },
+ { label: t('efs.localeOptions.en-US', 'EN'), value: 'en-US' },
 ])
 
 const currentLabel = computed(() => {
@@ -60,39 +61,9 @@ function cycleLocale() {
  const nextValue = resolvedOptions.value[nextIndex]?.value ?? props.modelValue
  emit('update:modelValue', nextValue)
 }
-
-function resolveCopy(key: string, fallback: string) {
- return i18nContext?.translate(key) || fallback
-}
 </script>
 
 <style scoped>
-.efs-localeswitcher {
- min-height: 38px;
- min-width: 38px;
- border: 1px solid var(--efs-border, #dbe3ef);
- border-radius: 999px;
- background: color-mix(in srgb, var(--efs-surface, #ffffff) 94%, transparent);
- color: var(--efs-text, #172033);
- padding: 0 12px;
- display: inline-flex;
- align-items: center;
- justify-content: center;
- gap: 8px;
- cursor: pointer;
-}
-
-.efs-localeswitcher:hover {
- background: var(--efs-surface, #ffffff);
-}
-
-.efs-localeswitcher--menu {
- width: 100%;
- min-height: 40px;
- border-radius: 10px;
- justify-content: space-between;
-}
-
 .efs-localeswitcher__lead {
  display: inline-flex;
  align-items: center;
@@ -118,10 +89,5 @@ function resolveCopy(key: string, fallback: string) {
 
 .efs-localeswitcher__label {
  font-weight: 600;
-}
-
-.efs-localeswitcher__value {
- color: var(--efs-text-muted, #64748b);
- text-transform: uppercase;
 }
 </style>

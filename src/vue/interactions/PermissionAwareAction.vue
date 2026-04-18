@@ -1,19 +1,21 @@
 <template>
-  <div class="efs-permissionawareaction">
-   <button data-efs-allow-raw-button type="button" :disabled="!props.granted">
-    <slot />
-   </button>
-  </div>
- </template>
+ <div class="efs-permissionawareaction">
+  <AppButton data-efs-allow-raw-button :disabled="!props.granted" size="sm">
+   <slot />
+  </AppButton>
+ </div>
+</template>
 
- <script setup lang="ts">
- defineOptions({ name: 'PermissionAwareAction' })
+<script setup lang="ts">
+import AppButton from '../controls/AppButton.vue'
 
- interface PermissionAwareActionProps {
-granted?: boolean
- }
+defineOptions({ name: 'PermissionAwareAction' })
 
- const props = withDefaults(defineProps<PermissionAwareActionProps>(), {
-granted: false
- })
- </script>
+interface PermissionAwareActionProps {
+ granted?: boolean
+}
+
+const props = withDefaults(defineProps<PermissionAwareActionProps>(), {
+ granted: false,
+})
+</script>

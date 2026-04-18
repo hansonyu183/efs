@@ -1,3 +1,4 @@
+import { useStorage } from '@vueuse/core'
 import type { AuthLoginResult } from '../types/auth'
 
 export type AuthStatus = 'anonymous' | 'authenticated' | 'expired'
@@ -13,6 +14,11 @@ const ACCESS_TOKEN_KEY = 'efs.auth.accessToken'
 const REFRESH_TOKEN_KEY = 'efs.auth.refreshToken'
 const EXPIRES_AT_KEY = 'efs.auth.expiresAt'
 const TOKEN_TYPE_KEY = 'efs.auth.tokenType'
+
+const accessTokenStorage = useStorage<string | null>(ACCESS_TOKEN_KEY, null)
+const refreshTokenStorage = useStorage<string | null>(REFRESH_TOKEN_KEY, null)
+const expiresAtStorage = useStorage<string | null>(EXPIRES_AT_KEY, null)
+const tokenTypeStorage = useStorage<string | null>(TOKEN_TYPE_KEY, null)
 
 function canUseStorage() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
@@ -56,32 +62,29 @@ export function resolveAuthStatus(session: StoredAuthSession | null | undefined)
 
 export function loadStoredAuthSession(): StoredAuthSession | null {
   if (!canUseStorage()) return null
-  const accessToken = window.localStorage.getItem(ACCESS_TOKEN_KEY)
+  const accessToken = accessTokenStorage.value
   if (!accessToken) return null
   const session: StoredAuthSession = {
     accessToken,
-    refreshToken: window.localStorage.getItem(REFRESH_TOKEN_KEY) || undefined,
-    expiresAt: window.localStorage.getItem(EXPIRES_AT_KEY) || undefined,
-    tokenType: window.localStorage.getItem(TOKEN_TYPE_KEY) || undefined,
+    refreshToken: refreshTokenStorage.value || undefined,
+    expiresAt: expiresAtStorage.value || undefined,
+    tokenType: tokenTypeStorage.value || undefined,
   }
   return resolveAuthStatus(session) === 'expired' ? null : session
 }
 
 export function persistAuthSession(session: StoredAuthSession) {
   if (!canUseStorage()) return
-  window.localStorage.setItem(ACCESS_TOKEN_KEY, session.accessToken)
-  if (session.refreshToken) window.localStorage.setItem(REFRESH_TOKEN_KEY, session.refreshToken)
-  else window.localStorage.removeItem(REFRESH_TOKEN_KEY)
-  if (session.expiresAt) window.localStorage.setItem(EXPIRES_AT_KEY, session.expiresAt)
-  else window.localStorage.removeItem(EXPIRES_AT_KEY)
-  if (session.tokenType) window.localStorage.setItem(TOKEN_TYPE_KEY, session.tokenType)
-  else window.localStorage.removeItem(TOKEN_TYPE_KEY)
+  accessTokenStorage.value = session.accessToken
+  refreshTokenStorage.value = session.refreshToken || null
+  expiresAtStorage.value = session.expiresAt || null
+  tokenTypeStorage.value = session.tokenType || null
 }
 
 export function clearStoredAuthSession() {
   if (!canUseStorage()) return
-  window.localStorage.removeItem(ACCESS_TOKEN_KEY)
-  window.localStorage.removeItem(REFRESH_TOKEN_KEY)
-  window.localStorage.removeItem(EXPIRES_AT_KEY)
-  window.localStorage.removeItem(TOKEN_TYPE_KEY)
+  accessTokenStorage.value = null
+  refreshTokenStorage.value = null
+  expiresAtStorage.value = null
+  tokenTypeStorage.value = null
 }

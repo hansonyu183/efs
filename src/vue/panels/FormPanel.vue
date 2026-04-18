@@ -47,24 +47,22 @@
      <span v-if="props.dirty" class="efs-formshell__dirty">{{ resolvedFooter.dirtyLabel }}</span>
     </div>
     <div class="efs-formshell__footer-actions">
-     <button
+     <AppButton
       v-if="resolvedFooter.showActions"
-      type="button"
-      class="efs-formshell__button"
       :disabled="props.busy"
       @click="emit('cancel')"
      >
       {{ resolvedFooter.cancelLabel }}
-     </button>
-     <button
+     </AppButton>
+     <AppButton
       v-if="resolvedFooter.showActions"
-      type="button"
-      class="efs-formshell__button efs-formshell__button--primary"
+      variant="primary"
       :disabled="props.busy"
+      :loading="props.busy"
       @click="emit('submit')"
      >
       {{ props.busy ? resolvedFooter.savingLabel : resolvedFooter.submitLabel }}
-     </button>
+     </AppButton>
     </div>
    </slot>
   </footer>
@@ -73,6 +71,7 @@
 
 <script setup lang="ts">
 import { computed, getCurrentInstance } from 'vue'
+import AppButton from '../controls/AppButton.vue'
 import { resolveLabel, resolveOptionalLabel } from '../../model/resource/label-resolver'
 
 defineOptions({ name: 'FormPanel' })

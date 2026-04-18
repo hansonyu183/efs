@@ -17,8 +17,9 @@
 
 优先补齐：
 - `apps/<app-name>/schemas/app.schema.ts`
-- `defineAppSchema(...)`
-- `createAppFromSchema(...)`
+- `src/schema/baseline.ts`
+- `apps/<app-name>/schemas/patch.ts`
+- `composeAppSchema(...)`
 - `EfsApp`
 
 最小目标：
@@ -43,7 +44,7 @@
 
 ### 第三步：再接现有 runtime handlers
 
-通过 adapter 为每个资源补真实 handler，例如：
+通过平台 runtime 为每个资源补真实 handler，例如：
 - `list`
 - `query`
 - `create`
@@ -53,7 +54,7 @@
 
 迁移目标：
 - 让项目不再手写整棵 controller tree
-- 只在 adapter 边界补接口实现
+- 只在 schema + model runtime 边界补接口实现
 
 ### 第四步：再迁移 Page / View / Panel 到 EFS 标准实现
 
@@ -120,7 +121,7 @@
 - 业务优先维护 `apps/<app-name>/schemas/app.schema.ts`
 - business schema 只描述 app/auth/services/resources/operations
 - `ui` 只做最小 override
-- runtime inference + adapter 负责接到当前页面运行时
+- 平台内部 runtime 负责接到当前页面运行时
 
 ---
 

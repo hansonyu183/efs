@@ -7,7 +7,7 @@
   >
    <div class="efs-main-layout__brand-wrap">
     <slot name="brand">
-     <img v-if="props.brandIcon" class="efs-main-layout__brand-logo" :src="props.brandIcon" :alt="resolvedBrandTitle" />
+     <img v-if="brandIcon" class="efs-main-layout__brand-logo" :src="brandIcon" :alt="resolvedBrandTitle" />
      <div v-else class="efs-main-layout__brand-mark">{{ brandInitial }}</div>
      <div class="efs-main-layout__brand-copy">
       <strong class="efs-main-layout__brand">{{ resolvedBrandTitle }}</strong>
@@ -199,7 +199,8 @@
 </template>
 
 <script setup lang="ts">
-import { useSlots } from 'vue'
+import { computed, useSlots } from 'vue'
+import type { PropType } from 'vue'
 import AppButton from '../controls/AppButton.vue'
 import AppField from '../controls/AppField.vue'
 import AppInput from '../controls/AppInput.vue'
@@ -209,35 +210,40 @@ import ThemeSwitcher from '../controls/ThemeSwitcher.vue'
 import SemanticIcon from '../controls/SemanticIcon.vue'
 import GlobalAlertsHost from '../feedback/GlobalAlertsHost.vue'
 import { useMainPageModel } from '../../model/page/main-page'
+import type { EfsAppSchema } from '../../schema/index.ts'
+import { useT } from '../i18n'
 
 defineOptions({ name: 'MainPage' })
 
-interface MainPageProps {
- title?: string
- subtitle?: string
- brandIcon?: string
- brandTitle?: string
- appName?: string
- brandSubtitle?: string
- locale?: string
- theme?: string
- agentBusy?: boolean
- agentInput?: string
- agentSessionsOpen?: boolean
-}
-
-const props = withDefaults(defineProps<MainPageProps>(), {
- title: '',
- subtitle: '',
- brandIcon: '',
- brandTitle: '',
- appName: '',
- brandSubtitle: '',
- locale: 'zh-CN',
- theme: 'light',
- agentBusy: false,
- agentInput: '',
- agentSessionsOpen: false,
+const props = defineProps({
+ schema: {
+  type: Object as PropType<EfsAppSchema>,
+  required: true,
+ },
+ title: {
+  type: String,
+  default: '',
+ },
+ locale: {
+  type: String,
+  default: 'zh-CN',
+ },
+ theme: {
+  type: String,
+  default: 'light',
+ },
+ agentBusy: {
+  type: Boolean,
+  default: false,
+ },
+ agentInput: {
+  type: String,
+  default: '',
+ },
+ agentSessionsOpen: {
+  type: Boolean,
+  default: false,
+ },
 })
 
 const emit = defineEmits<{
@@ -252,6 +258,7 @@ const emit = defineEmits<{
 }>()
 
 const slots = useSlots()
+const t = useT()
 const {
  globalAlerts,
  moreMenuRef,
@@ -263,28 +270,14 @@ const {
  passwordForm,
  agentDraft,
  agentSessionsPanelOpen,
+ appName,
+ brandIcon,
  shouldRenderSidebar,
  resolvedTitle,
- resolvedSubtitle,
- resolvedBrandTitle,
- resolvedBrandSubtitle,
- resolvedMobileMenuLabel,
- resolvedLogoutLabel,
- resolvedMoreLabel,
- resolvedAgentTitle,
- resolvedAgentPlaceholder,
- resolvedAgentSubmitLabel,
- resolvedAgentSessionsLabel,
- resolvedAgentSessionsEmptyText,
- resolvedCloseLabel,
- resolvedAgentShowLabel,
- resolvedProfileDialog,
  showAlertsRegion,
- resolvedPasswordDialog,
  showAgentBar,
  layoutClasses,
  initials,
- brandInitial,
  showPasswordMismatch,
  passwordSubmitDisabled,
  toggleSidebar,
@@ -300,6 +293,39 @@ const {
  handleAgentSessionsToggle,
  toggleMobileAgentBar,
 } = useMainPageModel(props, slots, emit)
+
+const resolvedBrandTitle = computed(() => t('efs.brand.title', appName.value))
+const resolvedBrandSubtitle = computed(() => t('efs.brand.subtitle', ''))
+const resolvedMobileMenuLabel = computed(() => t('efs.shell.mobileMenuLabel', '切换导航'))
+const resolvedLogoutLabel = computed(() => t('efs.shell.logoutLabel', '退出登录'))
+const resolvedMoreLabel = computed(() => t('efs.shell.moreLabel', '更多'))
+const resolvedAgentTitle = computed(() => t('efs.shell.agentTitle', 'Agent'))
+const resolvedAgentPlaceholder = computed(() => t('efs.shell.agentPlaceholder', '请输入你的问题或操作指令'))
+const resolvedAgentSubmitLabel = computed(() => t('efs.shell.agentSubmitLabel', '发送'))
+const resolvedAgentSessionsLabel = computed(() => t('efs.shell.agentSessionsLabel', '会话管理'))
+const resolvedAgentSessionsEmptyText = computed(() => t('efs.shell.agentSessionsEmptyText', '暂无会话'))
+const resolvedCloseLabel = computed(() => t('efs.shell.closeLabel', '关闭'))
+const resolvedAgentShowLabel = computed(() => t('efs.shell.showAgentLabel', 'Agent'))
+const resolvedProfileDialog = computed(() => ({
+ enabled: true,
+ label: t('efs.shell.profileDialog.label', '个人资料'),
+ subtitle: t('efs.shell.profileDialog.subtitle', '更新当前账号的展示名称。'),
+ displayNameLabel: t('efs.shell.profileDialog.displayNameLabel', '显示名称'),
+ cancelLabel: t('efs.shell.profileDialog.cancelLabel', '取消'),
+ submitLabel: t('efs.shell.profileDialog.submitLabel', '保存'),
+}))
+const resolvedPasswordDialog = computed(() => ({
+ enabled: true,
+ label: t('efs.shell.passwordDialog.label', '修改密码'),
+ subtitle: t('efs.shell.passwordDialog.subtitle', '更新当前账号的登录密码。'),
+ currentPasswordLabel: t('efs.shell.passwordDialog.currentPasswordLabel', '当前密码'),
+ newPasswordLabel: t('efs.shell.passwordDialog.newPasswordLabel', '新密码'),
+ confirmPasswordLabel: t('efs.shell.passwordDialog.confirmPasswordLabel', '确认新密码'),
+ mismatchMessage: t('efs.shell.passwordDialog.mismatchMessage', '两次输入的新密码不一致。'),
+ cancelLabel: t('efs.shell.passwordDialog.cancelLabel', '取消'),
+ submitLabel: t('efs.shell.passwordDialog.submitLabel', '提交'),
+}))
+const brandInitial = computed(() => resolvedBrandTitle.value.trim().slice(0, 1).toUpperCase() || 'A')
 </script>
 
 <style scoped>

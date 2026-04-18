@@ -1,14 +1,10 @@
 <template>
- <section class="efs-masterdetailshell">
-  <header v-if="props.title || props.subtitle || $slots['header-actions']" class="efs-masterdetailshell__header">
-   <div>
-    <h3 v-if="props.title" class="efs-masterdetailshell__title">{{ props.title }}</h3>
-    <p v-if="props.subtitle" class="efs-masterdetailshell__subtitle">{{ props.subtitle }}</p>
-   </div>
+ <AppPanel class="efs-masterdetailshell" :title="props.title" :subtitle="props.subtitle">
+  <template #actions>
    <div v-if="$slots['header-actions']" class="efs-masterdetailshell__header-actions">
     <slot name="header-actions" />
    </div>
-  </header>
+  </template>
 
   <div class="efs-masterdetailshell__body" :style="splitStyle">
    <section class="efs-masterdetailshell__panel">
@@ -35,11 +31,12 @@
     </div>
    </section>
   </div>
- </section>
+ </AppPanel>
 </template>
 
 <script setup lang="ts">
 import { computed, getCurrentInstance } from 'vue'
+import AppPanel from '../controls/AppPanel.vue'
 import { resolveOptionalLabel } from '../../model/resource/label-resolver'
 
 defineOptions({ name: 'MasterDetailPanel' })
@@ -79,16 +76,6 @@ const splitStyle = computed(() => {
 </script>
 
 <style scoped>
-.efs-masterdetailshell {
- padding: 20px;
- border-radius: 20px;
- border: 1px solid var(--efs-border, #dbe3ef);
- background: var(--efs-surface, #fff);
- box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
- display: grid;
- gap: 16px;
-}
-
 .efs-masterdetailshell__header,
 .efs-masterdetailshell__panel-header {
  display: flex;
@@ -96,11 +83,6 @@ const splitStyle = computed(() => {
  align-items: start;
  gap: 12px;
  flex-wrap: wrap;
-}
-
-.efs-masterdetailshell__title {
- margin: 0;
- font-size: 1.05rem;
 }
 
 .efs-masterdetailshell__subtitle,
@@ -120,9 +102,8 @@ const splitStyle = computed(() => {
 }
 
 .efs-masterdetailshell__panel {
- border: 1px solid var(--efs-border, #dbe3ef);
  border-radius: 16px;
- background: var(--efs-surface-soft, #f8fafc);
+ background: color-mix(in srgb, var(--v-theme-surface) 86%, transparent);
  padding: 16px;
  display: grid;
  gap: 12px;

@@ -54,8 +54,8 @@ export const appSchema = composeAppSchema(baselineSchema, appPatch)
 
 ## 为什么当前采用这种接法
 
-- schema-first 让业务侧只维护应用/资源/operations 描述
-- EFS 可以基于 schema 自动推导 view mode、默认 actions 与基础字段展示规则
+- schema-first 让业务侧只维护应用 patch 与资源结构描述
+- 平台以通用 baseline 提供骨架，业务侧只补实例化信息
 - 平台内部 runtime 可以继续演进，而不把业务方锁死在 runtime 目录和 helper 子路径上
 - submodule 可以固定版本，降低标准库漂移风险
 

@@ -34,12 +34,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject } from 'vue'
+import { computed } from 'vue'
 import type { FlatMenuNode, SidebarMenuTreeNode } from '../../model/app/navigation-menu'
 import { buildSidebarMenuTree } from '../../model/app/navigation-menu'
 import { splitResPath } from '../../model/app/navigation-paths'
-import { EFS_I18N_CONTEXT } from '../../model/app/i18n'
 import SemanticIcon from '../controls/SemanticIcon.vue'
+import { useT } from '../i18n'
 
 defineOptions({ name: 'EfsSidebarNav' })
 
@@ -61,7 +61,7 @@ const emit = defineEmits<{
  (e: 'navigate', path: string): void
 }>()
 
-const i18nContext = inject(EFS_I18N_CONTEXT, null)
+const t = useT()
 const menuTree = computed<SidebarMenuTreeNode[]>(() => {
  if (props.tree) return (props.items as SidebarMenuTreeNode[]) || []
  return buildSidebarMenuTree(props.items as FlatMenuNode[])
@@ -71,8 +71,8 @@ function resolveNodeTitle(node: MenuInput) {
  const fallback = node.title || node.key
  const path = 'path' in node ? node.path : undefined
  const parsed = path ? splitResPath(path) : null
- if (parsed) return i18nContext?.translate(`efs.resources.${parsed.domain}.${parsed.res}.title`) || fallback
- return i18nContext?.translate(`efs.domains.${node.key}.title`) || fallback
+ if (parsed) return t(`efs.resources.${parsed.domain}.${parsed.res}.title`, fallback)
+ return t(`efs.domains.${node.key}.title`, fallback)
 }
 
 function isActive(path?: string) {

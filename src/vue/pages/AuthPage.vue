@@ -4,8 +4,8 @@
   <header v-if="showTopBar" class="efs-auth-layout__topbar">
    <div class="efs-auth-layout__topbar-brand">
     <slot name="brand">
-     <img v-if="props.logoSrc" class="efs-auth-layout__topbar-logo" :src="props.logoSrc" :alt="props.logoAlt || props.appName" />
-     <div v-if="props.appName" class="efs-auth-layout__topbar-title">{{ props.appName }}</div>
+     <img v-if="logoSrc" class="efs-auth-layout__topbar-logo" :src="logoSrc" :alt="logoAlt || appName" />
+     <div v-if="appName" class="efs-auth-layout__topbar-title">{{ appName }}</div>
     </slot>
    </div>
 
@@ -24,9 +24,9 @@
 
   <section class="efs-auth-layout__panel-shell">
    <div class="efs-auth-layout__panel">
-     <header v-if="$slots.header" class="efs-auth-layout__header">
-      <slot name="header">
-      </slot>
+     <header v-if="resolvedLoginTitle || resolvedLoginSubtitle" class="efs-auth-layout__header">
+      <div v-if="resolvedLoginTitle" class="efs-auth-layout__title">{{ resolvedLoginTitle }}</div>
+      <div v-if="resolvedLoginSubtitle" class="efs-auth-layout__subtitle">{{ resolvedLoginSubtitle }}</div>
      </header>
 
      <section v-if="showAlertsRegion" class="efs-auth-layout__alerts">
@@ -35,7 +35,32 @@
      </section>
 
      <section class="efs-auth-layout__body">
-      <slot />
+      <form class="efs-auth-layout__form" @submit.prevent="handleLogin">
+       <AppField :label="resolvedLoginNameLabel">
+        <AppInput
+         :model-value="loginName"
+         :placeholder="resolvedLoginNamePlaceholder"
+         autocomplete="username"
+         @update:model-value="loginName = $event"
+        />
+       </AppField>
+
+       <AppField :label="resolvedLoginPasswordLabel">
+        <AppInput
+         :model-value="loginPwd"
+         :placeholder="resolvedLoginPasswordPlaceholder"
+         type="password"
+         autocomplete="current-password"
+         @update:model-value="loginPwd = $event"
+        />
+       </AppField>
+
+       <p v-if="authError" class="efs-auth-layout__error">{{ authError }}</p>
+
+       <AppButton variant="primary" type="submit" block :disabled="authBusy">
+        {{ authBusy ? resolvedLoginSubmittingLabel : resolvedLoginSubmitLabel }}
+       </AppButton>
+      </form>
      </section>
 
      <footer v-if="$slots.footer" class="efs-auth-layout__footer">
@@ -49,45 +74,71 @@
 </template>
 
 <script setup lang="ts">
-import { useSlots } from 'vue'
+import { computed, useSlots } from 'vue'
+import type { PropType } from 'vue'
+import type { EfsAppSchema } from '../../schema/index.ts'
+import type { AuthLoginResult } from '../../model/types/auth'
+import AppButton from '../controls/AppButton.vue'
+import AppField from '../controls/AppField.vue'
+import AppInput from '../controls/AppInput.vue'
 import LocaleSwitcher from '../controls/LocaleSwitcher.vue'
 import ThemeSwitcher from '../controls/ThemeSwitcher.vue'
 import GlobalAlertsHost from '../feedback/GlobalAlertsHost.vue'
 import { useAuthPageModel } from '../../model/page/auth-page'
+import { useT } from '../i18n'
 
 
 defineOptions({ name: 'AuthPage' })
 
-interface AuthPageProps {
- appName?: string
- logoSrc?: string
- logoAlt?: string
- locale?: string
- theme?: string
-}
-
-const props = withDefaults(defineProps<AuthPageProps>(), {
- appName: '',
- logoSrc: '',
- logoAlt: '',
- locale: 'zh-CN',
- theme: 'light',
+const props = defineProps({
+ schema: {
+  type: Object as PropType<EfsAppSchema>,
+  required: true,
+ },
+ locale: {
+  type: String,
+  default: 'zh-CN',
+ },
+ theme: {
+  type: String,
+  default: 'light',
+ },
 })
 
 const emit = defineEmits<{
  (e: 'update:locale', value: string): void
  (e: 'update:theme', value: string): void
+ (e: 'login-success', value: AuthLoginResult): void
 }>()
 
 const slots = useSlots()
+const t = useT()
 const {
  globalAlerts,
+ loginName,
+ loginPwd,
+ authBusy,
+ authError,
  showActionsBar,
  showTopBar,
  showAlertsRegion,
  contentStyle,
  layoutClasses,
-} = useAuthPageModel(props, slots)
+ handleLogin,
+} = useAuthPageModel(props, slots, (result) => emit('login-success', result))
+
+const appName = computed(() => props.schema.app.title || props.schema.app.name || '')
+const logoSrc = computed(() => props.schema.app.brandIcon || '')
+const resolvedBrandTitle = computed(() => t('efs.brand.title', appName.value))
+const logoAlt = computed(() => props.schema.app.title || props.schema.app.name || resolvedBrandTitle.value)
+const resolvedLoginTitle = computed(() => t('efs.auth.title', `登录到 ${resolvedBrandTitle.value || 'EFS'}`))
+const resolvedLoginSubtitle = computed(() => t('efs.auth.subtitle', '请输入账号凭证继续访问平台。'))
+const resolvedLoginNameLabel = computed(() => t('efs.auth.nameLabel', '用户名'))
+const resolvedLoginNamePlaceholder = computed(() => t('efs.auth.namePlaceholder', '请输入用户名'))
+const resolvedLoginPasswordLabel = computed(() => t('efs.auth.passwordLabel', '密码'))
+const resolvedLoginPasswordPlaceholder = computed(() => t('efs.auth.passwordPlaceholder', '请输入密码'))
+const resolvedLoginSubmitLabel = computed(() => t('efs.auth.submitLabel', '登录'))
+const resolvedLoginSubmittingLabel = computed(() => t('efs.auth.submittingLabel', '登录中…'))
 </script>
 
 <style scoped>
@@ -220,6 +271,19 @@ const {
 
 .efs-auth-layout__body {
  min-width: 0;
+}
+
+.efs-auth-layout__form {
+ display: grid;
+ gap: 16px;
+ width: 100%;
+}
+
+.efs-auth-layout__error {
+ margin: 0;
+ color: var(--efs-danger, #dc2626);
+ font-size: 0.95rem;
+ line-height: 1.5;
 }
 
 .efs-auth-layout__footer {

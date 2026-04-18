@@ -15,8 +15,8 @@
 当前唯一推荐使用的 schema 入口：
 
 - `@efs/schema/index.ts`
-  - `createAppFromSchema(...)`
-  - `createAppPropsFromSchema(...)`
+  - `baselineSchema`
+  - `composeAppSchema(...)`
 
 不再属于稳定契约的内容：
 
@@ -34,7 +34,7 @@
 ```text
 apps/<app-name>/schemas/app.schema.ts
   -> composeAppSchema(...)
-  -> createAppFromSchema(...)
+  -> app schema
   -> internal platform runtime
 ```
 
@@ -51,7 +51,7 @@ apps/<app-name>/schemas/app.schema.ts
 业务 schema 主要描述：
 
 - `app`：应用 id、标题、默认入口等
-- `auth`：登录/登出/组织切换等认证契约
+- `auth`：登录/登出等认证契约
 - `services`：本地 dev 服务与 API 服务信息
 - `i18n`：schema 级 locale / fallbackLocale / messages
 - `domains[].resources[]`：资源 fields 与 operations
@@ -98,6 +98,12 @@ interface EfsResourceOperationsSchema {
 - `detailFields`
 - `summary`
 - `actions`
+
+同时，当前 schema authoring 采用：
+
+- `src/schema/baseline.ts`：通用骨架
+- `apps/<app-name>/schemas/patch.ts`：应用实例 patch
+- `apps/<app-name>/schemas/app.schema.ts`：`composeAppSchema(...)` 合成最终 schema
 
 ---
 
