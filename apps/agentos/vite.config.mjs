@@ -8,7 +8,7 @@ const rootDir = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   root: rootDir,
-  plugins: [vue(), vuetify({ autoImport: true })],
+  plugins: [vue(), vuetify({ autoImport: true, styles: { configFile: 'src/settings.scss' } })],
   resolve: {
     alias: {
       '@efs': resolve(rootDir, '../../src'),
