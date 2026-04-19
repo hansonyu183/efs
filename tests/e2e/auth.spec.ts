@@ -9,7 +9,7 @@ test.describe('agentos auth smoke', () => {
   test('can login and logout with the local backend', async ({ page }) => {
     await page.goto('/')
 
-    await expect(page.getByText('登录')).toBeVisible()
+    await expect(page.getByRole('button', { name: '登录' })).toBeVisible()
 
     await page.getByPlaceholder('请输入用户名').fill(username!)
     await page.getByPlaceholder('请输入密码').fill(password!)
